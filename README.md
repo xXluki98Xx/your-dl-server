@@ -1,5 +1,9 @@
-![Docker Stars Shield](https://img.shields.io/docker/stars/kmb32123/youtube-dl-server.svg?style=flat-square)
-![Docker Pulls Shield](https://img.shields.io/docker/pulls/kmb32123/youtube-dl-server.svg?style=flat-square)
+This project is a Branch/ Fork of the original work of [manbearwiz](https://github.com/manbearwiz/youtube-dl-server)-
+It is about the work of [nachtjasmin](https://github.com/nachtjasmin/youtube-dl-server/blob/master/youtube-dl-server.py) and of [nbr23](https://github.com/nbr23/youtube-dl-server) (in progress) expanded.
+
+I added an extraction module so you can add custom configurations for sites like udemy or vimeo.
+I also updated the user interface so that you can enter some parameters like username, password and bandwidth.
+
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/manbearwiz/youtube-dl-server/master/LICENSE)
 
 # youtube-dl-server
@@ -47,18 +51,18 @@ Downloads can be triggered by supplying the `{{url}}` of the requested video thr
 
 #### HTML
 
-Just navigate to `http://{{host}}:8080/youtube-dl` and enter the requested `{{url}}`.
+Just navigate to `http://{{host}}:8080/` and enter the requested `{{url}}`.
 
 #### Curl
 
 ```shell
-curl -X POST --data-urlencode "url={{url}}" http://{{host}}:8080/youtube-dl/q
+curl -X POST --data-urlencode "url={{url}}" http://{{host}}:8080/api/add
 ```
 
 #### Fetch
 
 ```javascript
-fetch(`http://${host}:8080/youtube-dl/q`, {
+fetch(`http://${host}:8080/api/add`, {
   method: "POST",
   body: new URLSearchParams({
     url: url,
@@ -72,7 +76,7 @@ fetch(`http://${host}:8080/youtube-dl/q`, {
 Add the following bookmarklet to your bookmark bar so you can conviently send the current page url to your youtube-dl-server instance.
 
 ```javascript
-javascript:!function(){fetch("http://${host}:8080/youtube-dl/q",{body:new URLSearchParams({url:window.location.href,format:"bestvideo"}),method:"POST"})}();
+javascript:!function(){fetch("http://${host}:8080/api/add",{body:new URLSearchParams({url:window.location.href,format:"bestvideo"}),method:"POST"})}();
 ```
 
 ## Implementation
