@@ -3,10 +3,15 @@ set -e
 
 # ---
 
+path="/usr/src/youtube-dl-server"
+
+# ---
+
 create_run_dir() {
-	mkdir -p /usr/src/app/run
-	chmod 775 /usr/src/app/run
-	cp -r /usr/src/app/config /usr/src/app/run
+	mkdir -p $path/run && chmod 775 $path/run
+	if [ -z "$(ls -A $path/run)" ]; then
+		cp -r $path/config/* $path/run/
+	fi
 }
 
 create_download_dir() {
@@ -21,4 +26,4 @@ create_download_dir
 
 # ---
 
-python3 -u run/youtube-dl-server.py
+python3 -u $path/run/youtube-dl-server.py
