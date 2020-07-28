@@ -12,6 +12,29 @@ Very spartan Web and REST interface for downloading youtube videos onto a server
 
 ![screenshot][1]
 
+### This Version supported following arguments for youtube-dl:
+
+<pre><code>  - url
+  - title
+  - path (for subfolder)
+  - axel (multiple download streams)
+  - retries (standard 5)
+  - min sleep (standard 2)
+  - max sleep (standard 15)
+  - bandwidth (standard unlimited)
+  - username
+  - password
+  - reference link
+</code></pre>
+
+### App Vars
+<pre><code>  - custom Host: 'YDL_SERVER_HOST': '0.0.0.0'
+  - custom Port: 'YDL_SERVER_PORT': 8080
+  - simultaneous threads: 'WORKER_COUNT': 4
+  - standard dir in /tmp/: 'DOWNLOAD_DIR': "ydl-downloads"
+</code></pre>
+
+
 ## Running
 
 ### Docker CLI
@@ -19,7 +42,7 @@ Very spartan Web and REST interface for downloading youtube videos onto a server
 This example uses the docker run command to create the container to run the app. Here we also use host networking for simplicity. Also note the `-v` argument. This directory will be used to output the resulting videos
 
 ```shell
-docker run -d --net="host" --name youtube-dl -v /home/core/youtube-dl:/youtube-dl kmb32123/youtube-dl-server
+docker run -d -p 8080:8080 --name youtube-dl -v /home/core/yd-downloads:/tmp/yd-downloads -v /home/core/yd-config:/usr/src/youtube-dl-server/run lramm/youtube-dl-server
 ```
 
 ### Docker Compose
@@ -28,10 +51,12 @@ This is an example service definition that could be put in `docker-compose.yml`.
 
 ```yml
   youtube-dl:
-    image: "kmb32123/youtube-dl-server"
-    network_mode: "service:vpn"
+    image: "lramm/youtube-dl-server"
     volumes:
-      - /home/core/youtube-dl:/youtube-dl
+      - /home/core/yd-downloads:/tmp/yd-downloads
+      - /home/core/yd-config:/usr/src/youtube-dl-server/run
+    ports:
+      - 8080:8080
     restart: always
 ```
 
@@ -85,4 +110,4 @@ The server uses [`bottle`](https://github.com/bottlepy/bottle) for the web frame
 
 This docker image is based on [`python:alpine`](https://registry.hub.docker.com/_/python/) and consequently [`alpine:3.8`](https://hub.docker.com/_/alpine/).
 
-[1]:youtube-dl-server.png
+[1]:docu/youtube-dl-server.png
