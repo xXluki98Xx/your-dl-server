@@ -11,7 +11,7 @@ buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
 # ---
 
 # Installing Software
-buildah run $container -- apk add --no-cache --update bash ffmpeg tzdata axel wget curl
+buildah run $container -- apk add --no-cache --update bash ffmpeg tzdata axel git curl
 buildah run $container -- mkdir -p /usr/src/youtube-dl-server
 buildah run $container -- git clone https://github.com/xXluki98Xx/youtube-dl-server.git /usr/src/youtube-dl-server
 #buildah copy $container ../../youtube-dl-server /usr/src/youtube-dl-server
