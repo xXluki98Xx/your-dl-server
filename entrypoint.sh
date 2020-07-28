@@ -20,4 +20,5 @@ create_run_dir
 
 # ---
 
+python3 -u -m pyftpdlib -p $YDL_SERVER_PORT -d /tmp/$DOWNLOAD_DIR &
 python3 -u $path/run/youtube-dl-server.py

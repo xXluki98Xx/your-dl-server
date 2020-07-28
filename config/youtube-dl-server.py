@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from queue import Queue
 from threading import Thread
+import pyftpdlib
 
 from bottle import Bottle, redirect, request, route, run, static_file, debug
 from extractor import Extractor
@@ -173,7 +174,7 @@ if __name__ == "__main__":
 
     download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
     download_history = []
-    #download_executor.submit(subprocess.run(["python3", "-m pyftpdlib", "-p 8021", "/tmp/" + app_vars['DOWNLOAD_DIR']]))
+    #download_executor.submit(subprocess.run(["python3", "-m pyftpdlib", "-p " + str(app_vars['YDL_SERVER_PORT']), "-d /tmp/" + str(app_vars['DOWNLOAD_DIR'])]))
 
     app.run(    
                 host = app_vars['YDL_SERVER_HOST'], 
