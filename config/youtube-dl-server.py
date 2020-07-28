@@ -29,18 +29,18 @@ app_defaults = {
 
 @app.route('/')
 def dl_ui():
-    return static_file('index.html', root='./')
+    return static_file('index.html', root='run/')
 
 
 @app.route('/static/:filename#.*#')
 def serve_static(filename):
-    return static_file(filename, root='./static')
+    return static_file(filename, root='run//static')
 
 @app.route('/api/add', method='POST')
 def addToQueue():
     url = request.forms.get("url")
     title = request.forms.get("title")
-    path = app_vars['DOWNLOAD_DIR'] + "/" + request.forms.get("path")
+    path = "/tmp/" + app_vars['DOWNLOAD_DIR'] + "/" + request.forms.get("path")
 
     parameters = [
                     request.forms.get("retries"), 
@@ -73,11 +73,11 @@ def update():
         "output": output.decode('ascii'),
         "error":  error.decode('ascii')
     }
-    
+
 # --------------- #
 
 def download(url, title, path, parameters):
-    
+
     ydl = extractor.preProcessor(url, title, path, parameters)
 
     download_history.append({
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     extractor = Extractor.getInstance()
 
-    home = str(app_vars['DOWNLOAD_DIR'])
+#    home = str(app_vars['DOWNLOAD_DIR'])
 
     print("Updating youtube-dl to the newest version")
     updateResult = update()
