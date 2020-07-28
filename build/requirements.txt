@@ -1,0 +1,8 @@
+# Python
+bottle
+youtube-dl
+urllib3
+bs4
+
+# OS dependend
+# axel
