@@ -23,19 +23,25 @@
         <p class="lead">Enter a video url to download the video to the server. Url can be to YouTube or <a class="text-info"
             href="https://rg3.github.io/youtube-dl/supportedsites.html">any
             other supported site</a>. The server will automatically download the highest quality version available.</p>
-            <hr class="my-4">
-            <div>
-              <form action="/api/add" method="POST">
-                <div class="input-group">
-                  <input name="url" type="url" class="form-control" placeholder="URL" aria-label="URL" aria-describedby="button-submit" autofocus>
-                  <select class="custom-select" name="download">
-                    <optgroup label="Download">
-                      <option value="normal">Normal</option>
-                      <option value="axel">Axel</option>
-                    </optgroup>
-                  </select>
-                  <!--
-                    <select class="custom-select" name="format">
+        <hr class="my-4">
+        <div>
+          <form action="/api/add" method="POST">
+            <div class="input-group">
+              <input name="url" type="url" class="form-control" placeholder="URL" aria-label="URL" aria-describedby="button-submit" autofocus>
+              <select class="custom-select" name="downloadTool">
+                <optgroup label="Download Tool">
+                  <option value="youtube-dl">Youtube-DL</option>
+                  <option value="wget">wget</option>
+                </optgroup>
+              </select>
+              <select class="custom-select" name="download">
+                <optgroup label="Download">
+                  <option value="normal">Normal</option>
+                  <option value="axel">Axel</option>
+                </optgroup>
+              </select>
+              <!--
+              <select class="custom-select" name="format">
                 <optgroup label="Video">
                   <option value="bestvideo">Best Video</option>
                   <option value="mp4">MP4</option>

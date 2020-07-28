@@ -12,7 +12,7 @@ from pathlib import Path
 from queue import Queue
 from threading import Thread
 
-from bottle import Bottle, redirect, request, route, run, static_file, view, template, debug
+from bottle import Bottle, redirect, request, route, run, static_file, debug
 from extractor import Extractor
 
 app = Bottle()
@@ -22,24 +22,25 @@ app_defaults = {
     'YDL_SERVER_HOST': '0.0.0.0',
     'YDL_SERVER_PORT': 8080,
     'WORKER_COUNT': 4,
-    'DOWNLOAD_DIR': "ydl-downloads"
+    'DOWNLOAD_DIR': "ydl-downloads",
+    'LOCAL': "run",
 }
 
 # --------------- #
 
 @app.route('/')
 def dl_ui():
-    return static_file('index.html', root='run/')
-
+    return static_file('index.html', root = str(app_vars['LOCAL']) + "/")
 
 @app.route('/static/:filename#.*#')
 def serve_static(filename):
-    return static_file(filename, root='run//static')
+    return static_file(filename, root = str(app_vars['LOCAL']) + "/static")
 
 @app.route('/api/add', method='POST')
 def addToQueue():
     url = request.forms.get("url")
     title = request.forms.get("title")
+    tool = request.forms.get("downloadTool")
     path = "/tmp/" + app_vars['DOWNLOAD_DIR'] + "/" + request.forms.get("path")
 
     parameters = [
@@ -56,7 +57,12 @@ def addToQueue():
     if not url:
         return {"success": False, "error": "/q called without a 'url' query param"}
 
-    download_executor.submit(download, url, title, path, parameters)
+    if tool == "youtube-dl":
+        download_executor.submit(download_ydl, url, title, path, parameters)
+    
+    if tool == "wget":
+        download_executor.submit(download_wget, url, path, parameters)
+
     print("Added url " + url + " to the download queue")
 
     return redirect("/")
@@ -76,7 +82,7 @@ def update():
 
 # --------------- #
 
-def download(url, title, path, parameters):
+def download_ydl(url, title, path, parameters):
 
     ydl = extractor.preProcessor(url, title, path, parameters)
 
@@ -84,6 +90,13 @@ def download(url, title, path, parameters):
         "url": extractor.url,
         "title": extractor.title
     })
+
+    # ---
+
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    # ---
 
     i=0
     returned_value = ""
@@ -105,6 +118,44 @@ def download(url, title, path, parameters):
         else:
             return returned_value
 
+# -----
+
+def download_wget(content, path, parameters):
+    
+    wget = "wget -c --random-wait -P {path}/ {url}".format(path = path, url = content)
+
+    if parameters[3] != "":
+        wget = wget + " --limit-rate={}".format(parameters[3]+"M")
+
+    print(wget)
+
+    # ---
+
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    # ---
+
+    i=0
+    returned_value = ""
+
+    while i < 3:
+
+        print()
+        returned_value = os.system(wget)
+
+        if returned_value > 0:
+            i += 1
+            timer = random.randint(200,1000)/100
+            print("sleep for " + str(timer) + "s")
+            time.sleep(timer)
+
+            if i == 3:
+                print("This was the Command: \n%s" % wget)
+                return returned_value
+            else:
+                return returned_value
+
 # --------------- #
 
 if __name__ == "__main__":
@@ -113,8 +164,6 @@ if __name__ == "__main__":
 
     extractor = Extractor.getInstance()
 
-#    home = str(app_vars['DOWNLOAD_DIR'])
-
     print("Updating youtube-dl to the newest version")
     updateResult = update()
     print(updateResult["output"])
@@ -122,8 +171,9 @@ if __name__ == "__main__":
 
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
-    download_executor = ThreadPoolExecutor(max_workers = int(app_vars['WORKER_COUNT']))
+    download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
     download_history = []
+    #download_executor.submit(subprocess.run(["python3", "-m pyftpdlib", "-p 8021", "/tmp/" + app_vars['DOWNLOAD_DIR']]))
 
     app.run(    
                 host = app_vars['YDL_SERVER_HOST'], 
