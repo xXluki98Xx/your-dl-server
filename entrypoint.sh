@@ -14,15 +14,9 @@ create_run_dir() {
 	fi
 }
 
-create_download_dir() {
-	mkdir -p /tmp/yt-downloads
-	chmod 775 /tmp/yt-downloads
-}
-
 # ---
 
 create_run_dir
-create_download_dir
 
 # ---
 
