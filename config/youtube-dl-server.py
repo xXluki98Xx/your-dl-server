@@ -4,6 +4,7 @@ import json
 import os
 import random
 import subprocess
+import glob
 import sys
 import time
 from collections import ChainMap
@@ -14,6 +15,7 @@ from threading import Thread
 import pyftpdlib
 
 from bottle import Bottle, redirect, request, route, run, static_file, debug
+import bottle
 from extractor import Extractor
 
 app = Bottle()
@@ -25,7 +27,20 @@ app_defaults = {
     'WORKER_COUNT': 4,
     'DOWNLOAD_DIR': "ydl-downloads",
     'LOCAL': "run",
+    'SUB_PATH': "downloads",
+    'SHOW_HIDDEN': False,
 }
+
+# --------------- #
+
+def constructPath(path):
+    '''
+    Needed for File Serving
+    Convert path to windows path format.
+    '''
+    if(sys.platform=='win32'):
+        return "\\"+path.replace('/','\\')
+    return path #Return same path if on linux or unix
 
 # --------------- #
 
@@ -33,9 +48,71 @@ app_defaults = {
 def dl_ui():
     return static_file('index.html', root = str(app_vars['LOCAL']) + "/")
 
+    # ---
+
 @app.route('/static/:filename#.*#')
 def serve_static(filename):
     return static_file(filename, root = str(app_vars['LOCAL']) + "/static")
+
+    # ---
+
+@app.route("/downloads/<filename:re:.*>") #match any string after /
+def serve(filename):
+    path = "/tmp/" + str(app_vars['DOWNLOAD_DIR']) + "/" + constructPath(filename)
+
+    print(path)
+    html = '''<html>
+                <head><title>downloads</title>
+                    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+                    <style>
+                    </style>
+                </head>
+                <body>
+                    <!-- Optional JavaScript -->
+                    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+                    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+                
+                <div class="container d-flex flex-column text-light text-center">
+                <br>
+                <div class = "row justify-content-center">
+                    <div class = "col-6"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
+                    <div class = "col-6"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
+                </div>
+                <div class="jumbotron bg-transparent flex-grow-1">
+                <table border=0>'''
+
+    # Serving File
+    if (os.path.isfile(path)):
+        if (os.path.split(path)[-1][0] == '.' and show_hidden == False): #Allow accessing hidden files?
+            return "404! Not found.<br /> Allow accessing hidden files?"
+        return static_file(constructPath(filename), root = "/tmp/" + str(app_vars['DOWNLOAD_DIR']) + "/")  #serve a file
+    
+    # Serving Directory
+    else:
+        try:
+            os.chdir(path)
+            for x in glob.glob('*'):
+                if (x == os.path.split(__file__)[-1]) or ((x[0] == '.') and (show_hidden == False)):  #Show hidden files?
+                    continue
+
+                #get the scheme of the requested url
+                scheme = bottle.request.urlparts[0]
+                #get the hostname of the requested url
+                host = bottle.request.urlparts[1]
+
+                #just html formatting :D
+                if filename == "":
+                    html = html + "<td><a href = '" + scheme + "://" + host + sub + "/" + x +"'>" + x + "</a><td></tr>"
+                else:
+                    html = html + "<td><a href = '" + scheme + "://" + host + sub + "/" + filename + "/" + x +"'>" + x + "</a><td></tr>"
+        except Exception as e:  #Actually an error accessing the file or switching to the directory
+            html = "404! Not found.<br /> Actually an error accessing the file or switching to the directory"
+
+    return html+"</table><hr><br><br></div></div></body></html>" #Append the remaining html code
+
+    # ---
 
 @app.route('/api/add', method='POST')
 def addToQueue():
@@ -162,8 +239,17 @@ def download_wget(content, path, parameters):
 if __name__ == "__main__":
 
     app_vars = ChainMap(os.environ, app_defaults)
+    
+    # --- File Browser
+
+    show_hidden = bool(app_vars['SHOW_HIDDEN'])
+    sub = "/" + str(app_vars['SUB_PATH'])
+
+    # --- Extractor Modul
 
     extractor = Extractor.getInstance()
+
+    # --- Youtube-dl Server
 
     print("Updating youtube-dl to the newest version")
     updateResult = update()
@@ -174,7 +260,6 @@ if __name__ == "__main__":
 
     download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
     download_history = []
-    #download_executor.submit(subprocess.run(["python3", "-m pyftpdlib", "-p " + str(app_vars['YDL_SERVER_PORT']), "-d /tmp/" + str(app_vars['DOWNLOAD_DIR'])]))
 
     app.run(    
                 host = app_vars['YDL_SERVER_HOST'], 
