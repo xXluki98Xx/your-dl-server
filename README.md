@@ -1,14 +1,30 @@
-This project is a Branch/ Fork of the original work of [manbearwiz](https://github.com/manbearwiz/youtube-dl-server)-
-It is about the work of [nachtjasmin](https://github.com/nachtjasmin/youtube-dl-server/blob/master/youtube-dl-server.py) and of [nbr23](https://github.com/nbr23/youtube-dl-server) (in progress) expanded.
-
-I added an extraction module so you can add custom configurations for sites like udemy or vimeo.
-I also updated the user interface so that you can enter some parameters like username, password and bandwidth.
-
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/manbearwiz/youtube-dl-server/master/LICENSE)
 
 # youtube-dl-server
 
-Very spartan Web and REST interface for downloading youtube videos onto a server. [`bottle`](https://github.com/bottlepy/bottle) + [`youtube-dl`](https://github.com/rg3/youtube-dl).
+This project is a Branch/ Fork of the original work of [manbearwiz](https://github.com/manbearwiz/youtube-dl-server).
+
+Original Work: Very spartan Web and REST interface for downloading youtube videos onto a server. [`bottle`](https://github.com/bottlepy/bottle) + [`youtube-dl`](https://github.com/rg3/youtube-dl).
+
+---
+
+Features:
+
+  - Improvement Threads: work of [nachtjasmin](https://github.com/nachtjasmin/youtube-dl-server/blob/master/youtube-dl-server.py)
+  - Fileserver: work of [bsod64](https://gist.github.com/bsod64/c47c1251315d525793a9)
+  - Extraction: I have written an extraction module to process the data specifically for personal purpose
+  - Web-UI: I complicated the WebUI, so that the user can configure diffrent parameters
+  
+  - Download:
+    - wget
+    - youtube-dl
+
+Planned:
+
+  - Download History: inspired by [nbr23](https://github.com/nbr23/youtube-dl-server)
+  - Torrent Download: inspired by [samukasmk](https://gist.github.com/samukasmk/940ca5d5abd9019e8b1af77c819e4ca9)
+
+---
 
 ![screenshot][1]
 
