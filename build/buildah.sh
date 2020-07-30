@@ -15,7 +15,7 @@ buildah run $container -- apk add --no-cache --update bash ffmpeg tzdata axel gi
 buildah run $container -- mkdir -p /usr/src/youtube-dl-server
 buildah run $container -- git clone https://github.com/xXluki98Xx/youtube-dl-server.git /usr/src/youtube-dl-server
 #buildah copy $container ../../youtube-dl-server /usr/src/youtube-dl-server
-buildah run $container -- pip install --no-cache-dir -r /usr/src/youtube-dl-server/build/requirements.txt
+buildah run $container -- pip3 install --no-cache-dir -r /usr/src/youtube-dl-server/build/requirements.txt
 buildah commit $container
 
 # ---
