@@ -22,6 +22,7 @@ import libtorrent as lt
 from bottle import Bottle, redirect, request, route, run, static_file, debug
 import bottle
 from extractor import Extractor
+from math import pow
 
 app = Bottle()
 
@@ -232,21 +233,29 @@ def download_wget(content, path, parameters):
 # -----
 
 def download_torrent(content, path, parameters):
+    limit = 0
+
+    if parameters[3] != "":
+        limit = int(round(parameters[3] * pow(1024, 2)))
+    
     params = { 'save_path': path }
 
-    handle = lt.add_magnet_uri(torrentSession, content, params)
+    # ---
+
+    handler = lt.add_magnet_uri(torrentSession, content, params)
+    handler.set_download_limit(limit)
     torrentSession.start_dht()
 
     print("downloading metadata...")
-    while (not handle.has_metadata()):
+    while (not handler.has_metadata()):
         time.sleep(1)
     print("got metadata, starting torrent download...")
-    while (handle.status().state != lt.torrent_status.seeding):
-        s = handle.status()
+    while (handler.status().state != lt.torrent_status.seeding):
+        s = handler.status()
         state_str = ['queued', 'checking', 'downloading metadata', \
                 'downloading', 'finished', 'seeding', 'allocating']
         print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
-                (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, \
+                (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
                 s.num_peers, state_str[s.state]))
         time.sleep(5)
 
