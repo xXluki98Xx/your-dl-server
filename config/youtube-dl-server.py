@@ -1,3 +1,7 @@
+# ATTENTION: This is only a example of to use a python bind of torrent library in Python for educational purposes.
+#            I am not responsible for your download of illegal content or without permission.
+#            Please respect the laws license permits of your country.
+
 from __future__ import unicode_literals
 
 import json
