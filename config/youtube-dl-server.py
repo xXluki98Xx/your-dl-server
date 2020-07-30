@@ -156,7 +156,7 @@ def addToQueue():
 
 @app.route("/update", method="GET")
 def update():
-    command = ["pip3", "install", "--upgrade", "youtube-dl"]
+    command = ["pip", "install", "--upgrade", "youtube-dl"]
     proc = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 
     output, error = proc.communicate()
@@ -231,13 +231,8 @@ def download_wget(content, path, parameters):
 
 # -----
 
-def downloader_torrent(content, path, parameters):
-    params = {
-        'save_path': path,
-        'storage_mode': lt.storage_mode_t(2),
-        'paused': False,
-        'auto_managed': True,
-        'duplicate_is_error': True}
+def download_torrent(content, path, parameters):
+    params = { 'save_path': path }
 
     handle = lt.add_magnet_uri(torrentSession, content, params)
     torrentSession.start_dht()
