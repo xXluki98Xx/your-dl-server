@@ -56,11 +56,10 @@ def serve_static(filename):
 
     # ---
 
-@app.route("/downloads/<filename:re:.*>") #match any string after /
+@app.route('/downloads/<filename:re:.*>') #match any string after /
 def serve(filename):
     path = "/tmp/" + str(app_vars['DOWNLOAD_DIR']) + "/" + constructPath(filename)
 
-    print(path)
     html = '''<html>
                 <head><title>downloads</title>
                     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
@@ -171,11 +170,6 @@ def download_ydl(url, title, path, parameters):
 
     # ---
 
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    # ---
-
     i=0
     returned_value = ""
 
@@ -205,13 +199,6 @@ def download_wget(content, path, parameters):
     if parameters[3] != "":
         wget = wget + " --limit-rate={}".format(parameters[3]+"M")
 
-    print(wget)
-
-    # ---
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-
     # ---
 
     i=0
@@ -240,13 +227,22 @@ if __name__ == "__main__":
 
     app_vars = ChainMap(os.environ, app_defaults)
     
+    # --- Creating Folder
+    
+    dir = "/tmp/" + str(app_vars['DOWNLOAD_DIR'])
+    print("Creating Download Folder: " + dir)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
     # --- File Browser
 
+    print("Loading: File Browser")
     show_hidden = bool(app_vars['SHOW_HIDDEN'])
     sub = "/" + str(app_vars['SUB_PATH'])
 
     # --- Extractor Modul
 
+    print("Loading: Extractors")
     extractor = Extractor.getInstance()
 
     # --- Youtube-dl Server
