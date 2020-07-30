@@ -3,6 +3,8 @@ import re
 import sys
 import time
 import urllib.request
+import os
+import subprocess
 
 class Extractor:
     __instance = None
@@ -158,6 +160,13 @@ class Extractor:
     # --------------- #
 
     def host_default(self):
+        # title = os.popen('youtube-dl -f best {url} --get-filename -o "%(title)s.%(ext)s"'.format(path = self.path, url = self.url)).read()
+        # title = subprocess.check_output('youtube-dl -f best --get-filename -o "%(title)s.%(ext)s" {url}'.format(path = self.path, url = self.url), shell=True)
+        # print("original: " + title)
+        # test = title.lower().replace(" ","-").replace(",","")
+        # print(test)
+
+        # self.output = '-f best -o "{path}/{title}"'.format(path = self.path, title = test)
         self.output = '-f best -o "{path}/%(title)s.%(ext)s"'.format(path = self.path)
 
         return self.download_ydl()
