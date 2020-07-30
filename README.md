@@ -32,6 +32,9 @@ Very spartan Web and REST interface for downloading youtube videos onto a server
   - custom Port: 'YDL_SERVER_PORT': 8080
   - simultaneous threads: 'WORKER_COUNT': 4
   - standard dir in /tmp/: 'DOWNLOAD_DIR': "ydl-downloads"
+  - run local or as server/ docker, typ 'LOCAL'="." for local: 'LOCAL': "run"
+  - download domain path: 'SUB_PATH': "downloads"
+  - show hiddenfiles: 'SHOW_HIDDEN': False
 </code></pre>
 
 
@@ -103,6 +106,18 @@ Add the following bookmarklet to your bookmark bar so you can conviently send th
 ```javascript
 javascript:!function(){fetch("http://${host}:8080/api/add",{body:new URLSearchParams({url:window.location.href,format:"bestvideo"}),method:"POST"})}();
 ```
+
+### Downloading files
+
+Simple Fileserver for Download or Streaming, navigate to http://hostip:port/downloads/
+
+---
+**NOTE**
+
+Currently Issue with Fileserver and Webpage, if you use both, it breaks.
+Healthcheck at the Docker Container should restart the Container immediately.
+
+---
 
 ## Implementation
 
