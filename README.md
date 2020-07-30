@@ -26,22 +26,29 @@ Planned:
 
 ---
 
-![screenshot][1]
-
 ### This Version supported following arguments for youtube-dl:
 
 <pre><code>  - url
+  - youtube-dl or wget
+  - download streams: normal (single) or axel (multiple download streams)
+  - reference link
   - title
   - path (for subfolder)
-  - axel (multiple download streams)
   - retries (standard 5)
   - min sleep (standard 2)
   - max sleep (standard 15)
   - bandwidth (standard unlimited)
   - username
   - password
-  - reference link
 </code></pre>
+
+![screenshot][1]
+
+---
+
+![screenshot][2]
+
+---
 
 ### App Vars
 <pre><code>  - custom Host: 'YDL_SERVER_HOST': '0.0.0.0'
@@ -53,6 +60,7 @@ Planned:
   - show hiddenfiles: 'SHOW_HIDDEN': False
 </code></pre>
 
+---
 
 ## Running
 
@@ -130,15 +138,16 @@ Simple Fileserver for Download or Streaming, navigate to http://hostip:port/down
 ---
 **NOTE**
 
-Currently Issue with Fileserver and Webpage, if you use both, it breaks.
+Currently: Issue with Fileserver and Webpage, if you use both, it breaks after an "random" time.
 Healthcheck at the Docker Container should restart the Container immediately.
 
 ---
 
 ## Implementation
 
-The server uses [`bottle`](https://github.com/bottlepy/bottle) for the web framework and [`youtube-dl`](https://github.com/rg3/youtube-dl) to handle the downloading. The integration with youtube-dl makes use of their [python api](https://github.com/rg3/youtube-dl#embedding-youtube-dl).
+The server uses [`bottle`](https://github.com/bottlepy/bottle) for the web framework and [`youtube-dl`](https://github.com/rg3/youtube-dl) to handle the downloading.
 
-This docker image is based on [`python:alpine`](https://registry.hub.docker.com/_/python/) and consequently [`alpine:3.8`](https://hub.docker.com/_/alpine/).
+This buildah image is based on [`python:3-alpine`](https://registry.hub.docker.com/_/python/).
 
-[1]:docu/youtube-dl-server.png
+[1]:docu/ui-download.png
+[2]:docu/ui-fileserver.png
