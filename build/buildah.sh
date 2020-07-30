@@ -3,7 +3,7 @@
 set -o errexit
 
 # Create a container
-container=$(buildah from python:3-alpine)
+container=$(buildah from emmercm/libtorrent)
 
 # Labels
 buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
@@ -32,4 +32,4 @@ buildah config \
 	--port 8080/tcp \
 	$container
 
-buildah commit --format docker $container youtube-dl-server
+buildah commit --format docker $container ydl-torrent

@@ -27,11 +27,12 @@
         <div>
           <form action="/api/add" method="POST">
             <div class="input-group">
-              <input name="url" type="url" class="form-control" placeholder="URL" aria-label="URL" aria-describedby="button-submit" autofocus>
+              <input name="url" type="url" class="form-control" placeholder="URL / MAGNETLINK" aria-label="URL / MAGNETLINK" aria-describedby="button-submit" autofocus>
               <select class="custom-select" name="downloadTool">
                 <optgroup label="Download Tool">
                   <option value="youtube-dl">Youtube-DL</option>
                   <option value="wget">wget</option>
+                  <option value="torrent">Torrent</option>
                 </optgroup>
               </select>
               <select class="custom-select" name="download">
