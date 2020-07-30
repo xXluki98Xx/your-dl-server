@@ -14,7 +14,7 @@ buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
 buildah run $container -- apk add --no-cache --update bash ffmpeg tzdata axel git curl
 buildah run $container -- mkdir -p /usr/src/youtube-dl-server
 buildah run $container -- git clone https://github.com/xXluki98Xx/youtube-dl-server.git /usr/src/youtube-dl-server
-#buildah copy $container ../../youtube-dl-server /usr/src/youtube-dl-server
+buildah run $container -- cd /usr/src/youtube-dl-server && git checkout feature_torrent
 buildah run $container -- pip3 install --no-cache-dir -r /usr/src/youtube-dl-server/build/requirements.txt
 buildah commit $container
 
