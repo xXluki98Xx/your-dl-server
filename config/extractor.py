@@ -145,24 +145,26 @@ class Extractor:
     # -----
 
     def getTitle(self, oldTitle):
+        newTitle = ""
+        
         if self.title == "":
             if oldTitle == "":
                 now = datetime.now()
-                title = "download_ydl" + now.strftime("%m-%d-%Y_%H-%M-%S")
+                newTitle = "download_ydl" + now.strftime("%m-%d-%Y_%H-%M-%S")
             else:
-                title = oldTitle
+                newTitle = oldTitle
         else:
-            title = self.title
+            newTitle = self.title
         
-        title = title.casefold().replace(" ", "-").replace("_","-").replace(".","")
+        newTitle = newTitle.casefold().replace(" ", "-").replace("_","-").replace(".","")
 
-        if title.endswith('-'):
-            title = title[:-1]
+        while newTitle.endswith('-'):
+            newTitle = newTitle[:-1]
 
-        if title.startswith('-'):
-            title = title[:-1]
+        while newTitle.startswith('-'):
+            newTitle = newTitle[1:]
 
-        return title
+        return newTitle
 
     # -----
 
@@ -186,10 +188,7 @@ class Extractor:
             info = ydl.extract_info(self.url, download=False)
             filename = ydl.prepare_filename(info)
 
-        while filename.endswith('-'):
-            title = filename[:-1]
-
-        print(filename)
+        filename = getTitle(filename)
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(path = self.path, title = filename)
 
@@ -309,18 +308,10 @@ class Extractor:
     def host_sxyprn(self):
         title = getTitleWebpage()
 
-        title = getTitle(title.rsplit('-', 1)[0])
-        
-        # title = title.casefold().replace(" ", "-").replace(".","").rsplit('-', 1)[0]
-
         if "#" in title:
-            title = title.split('-#',1)[0]
+            title = title.split('#',1)[0]
 
-        if title.endswith('-'):
-            title = title[:-1]
-
-        if title.startswith('-'):
-            title = title[:-1]    
+        title = getTitle(title.rsplit('-', 1)[0])
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -330,13 +321,6 @@ class Extractor:
 
     def host_xvideos(self):
         title = self.content.rsplit("/",1)[1]
-        # title = title.casefold().replace(" ", "-").replace("_","-").replace(".","")
-
-        # if title.endswith('-'):
-        #     title = title[:-1]
-
-        # if title.startswith('-'):
-        #     title = title[:-1]
 
         title = getTitle()
 
@@ -348,7 +332,6 @@ class Extractor:
 
     def host_porngo(self):
         title = self.content.rsplit('/',1)[0].rsplit('/',1)[1]
-
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title=title, path = self.path)
 
