@@ -59,7 +59,6 @@ def serve_ui():
 @app.route('/history')
 @view('history')
 def serve_history():
-    # return static_file('index.html', root = str(app_vars['LOCAL']) + "/")
     return {
         "history": download_history,
     }
