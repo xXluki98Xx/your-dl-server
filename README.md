@@ -27,6 +27,7 @@ Features:
 Planned:
 
   - Download History: inspired by [nbr23](https://github.com/nbr23/youtube-dl-server)
+  - File Support: List for Downloads and torrent
 
 ---
 
