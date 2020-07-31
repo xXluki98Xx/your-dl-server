@@ -140,6 +140,9 @@ def addToQueue():
     if not url:
         return {"success": False, "error": "/q called without a 'url' query param"}
 
+    if 'magnet:?' in url:
+        download_executor.submit(download_torrent, url, path, parameters)
+
     if tool == "youtube-dl":
         download_executor.submit(download_ydl, url, title, path, parameters)
     
