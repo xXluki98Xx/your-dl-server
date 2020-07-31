@@ -18,7 +18,7 @@ from queue import Queue
 from threading import Thread
 import libtorrent as lt
 
-from bottle import Bottle, redirect, request, route, run, static_file, debug
+from bottle import Bottle, redirect, request, route, run, static_file, debug, view
 import bottle
 from extractor import Extractor
 from math import pow
@@ -49,8 +49,20 @@ def constructPath(path):
 # --------------- #
 
 @app.route('/')
-def dl_ui():
-    return static_file('index.html', root = str(app_vars['LOCAL']) + "/")
+@view('index')
+def serve_ui():
+    # return static_file('index.html', root = str(app_vars['LOCAL']) + "/")
+    return
+
+    # ---
+
+@app.route('/history')
+@view('history')
+def serve_history():
+    # return static_file('index.html', root = str(app_vars['LOCAL']) + "/")
+    return {
+        "history": download_history,
+    }
 
     # ---
 
@@ -61,7 +73,7 @@ def serve_static(filename):
     # ---
 
 @app.route('/downloads/<filename:re:.*>') #match any string after /
-def serve(filename):
+def serve_download(filename):
     path = "/tmp/" + str(app_vars['DOWNLOAD_DIR']) + "/" + constructPath(filename)
 
     html = '''<html>
