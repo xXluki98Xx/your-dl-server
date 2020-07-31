@@ -5,6 +5,7 @@ import time
 import urllib.request
 import os
 import subprocess
+import youtube_dl
 
 class Extractor:
     __instance = None
@@ -142,18 +143,36 @@ class Extractor:
 
     # -----
 
-    def getTitle(self):
+    def getTitle(self, oldTitle):
         if self.title == "":
-            now = datetime.now()
-            title = "download_" + now.strftime("%m-%d-%Y_%H-%M-%S")
+            if oldTitle == "":
+                now = datetime.now()
+                title = "download_ydl" + now.strftime("%m-%d-%Y_%H-%M-%S")
+            else:
+                title = oldTitle
         else:
-            title = self.title.casefold().replace(" ", "-")
+            title = self.title
+        
+        title = title.casefold().replace(" ", "-").replace("_","-").replace(".","")
 
-            if title.endswith('-'):
-                title = title[:-1]
+        if title.endswith('-'):
+            title = title[:-1]
 
-            if title.startswith('-'):
-                title = title[:-1]
+        if title.startswith('-'):
+            title = title[:-1]
+
+        return title
+
+    # -----
+
+    def getTitleWebpage(self):
+        webpage = ""
+        
+        req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req) as response:
+            webpage = response.read()
+        
+        title = str(webpage).split('<title>')[1].split('</title>')[0]
 
         return title
 
@@ -167,7 +186,22 @@ class Extractor:
         # print(test)
 
         # self.output = '-f best -o "{path}/{title}"'.format(path = self.path, title = test)
-        self.output = '-f best -o "{path}/%(title)s.%(ext)s"'.format(path = self.path)
+
+        ydl_opts = {
+            'format': 'bestaudio',
+            'outtmpl': unicode('/my/path/%(title)s-%(id)s.%(ext)s'),
+            'postprocessors': [{'key':'FFmpegExtractAudio'}],
+            'restrictfilenames':True,
+            'forcefilename':True,
+        } 
+
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(self.url, download=True)
+            filename = ydl.prepare_filename(info)
+
+        print(filename)
+
+        # self.output = '-f best -o "{path}/%(title)s.%(ext)s"'.format(path = self.path)
 
         return self.download_ydl()
 
@@ -247,7 +281,8 @@ class Extractor:
 
     def host_hanime(self):
         title = self.content.rsplit('?',1)[0].rsplit('/',1)[1]
-        title = title.casefold().replace(" ", "-").replace(".","")
+
+        title = getTitle(title)
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -256,15 +291,19 @@ class Extractor:
     # -----
 
     def host_hahomoe(self):
-        webpage = ""
+        # webpage = ""
         
-        req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req) as response:
-            webpage = response.read()
+        # req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
+        # with urllib.request.urlopen(req) as response:
+        #     webpage = response.read()
         
-        title = str(webpage).split('<title>')[1].split('</title>')[0]
-        title = title.rsplit('-', 1)[0]
-        title = title.casefold().replace(" ", "-").replace(".","").rsplit('-', 1)[0]
+        # title = str(webpage).split('<title>')[1].split('</title>')[0]
+        # title = title.rsplit('-', 1)[0]
+        # title = title.casefold().replace(" ", "-").replace(".","").rsplit('-', 1)[0]
+
+        title = getTitleWebpage()
+
+        title = getTitle(title.rsplit('-', 1)[0])
 
         if self.url.endswith('/'):
             self.url = self.url[:-1]
@@ -278,15 +317,11 @@ class Extractor:
     # -----
 
     def host_sxyprn(self):
-        webpage = ""
+        title = getTitleWebpage()
+
+        title = getTitle(title.rsplit('-', 1)[0])
         
-        req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req) as response:
-            webpage = response.read()
-        
-        title = str(webpage).split('<title>')[1].split('</title>')[0]
-        title = title.rsplit('-', 1)[0]
-        title = title.casefold().replace(" ", "-").replace(".","").rsplit('-', 1)[0]
+        # title = title.casefold().replace(" ", "-").replace(".","").rsplit('-', 1)[0]
 
         if "#" in title:
             title = title.split('-#',1)[0]
@@ -305,13 +340,15 @@ class Extractor:
 
     def host_xvideos(self):
         title = self.content.rsplit("/",1)[1]
-        title = title.casefold().replace(" ", "-").replace("_","-")
+        # title = title.casefold().replace(" ", "-").replace("_","-").replace(".","")
 
-        if title.endswith('-'):
-            title = title[:-1]
+        # if title.endswith('-'):
+        #     title = title[:-1]
 
-        if title.startswith('-'):
-            title = title[:-1]
+        # if title.startswith('-'):
+        #     title = title[:-1]
+
+        title = getTitle()
 
         self.output = '-f best -o "{path}/{title}.mp4"'.format(title=title, path = self.path)
 
@@ -321,13 +358,7 @@ class Extractor:
 
     def host_porngo(self):
         title = self.content.rsplit('/',1)[0].rsplit('/',1)[1]
-        title = title.casefold().replace(" ", "-").replace(".","")
 
-        if title.endswith('-'):
-            title = title[:-1]
-
-        if title.startswith('-'):
-            title = title[:-1]
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title=title, path = self.path)
 
