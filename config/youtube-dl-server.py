@@ -16,7 +16,6 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from queue import Queue
 from threading import Thread
-import pyftpdlib
 import libtorrent as lt
 
 from bottle import Bottle, redirect, request, route, run, static_file, debug
@@ -25,7 +24,6 @@ from extractor import Extractor
 from math import pow
 
 app = Bottle()
-
 
 app_defaults = {
     'YDL_SERVER_HOST': '0.0.0.0',
