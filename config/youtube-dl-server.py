@@ -4,24 +4,24 @@
 
 from __future__ import unicode_literals
 
+import glob
 import json
 import os
 import random
 import subprocess
-import glob
 import sys
 import time
 from collections import ChainMap
 from concurrent.futures import ThreadPoolExecutor
+from math import pow
 from pathlib import Path
 from queue import Queue
 from threading import Thread
-import libtorrent as lt
 
-from bottle import Bottle, redirect, request, route, run, static_file, debug, view
-import bottle
+import libtorrent as lt
+from bottle import (Bottle, debug, redirect, request, route, run, static_file,
+                    view)
 from extractor import Extractor
-from math import pow
 
 app = Bottle()
 
@@ -48,54 +48,33 @@ def constructPath(path):
 
 # --------------- #
 
+@app.route('/static/:filename#.*#')
+def server_static(filename):
+    return static_file(filename, root = str(app_vars['LOCAL']) + "/static")
+
+    # ---
+
 @app.route('/')
 @view('index')
-def serve_ui():
-    # return static_file('index.html', root = str(app_vars['LOCAL']) + "/")
-    return
+def server_ui():
+    return {}
 
     # ---
 
 @app.route('/history')
 @view('history')
-def serve_history():
+def server_history():
     return {
         "history": download_history,
     }
 
     # ---
 
-@app.route('/static/:filename#.*#')
-def serve_static(filename):
-    return static_file(filename, root = str(app_vars['LOCAL']) + "/static")
-
-    # ---
-
 @app.route('/downloads/<filename:re:.*>') #match any string after /
-def serve_download(filename):
+@view('download')
+def server_download(filename):
     path = "/tmp/" + str(app_vars['DOWNLOAD_DIR']) + "/" + constructPath(filename)
-
-    html = '''<html>
-                <head><title>downloads</title>
-                    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-                    <style>
-                    </style>
-                </head>
-                <body>
-                    <!-- Optional JavaScript -->
-                    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-                    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-                
-                <div class="container d-flex flex-column text-light text-center">
-                <br>
-                <div class = "row justify-content-center">
-                    <div class = "col-6"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
-                    <div class = "col-6"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
-                </div>
-                <div class="jumbotron bg-transparent flex-grow-1">
-                <table border=0>'''
+    webpage = []
 
     # Serving File
     if (os.path.isfile(path)):
@@ -112,19 +91,27 @@ def serve_download(filename):
                     continue
 
                 #get the scheme of the requested url
-                scheme = bottle.request.urlparts[0]
+                scheme = request.urlparts[0]
                 #get the hostname of the requested url
-                host = bottle.request.urlparts[1]
+                host = request.urlparts[1]
 
                 #just html formatting :D
                 if filename == "":
-                    html = html + "<td><a href = '" + scheme + "://" + host + sub + "/" + x +"'>" + x + "</a><td></tr>"
+                    # root folder
+                    html = scheme + "://" + host + sub + "/" + x
                 else:
-                    html = html + "<td><a href = '" + scheme + "://" + host + sub + "/" + filename + "/" + x +"'>" + x + "</a><td></tr>"
-        except Exception as e:  #Actually an error accessing the file or switching to the directory
-            html = "404! Not found.<br /> Actually an error accessing the file or switching to the directory"
+                    # sub folder
+                    html = scheme + "://" + host + sub + "/" + filename + "/" + x
 
-    return html+"</table><hr><br><br></div></div></body></html>" #Append the remaining html code
+                webpage.append({
+                    "url": html,
+                    "titel": x,
+                })
+
+        except Exception as e:  #Actually an error accessing the file or switching to the directory
+            return "404! Not found.<br /> Actually an error accessing the file or switching to the directory"
+
+    return { "downloads": webpage, }
 
     # ---
 

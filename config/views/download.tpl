@@ -10,7 +10,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
       crossorigin="anonymous">
-    <link href="static/style.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
 
     <title>Download</title>
   </head>
@@ -19,17 +19,27 @@
     <div class="container d-flex flex-column text-light text-center">
       <div class="flex-grow-1"></div>
       <div class="jumbotron bg-transparent flex-grow-1">
+
+        <div class = "row justify-content-center">
+          <div class = "col"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
+          <div class = "col"><a href = "/history" target=""><button class="btn btn-primary">History</button></a></div>
+          <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
+        </div>
+
+        <p></p>
+        <hr class="my-4">
+        <p></p>
+        
         <div>
           <div>
-			      <h2>History</h2>
+			      <h2>Downloads</h2>
             <ul class="queue">
-              %for item in history:
-              <li><a href="{{item["url"]}}" target="blank">{{item["title"]}}</a></li>
+              %for item in downloads:
+              <td><a href = "{{ item['url'] }}"</a><td></tr>
               %end
             </ul>
           </div>
-          <a href="/" target=""><button class="btn btn-primary">Youtube-dl</button></a>
-          <a href="/downloads/" target=""><button class="btn btn-primary">Downloads</button></a>
+
         </div>
       </div>
       <footer>

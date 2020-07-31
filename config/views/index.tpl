@@ -10,7 +10,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
       crossorigin="anonymous">
-    <link href="static/style.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
 
     <title>youtube-dl</title>
   </head>
@@ -19,11 +19,23 @@
     <div class="container d-flex flex-column text-light text-center">
       <div class="flex-grow-1"></div>
       <div class="jumbotron bg-transparent flex-grow-1">
+
+        <div class = "row justify-content-center">
+            <div class = "col"><a href = "/downloads/" target=""><button class="btn btn-primary">Downloads</button></a></div>
+            <div class = "col"><a href = "/history" target=""><button class="btn btn-primary">History</button></a></div>
+            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
+        </div>
+
+        <p></p>
+        <hr class="my-4">
+        <p></p>
+        
         <h1 class="display-4">youtube-dl</h1>
         <p class="lead">Enter a video url to download the video to the server. Url can be to YouTube or <a class="text-info"
             href="https://rg3.github.io/youtube-dl/supportedsites.html">any
             other supported site</a>. The server will automatically download the highest quality version available.</p>
         <hr class="my-4">
+        
         <div>
           <form action="/api/add" method="POST">
             <div class="input-group">
@@ -65,8 +77,6 @@
               <button class="btn btn-primary" type="submit" id="button-submit">Submit</button>
             </div>
           </form>
-          <a href="/downloads/" target=""><button class="btn btn-primary">Downloads</button></a>
-          <a href="/history/" target=""><button class="btn btn-primary">History</button></a>
         </div>
       </div>
       <footer>
