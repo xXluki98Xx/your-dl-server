@@ -140,8 +140,12 @@ def addToQueue():
     if not url:
         return {"success": False, "error": "/q called without a 'url' query param"}
 
+    # --- # URL Serperation
+
     if 'magnet:?' in url:
-        download_executor.submit(download_torrent, url, path, parameters)
+        tool = "torrent"
+
+    # ---
 
     if tool == "youtube-dl":
         download_executor.submit(download_ydl, url, title, path, parameters)
@@ -202,6 +206,8 @@ def download_ydl(url, title, path, parameters):
         else:
             return returned_value
 
+    print("finished: youtube-dl")
+
 # -----
 
 def download_wget(content, path, parameters):
@@ -233,6 +239,8 @@ def download_wget(content, path, parameters):
             else:
                 return returned_value
 
+    print("finished: wget")
+
 # -----
 
 def download_torrent(content, path, parameters):
@@ -261,6 +269,8 @@ def download_torrent(content, path, parameters):
                 (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
                 s.num_peers, state_str[s.state]))
         time.sleep(5)
+
+    print("finished: torrent")
 
 # --------------- #
 
