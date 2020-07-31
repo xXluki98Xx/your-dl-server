@@ -19,8 +19,7 @@ from queue import Queue
 from threading import Thread
 
 import libtorrent as lt
-from bottle import (Bottle, debug, redirect, request, route, run, static_file,
-                    view)
+from bottle import Bottle, redirect, request, route, run, static_file, view
 from extractor import Extractor
 
 app = Bottle()

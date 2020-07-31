@@ -18,21 +18,20 @@
   <body>
     <div class="container d-flex flex-column text-light text-center">
       <div class="flex-grow-1"></div>
-      <div class="jumbotron bg-transparent flex-grow-1">
+        <div class="jumbotron bg-transparent flex-grow-1">
 
-        <div class = "row justify-content-center">
-          <div class = "col"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
-          <div class = "col"><a href = "/downloads/" target=""><button class="btn btn-primary">Downloads</button></a></div>
-          <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
-        </div>
+          <div class = "row justify-content-center">
+            <div class = "col"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
+            <div class = "col"><a href = "/downloads/" target=""><button class="btn btn-primary">Downloads</button></a></div>
+            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
+          </div>
 
-        <p></p>
-        <hr class="my-4">
-        <p></p>
-      
-        <div>
+          <p></p>
+          <hr class="my-4">
+          <p></p>
+        
           <div>
-			      <h2>History</h2>
+            <h2>History</h2>
             <ul class="queue">
               %for item in history:
               <li><a href="{{item["url"]}}" target="blank">{{item["title"]}}</a></li>
@@ -41,13 +40,15 @@
           </div>
 
         </div>
+
+        <footer>
+          <div>
+            <p class="text-muted">Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
+              by <a class="text-light" href="https://twitter.com/manbearwiz">@manbearwiz</a>.</p>
+          </div>
+        </footer>
+        
       </div>
-      <footer>
-        <div>
-          <p class="text-muted">Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
-            by <a class="text-light" href="https://twitter.com/manbearwiz">@manbearwiz</a>.</p>
-        </div>
-      </footer>
     </div>
 
     <!-- Optional JavaScript -->

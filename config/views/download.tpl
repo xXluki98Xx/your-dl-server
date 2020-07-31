@@ -15,39 +15,41 @@
     <title>Download</title>
   </head>
 
+
   <body>
     <div class="container d-flex flex-column text-light text-center">
       <div class="flex-grow-1"></div>
-      <div class="jumbotron bg-transparent flex-grow-1">
+        <div class="jumbotron bg-transparent flex-grow-1">
 
-        <div class = "row justify-content-center">
-          <div class = "col"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
-          <div class = "col"><a href = "/history" target=""><button class="btn btn-primary">History</button></a></div>
-          <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
-        </div>
+          <div class = "row justify-content-center">
+            <div class = "col"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
+            <div class = "col"><a href = "/history" target=""><button class="btn btn-primary">History</button></a></div>
+            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
+          </div>
 
-        <p></p>
-        <hr class="my-4">
-        <p></p>
-        
-        <div>
+          <p></p>
+          <hr class="my-4">
+          <p></p>
+
           <div>
-			      <h2>Downloads</h2>
-            <ul class="queue">
+            <h2>Downloads</h2>
+            <table border=0>
               %for item in downloads:
               <td><a href = "{{ item['url'] }}"</a><td></tr>
               %end
-            </ul>
+            </table>
           </div>
 
         </div>
+
+        <footer>
+          <div>
+            <p class="text-muted">Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
+              by <a class="text-light" href="https://twitter.com/manbearwiz">@manbearwiz</a>.</p>
+          </div>
+        </footer>
+        
       </div>
-      <footer>
-        <div>
-          <p class="text-muted">Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
-            by <a class="text-light" href="https://twitter.com/manbearwiz">@manbearwiz</a>.</p>
-        </div>
-      </footer>
     </div>
 
     <!-- Optional JavaScript -->
