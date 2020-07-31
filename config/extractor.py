@@ -142,7 +142,7 @@ class Extractor:
 
         return ydl
 
-    # -----
+    # --------------- # Titles # --------------- #
 
     def getTitle(self, oldTitle):
         newTitle = ""
@@ -179,7 +179,7 @@ class Extractor:
 
         return title
 
-    # --------------- #
+# --------------- # --------------- # Extractors # --------------- # --------------- #
 
     def host_default(self):
         ydl_opts = {'outtmpl': unicode('%(title)s'),'restrictfilenames':True,'forcefilename':True}
@@ -188,7 +188,7 @@ class Extractor:
             info = ydl.extract_info(self.url, download=False)
             filename = ydl.prepare_filename(info)
 
-        filename = getTitle(filename)
+        filename = self.getTitle(filename)
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(path = self.path, title = filename)
 
