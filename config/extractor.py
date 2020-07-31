@@ -6,6 +6,7 @@ import urllib.request
 import os
 import subprocess
 import youtube_dl
+from bottle import unicode
 
 class Extractor:
     __instance = None
@@ -179,29 +180,18 @@ class Extractor:
     # --------------- #
 
     def host_default(self):
-        # title = os.popen('youtube-dl -f best {url} --get-filename -o "%(title)s.%(ext)s"'.format(path = self.path, url = self.url)).read()
-        # title = subprocess.check_output('youtube-dl -f best --get-filename -o "%(title)s.%(ext)s" {url}'.format(path = self.path, url = self.url), shell=True)
-        # print("original: " + title)
-        # test = title.lower().replace(" ","-").replace(",","")
-        # print(test)
-
-        # self.output = '-f best -o "{path}/{title}"'.format(path = self.path, title = test)
-
-        ydl_opts = {
-            'format': 'bestaudio',
-            'outtmpl': unicode('/my/path/%(title)s-%(id)s.%(ext)s'),
-            'postprocessors': [{'key':'FFmpegExtractAudio'}],
-            'restrictfilenames':True,
-            'forcefilename':True,
-        } 
+        ydl_opts = {'outtmpl': unicode('%(title)s'),'restrictfilenames':True,'forcefilename':True}
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(self.url, download=True)
+            info = ydl.extract_info(self.url, download=False)
             filename = ydl.prepare_filename(info)
+
+        while filename.endswith('-'):
+            title = filename[:-1]
 
         print(filename)
 
-        # self.output = '-f best -o "{path}/%(title)s.%(ext)s"'.format(path = self.path)
+        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(path = self.path, title = filename)
 
         return self.download_ydl()
 
