@@ -8,28 +8,32 @@ Original Work: Very spartan Web and REST interface for downloading youtube video
 
 ---
 
+Bugs:
+  - WebUI breaks after entering the Download section
+
 Features:
 
   - Improvement Threads: work of [nachtjasmin](https://github.com/nachtjasmin/youtube-dl-server/blob/master/youtube-dl-server.py)
   - Fileserver: work of [bsod64](https://gist.github.com/bsod64/c47c1251315d525793a9)
-  - Extraction: I have written an extraction module to process the data specifically for personal purpose
-  - Web-UI: I complicated the WebUI, so that the user can configure diffrent parameters
+  - Torrent Download: inspired by [samukasmk](https://gist.github.com/samukasmk/940ca5d5abd9019e8b1af77c819e4ca9)
+  - Extraction: i have written an extraction module to process the data specifically for personal purpose
+  - Web-UI: i complicated the WebUI, so that the user can configure diffrent parameters
   
   - Download:
     - wget
     - youtube-dl
+    - torrent (magnetlink)
 
 Planned:
 
   - Download History: inspired by [nbr23](https://github.com/nbr23/youtube-dl-server)
-  - Torrent Download: inspired by [samukasmk](https://gist.github.com/samukasmk/940ca5d5abd9019e8b1af77c819e4ca9)
 
 ---
 
 ### This Version supported following arguments for youtube-dl:
 
 <pre><code>  - url
-  - youtube-dl or wget
+  - youtube-dl or wget o
   - download streams: normal (single) or axel (multiple download streams)
   - reference link
   - title
@@ -138,8 +142,7 @@ Simple Fileserver for Download or Streaming, navigate to http://hostip:port/down
 ---
 **NOTE**
 
-Currently: Issue with Fileserver and Webpage, if you use both, it breaks after an "random" time.
-Healthcheck at the Docker Container should restart the Container immediately.
+Currently: Issue with Fileserver and Webpage, if you use both, it breaks after entering the Fileserver.
 
 ---
 
