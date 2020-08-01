@@ -19,7 +19,7 @@ from math import pow
 from pathlib import Path
 from threading import Thread
 
-# import libtorrent as lt
+import libtorrent as lt
 from bottle import Bottle, redirect, request, route, run, static_file, view
 from extractor import Extractor
 
@@ -120,7 +120,6 @@ def server_download(filename):
             os.chdir(sourcePath)
             return "404! Not found.<br /> Actually an error accessing the file or switching to the directory"
 
-    print(sourcePath)
     os.chdir(sourcePath)
     return { "downloads": webpage, }
 
@@ -167,8 +166,8 @@ def addToQueue():
     if tool == "wget":
         download_executor.submit(download_wget, url, path, parameters)
 
-    # if tool == "torrent":
-    #     download_executor.submit(download_torrent, url, path, parameters)
+    if tool == "torrent":
+        download_executor.submit(download_torrent, url, path, parameters)
 
     print("Added url " + url + " to the download queue")
 
@@ -195,9 +194,6 @@ def update():
 def download_ydl(url, title, path, parameters):
 
     ydl, url, title = extractor.preProcessor(url, title, path, parameters)
-
-    print(url)
-    print(title)
 
     download_history.append({
         "url": url,
@@ -271,34 +267,36 @@ def download_wget(content, path, parameters):
 
 # ---
 # content torrent magnetlink
-# def download_torrent(content, path, parameters):
-#     limit = 0
+def download_torrent(content, path, parameters):
+    limit = 0
 
-#     if parameters[3] != "":
-#         limit = int(round(parameters[3] * pow(1024, 2)))
+    if parameters[3] != "":
+        limit = int(round(parameters[3] * pow(1024, 2)))
     
-#     params = { 'save_path': path }
+    params = { 'save_path': path }
 
-#     # ---
+    # ---
 
-#     handler = lt.add_magnet_uri(torrentSession, content, params)
-#     handler.set_download_limit(limit)
-#     torrentSession.start_dht()
+    handler = lt.add_magnet_uri(torrentSession, content, params)
+    handler.set_download_limit(limit)
+    torrentSession.start_dht()
 
-#     print("downloading metadata...")
-#     while (not handler.has_metadata()):
-#         time.sleep(1)
-#     print("got metadata, starting torrent download...")
-#     while (handler.status().state != lt.torrent_status.seeding):
-#         s = handler.status()
-#         state_str = ['queued', 'checking', 'downloading metadata', \
-#                 'downloading', 'finished', 'seeding', 'allocating']
-#         print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
-#                 (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
-#                 s.num_peers, state_str[s.state]))
-#         time.sleep(5)
+    print("downloading metadata...")
+    while (not handler.has_metadata()):
+        time.sleep(1)
+    print("got metadata, starting torrent download...")
+    while (handler.status().state != lt.torrent_status.seeding):
+        s = handler.status()
+        state_str = ['queued', 'checking', 'downloading metadata', \
+                'downloading', 'finished', 'seeding', 'allocating']
+        print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
+                (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
+                s.num_peers, state_str[s.state]))
+        time.sleep(5)
 
-#     print("finished: torrent")
+    print("finished: torrent")
+
+# ---
 
 # def get_ydl_options(request_options):
 #     ydl_vars = ChainMap(os.environ, app_defaults)
@@ -358,17 +356,17 @@ if __name__ == "__main__":
     print("Loading: Extractors")
     extractor = Extractor.getInstance()
 
-    # # --- Torrent Modul
+    # --- Torrent Modul
 
-    # print("Loading: Torrent")
-    # torrentSession = lt.session()
+    print("Loading: Torrent")
+    torrentSession = lt.session()
 
-    # # --- Youtube-dl Server
+    # --- Youtube-dl Server
 
-    # print("Updating youtube-dl to the newest version")
-    # updateResult = update()
-    # print(updateResult["output"])
-    # print(updateResult["error"])
+    print("Updating youtube-dl to the newest version")
+    updateResult = update()
+    print(updateResult["output"])
+    print(updateResult["error"])
 
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
