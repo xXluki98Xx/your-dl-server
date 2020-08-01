@@ -32,11 +32,11 @@
         
           <div>
             <h2>History</h2>
-            <ul class="queue row justify-content-center text-left"">
+            <table border=0 class= "row justify-content-center text-left">
               %for item in history:
-              <li><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['title'] }}</a></li>
+              <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['title'] }}</a><td></tr>
               %end
-            </ul>
+            </table>
           </div>
 
         </div>
