@@ -20,4 +20,6 @@ create_run_dir
 
 # ---
 
+cd run/
 python3 -u $path/run/youtube-dl-server.py
+cd $path

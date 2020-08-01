@@ -86,7 +86,7 @@ def server_download(filename):
             os.chdir(sourcePath)
             return "404! Not found.<br /> Allow accessing hidden files?"
  
-        return static_file(constructPath(filename), root = sourcePath)  #serve a file
+        return static_file(constructPath(filename), root = workPath)  #serve a file
     
     # Serving Directory
     else:
@@ -120,6 +120,7 @@ def server_download(filename):
             os.chdir(sourcePath)
             return "404! Not found.<br /> Actually an error accessing the file or switching to the directory"
 
+    print(sourcePath)
     os.chdir(sourcePath)
     return { "downloads": webpage, }
 
@@ -339,7 +340,7 @@ if __name__ == "__main__":
         sourcePath = os.getcwd()
     else:
         workPath = "/tmp/" + str(app_vars['DOWNLOAD_DIR'])
-        soucrePath = "/usr/src/youtube-dl-server/run"
+        sourcePath = "/usr/src/youtube-dl-server/run"
 
         print("Creating Download Folder: " + workPath)
         if not os.path.exists(workPath):
@@ -364,10 +365,10 @@ if __name__ == "__main__":
 
     # # --- Youtube-dl Server
 
-    print("Updating youtube-dl to the newest version")
-    updateResult = update()
-    print(updateResult["output"])
-    print(updateResult["error"])
+    # print("Updating youtube-dl to the newest version")
+    # updateResult = update()
+    # print(updateResult["output"])
+    # print(updateResult["error"])
 
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
