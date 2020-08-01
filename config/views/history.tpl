@@ -23,7 +23,7 @@
           <div class = "row justify-content-center">
             <div class = "col"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
             <div class = "col"><a href = "/downloads/" target=""><button class="btn btn-primary">Downloads</button></a></div>
-            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
+            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Site</button></a></div>
           </div>
 
           <p></p>
@@ -32,9 +32,9 @@
         
           <div>
             <h2>History</h2>
-            <ul class="queue">
+            <ul class="queue row justify-content-center text-left"">
               %for item in history:
-              <li><a href="{{item["url"]}}" target="blank">{{item["title"]}}</a></li>
+              <li><a href="{{ item['url'] }}" target="blank">"{{ item['kind'] }}" | "{{ item['title'] }}"</a></li>
               %end
             </ul>
           </div>

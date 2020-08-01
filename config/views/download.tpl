@@ -33,9 +33,9 @@
 
           <div>
             <h2>Downloads</h2>
-            <table border=0>
+            <table border=0 class= "row justify-content-center text-left">
               %for item in downloads:
-              <td><a href = "{{ item['url'] }}"</a><td></tr>
+              <td><a href = "{{ item['url'] }}">"{{ item['title'] }}"</a><td></tr>
               %end
             </table>
           </div>

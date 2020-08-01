@@ -140,7 +140,7 @@ class Extractor:
     def download_ydl(self):
         ydl = 'youtube-dl {parameter} {output} {url}'.format(parameter = self.parameters, output = self.output, url = self.url)
 
-        return ydl
+        return [ydl, self.url, self.title]
 
     # --------------- # Titles # --------------- #
 
@@ -164,6 +164,7 @@ class Extractor:
         while newTitle.startswith('-'):
             newTitle = newTitle[1:]
 
+        self.title = newTitle
         return newTitle
 
     # -----
@@ -197,7 +198,7 @@ class Extractor:
     # -----
 
     def host_fruithosted(self):
-        title = self.getTitle()
+        title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -206,7 +207,7 @@ class Extractor:
     # -----
 
     def host_oloadcdn(self):
-        title = self.getTitle()
+        title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -215,7 +216,7 @@ class Extractor:
     # -----
 
     def host_verystream(self):
-        title = self.getTitle()
+        title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -224,7 +225,7 @@ class Extractor:
     # -----
 
     def host_vidoza(self):
-        title = self.getTitle()
+        title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -233,7 +234,7 @@ class Extractor:
     # -----
 
     def host_vivo(self):
-        title = self.getTitle()
+        title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -260,8 +261,8 @@ class Extractor:
             episode = self.content.rsplit('/',1)[1]
 
         title = (serie + "-" + episode)
-        title = title.casefold().replace(" ", "-").replace(".","")
-
+        title = self.getTitle(title)
+        
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
         return self.download_ydl()
@@ -271,7 +272,7 @@ class Extractor:
     def host_hanime(self):
         title = self.content.rsplit('?',1)[0].rsplit('/',1)[1]
 
-        title = getTitle(title)
+        title = self.getTitle(title)
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
@@ -290,15 +291,16 @@ class Extractor:
         # title = title.rsplit('-', 1)[0]
         # title = title.casefold().replace(" ", "-").replace(".","").rsplit('-', 1)[0]
 
-        title = getTitleWebpage()
+        title = self.getTitleWebpage()
 
-        title = getTitle(title.rsplit('-', 1)[0])
+        title = self.getTitle(title.rsplit('-', 1)[0])
 
         if self.url.endswith('/'):
             self.url = self.url[:-1]
 
         title = title + "-" + self.url.rsplit('/',1)[1]
 
+        self.title = title
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
         return self.download_ydl()
@@ -306,13 +308,14 @@ class Extractor:
     # -----
 
     def host_sxyprn(self):
-        title = getTitleWebpage()
+        title = self.getTitleWebpage()
 
         if "#" in title:
             title = title.split('#',1)[0]
 
-        title = getTitle(title.rsplit('-', 1)[0])
+        title = self.getTitle(title.rsplit('-', 1)[0])
 
+        self.title = title
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
         return self.download_ydl()
@@ -322,7 +325,7 @@ class Extractor:
     def host_xvideos(self):
         title = self.content.rsplit("/",1)[1]
 
-        title = getTitle()
+        title = self.getTitle()
 
         self.output = '-f best -o "{path}/{title}.mp4"'.format(title=title, path = self.path)
 
@@ -333,6 +336,7 @@ class Extractor:
     def host_porngo(self):
         title = self.content.rsplit('/',1)[0].rsplit('/',1)[1]
 
+        self.title = title
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title=title, path = self.path)
 
         return self.download_ydl()
@@ -347,6 +351,7 @@ class Extractor:
 
         print("media url: " + self.url)
 
+        self.title = title
         self.output = "-f best -o '{path}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s'".format(title = title, path = self.path)
 
         return self.download_ydl()
@@ -393,7 +398,7 @@ class Extractor:
     # -----
 
     def host_vimeo(self):
-        title = self.getTitle()
+        title = self.getTitle("")
 
         self.output = '--referer {reference} -f best -o "{path}/{title}.%(ext)s"'.format(reference = self.reference, title = title, path = self.path)
 
@@ -402,7 +407,7 @@ class Extractor:
     # -----
 
     def host_cloudfront(self):
-        title = self.getTitle()
+        title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.mp4"'.format(title = title, path = self.path)
 

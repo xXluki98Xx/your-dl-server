@@ -23,7 +23,7 @@
           <div class = "row justify-content-center">
             <div class = "col"><a href = "/downloads/" target=""><button class="btn btn-primary">Downloads</button></a></div>
             <div class = "col"><a href = "/history" target=""><button class="btn btn-primary">History</button></a></div>
-            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
+            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Site</button></a></div>
           </div>
 
           <p></p>
