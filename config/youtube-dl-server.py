@@ -1,5 +1,4 @@
-# ATTENTION: This is only a example of to use a python bind of torrent library in Python for educational purposes.
-#            I am not responsible for your download of illegal content or without permission.
+# ATTENTION: I am not responsible for your download of illegal content or without permission.
 #            Please respect the laws license permits of your country.
 
 # ---------- # imports # ---------- #
@@ -48,7 +47,7 @@ def constructPath(path):
     Convert path to windows path format.
     '''
     if(sys.platform=='win32'):
-        return "\\"+path.replace('/','\\')
+      return "\\"+path.replace('/','\\')
     return path #Return same path if on linux or unix
 
 # ---------- # routing # ---------- #
@@ -75,19 +74,29 @@ def serv_history():
 @app.route('/downloads/<filename:re:.*>') #match any string after /
 @view('download')
 def server_download(filename):
+
+    print("1 workPath" + workPath)
+    print("1 SWAP" + str(app_vars['SWAP']))
+
+    if not workPath in str(app_vars['SWAP']):
+        app_vars['SWAP'] = workPath
+
+    print("2 workPath" + workPath)
+    print("2 SWAP" + str(app_vars['SWAP']))
+
     path = str(app_vars['SWAP']) + "/" + constructPath(filename)
     webpage = []
 
     # Serving File
     if (os.path.isfile(path)):
         if (os.path.split(path)[-1][0] == '.' and show_hidden == False): #Allow accessing hidden files?
-            
+
             app_vars['SWAP'] = os.getcwd()
             os.chdir(sourcePath)
             return "404! Not found.<br /> Allow accessing hidden files?"
- 
+
         return static_file(constructPath(filename), root = workPath)  #serve a file
-    
+
     # Serving Directory
     else:
         try:
@@ -140,15 +149,15 @@ def addToQueue():
     path = workPath + "/" + request.forms.get("path")
 
     parameters = [
-                    request.forms.get("retries"), 
-                    request.forms.get("minSleep"), 
-                    request.forms.get("maxSleep"), 
-                    request.forms.get("bandwidth"), 
-                    request.forms.get("download"), 
-                    request.forms.get("username"), 
-                    request.forms.get("password"), 
-                    request.forms.get("reference")
-                 ]
+        request.forms.get("retries"),
+        request.forms.get("minSleep"),
+        request.forms.get("maxSleep"),
+        request.forms.get("bandwidth"),
+        request.forms.get("download"),
+        request.forms.get("username"),
+        request.forms.get("password"),
+        request.forms.get("reference")
+    ]
 
     if not url:
         return {"success": False, "error": "/q called without a 'url' query param"}
@@ -162,7 +171,7 @@ def addToQueue():
 
     if tool == "youtube-dl":
         download_executor.submit(download_ydl, url, title, path, parameters)
-    
+
     if tool == "wget":
         download_executor.submit(download_wget, url, path, parameters)
 
@@ -194,6 +203,8 @@ def update():
 def download_ydl(url, title, path, parameters):
 
     ydl, url, title = extractor.preProcessor(url, title, path, parameters)
+
+    # ---
 
     download_history.append({
         "url": url,
@@ -229,8 +240,8 @@ def download_ydl(url, title, path, parameters):
 
 # content wget
 def download_wget(content, path, parameters):
-    
-    wget = "wget -c --random-wait -P {path}/{url}".format(path = path, url = content)
+
+    wget = "wget -c --random-wait -P {path} {url}".format(path = path, url = content)
 
     if parameters[3] != "":
         wget = wget + " --limit-rate={}".format(parameters[3]+"M")
@@ -240,8 +251,10 @@ def download_wget(content, path, parameters):
     download_history.append({
         "url": content,
         "title": content.rsplit('/',1)[1],
-        "kind": "wget",
+       "kind": "wget",
     })
+
+    # ---
 
     i=0
     returned_value = ""
@@ -266,13 +279,23 @@ def download_wget(content, path, parameters):
     print("finished: wget")
 
 # ---
+
 # content torrent magnetlink
 def download_torrent(content, path, parameters):
+
+    download_history.append({
+        "url": content,
+        "title": datetime.now().strftime("%m-%d-%Y_%H-%M-%S"),
+        "kind": "torrent"
+    })
+
+    # ---
+
     limit = 0
 
     if parameters[3] != "":
         limit = int(round(parameters[3] * pow(1024, 2)))
-    
+
     params = { 'save_path': path }
 
     # ---
@@ -288,10 +311,10 @@ def download_torrent(content, path, parameters):
     while (handler.status().state != lt.torrent_status.seeding):
         s = handler.status()
         state_str = ['queued', 'checking', 'downloading metadata', \
-                'downloading', 'finished', 'seeding', 'allocating']
+              'downloading', 'finished', 'seeding', 'allocating']
         print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
-                (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
-                s.num_peers, state_str[s.state]))
+              (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
+              s.num_peers, state_str[s.state]))
         time.sleep(5)
 
     print("finished: torrent")
@@ -340,9 +363,9 @@ if __name__ == "__main__":
         workPath = "/tmp/" + str(app_vars['DOWNLOAD_DIR'])
         sourcePath = "/usr/src/youtube-dl-server/run"
 
-        print("Creating Download Folder: " + workPath)
-        if not os.path.exists(workPath):
-            os.makedirs(workPath)
+    print("Creating Download Folder: " + workPath)
+    if not os.path.exists(workPath):
+        os.makedirs(workPath)
 
     # --- File Browser
 
@@ -374,5 +397,5 @@ if __name__ == "__main__":
     download_history = []
 
     app.run(host=app_vars['YDL_SERVER_HOST'],
-            port=app_vars['YDL_SERVER_PORT'], 
+            port=app_vars['YDL_SERVER_PORT'],
             debug=True)
