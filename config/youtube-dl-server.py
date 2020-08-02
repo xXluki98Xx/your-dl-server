@@ -1,8 +1,8 @@
 # ATTENTION: I am not responsible for your download of illegal content or without permission.
 #            Please respect the laws license permits of your country.
 
-# ---------- # imports # ---------- #
 
+# --------------- # --------------- # imports # --------------- # --------------- #
 from __future__ import unicode_literals
 
 import glob
@@ -22,11 +22,9 @@ import libtorrent as lt
 from bottle import Bottle, redirect, request, route, run, static_file, view
 from extractor import Extractor
 
-# ---------- # instantiation # ---------- #
 
+# --------------- # --------------- # contfiguration # --------------- # --------------- #
 app = Bottle()
-
-# ---------- # configuration # ---------- #
 
 app_defaults = {
     'YDL_SERVER_HOST': '0.0.0.0',
@@ -39,8 +37,11 @@ app_defaults = {
     'SWAP': "", # used for testing purpose
 }
 
-# ---------- # help functions # ---------- #
 
+# --------------- # --------------- # functions: help # --------------- # --------------- #
+
+
+# --------------- # help: view download # --------------- #
 def constructPath(path):
     '''
     Needed for File Serving
@@ -50,17 +51,18 @@ def constructPath(path):
       return "\\"+path.replace('/','\\')
     return path #Return same path if on linux or unix
 
-# ---------- # routing # ---------- #
 
-# view home
+# --------------- # --------------- # functions: app # --------------- # --------------- #
+
+
+# --------------- # view: home # --------------- #
 @app.route('/')
 @view('index')
 def serv_ui():
     return {}
 
-# ---
 
-# view history
+# --------------- # view: history # --------------- #
 @app.route('/history')
 @view('history')
 def serv_history():
@@ -68,9 +70,8 @@ def serv_history():
         "history": download_history,
     }
 
-# ---
 
-# view downloads
+# --------------- # view: downloads # --------------- #
 @app.route('/downloads/<filename:re:.*>') #match any string after /
 @view('download')
 def server_download(filename):
@@ -132,14 +133,14 @@ def server_download(filename):
     os.chdir(sourcePath)
     return { "downloads": webpage, }
 
-# ---------- # serving static # ---------- #
 
+# --------------- # static # --------------- #
 @app.route('/static/:filename#.*#')
 def server_static(filename):
     return static_file(filename, root='./static')
 
-# ---------- # api calls # ---------- #
 
+# --------------- # api: add # --------------- #
 # api download
 @app.route('/api/add', method='POST')
 def addToQueue():
@@ -182,9 +183,8 @@ def addToQueue():
 
     return redirect("/")
 
-# ---
 
-# api update youtube-dl
+# --------------- # api: update # --------------- #
 @app.route("/update", method="GET")
 def update():
     command = ["pip", "install", "--upgrade", "youtube-dl"]
@@ -197,9 +197,10 @@ def update():
         "error":  error.decode('ascii')
     }
 
-# ---------- # downloader # ---------- #
+# --------------- # --------------- # functions: download # --------------- # --------------- #
 
-# content audio video
+
+# --------------- # download: youtube-dl # --------------- #
 def download_ydl(url, title, path, parameters):
 
     ydl, url, title = extractor.preProcessor(url, title, path, parameters)
@@ -236,9 +237,8 @@ def download_ydl(url, title, path, parameters):
 
     print("finished: youtube-dl")
 
-# ---
 
-# content wget
+# --------------- # download: wget # --------------- #
 def download_wget(content, path, parameters):
 
     wget = "wget -c --random-wait -P {path} {url}".format(path = path, url = content)
@@ -278,9 +278,8 @@ def download_wget(content, path, parameters):
 
     print("finished: wget")
 
-# ---
 
-# content torrent magnetlink
+# --------------- # download: torrent # --------------- #
 def download_torrent(content, path, parameters):
 
     download_history.append({
@@ -348,14 +347,14 @@ def download_torrent(content, path, parameters):
 #         'embedsubtitles': True  # --embed-subs
 #     }
 
-# ---------- # app start # ---------- #
 
+# --------------- # --------------- # main # --------------- # --------------- #
 if __name__ == "__main__":
 
     app_vars = ChainMap(os.environ, app_defaults)
 
-    # --- Creating Folder
 
+    # --------------- # folder # --------------- #
     if bool(app_vars['LOCAL']):
         workPath = os.getcwd()
         sourcePath = os.getcwd()
@@ -367,35 +366,39 @@ if __name__ == "__main__":
     if not os.path.exists(workPath):
         os.makedirs(workPath)
 
-    # --- File Browser
 
+    # --------------- # file browser # --------------- #
     print("Loading: File Browser")
     show_hidden = bool(app_vars['SHOW_HIDDEN'])
     sub = "/" + str(app_vars['SUB_PATH'])
     app_vars['SWAP'] = workPath
 
-    # --- Extractor Modul
 
+    # --------------- # modul: extractor # --------------- #
     print("Loading: Extractors")
     extractor = Extractor.getInstance()
 
-    # --- Torrent Modul
 
+    # --------------- # modul: torrent # --------------- #
     print("Loading: Torrent")
     torrentSession = lt.session()
 
-    # --- Youtube-dl Server
 
+    # --------------- # youtube-dl # --------------- #
     print("Updating youtube-dl to the newest version")
     updateResult = update()
     print(updateResult["output"])
     print(updateResult["error"])
 
+
+    # --------------- # threads # --------------- #
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
     download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
     download_history = []
 
+
+    # --------------- # app # --------------- #
     app.run(host=app_vars['YDL_SERVER_HOST'],
             port=app_vars['YDL_SERVER_PORT'],
             debug=True)
