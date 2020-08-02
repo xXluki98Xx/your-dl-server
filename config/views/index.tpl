@@ -89,9 +89,9 @@
     </div>
 
     <footer>
-      <div>
-        <p class="text-muted">Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
-          by <a class="text-light" href="https://twitter.com/manbearwiz">@manbearwiz</a>.</p>
+      <div class="text-muted">
+          <p>Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
+          by <a class="text-light" href="https://github.com/xXluki98Xx/youtube-dl-server">xXluki98Xx</a>. A Fork of <a class="text-light" href="https://github.com/manbearwiz/youtube-dl-server">manbearwiz/youtube-dl-server</a>.</p>
       </div>
     </footer>
 

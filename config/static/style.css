@@ -236,3 +236,8 @@ footer {
 footer a {
   color: darkgray
 }
+
+footer p {
+  margin: 0 !important;
+  padding: 2px;
+}
