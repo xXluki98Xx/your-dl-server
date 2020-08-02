@@ -57,14 +57,32 @@ def constructPath(path):
 def addHistory(url, title, kind, status, path):
 
     if status == "Started":
-        print("test 3")
-        download_history.append({
-            'url': url,
-            'title': title,
-            'kind': kind,
-            'status': status,
-            'path': path,
-        })
+        if len(download_history) == 0:
+            download_history.append({
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                    'path': path,
+                })
+        else:
+            for content, item in enumerate(download_history):
+                if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
+                    download_history[content] = {
+                        'url': url,
+                        'title': title,
+                        'kind': kind,
+                        'status': status,
+                        'path': path,
+                    }
+                else:
+                    download_history.append({
+                        'url': url,
+                        'title': title,
+                        'kind': kind,
+                        'status': status,
+                        'path': path,
+                    })
 
     if status == "Finished":
         for content, item in enumerate(download_history):
@@ -109,6 +127,13 @@ def addHistory(url, title, kind, status, path):
                     'status': status,
                     'path': path,
                 }
+
+    # print("history.1 url: " + url)
+    # print("history.2 title: " + title)
+    # print("history.3 kind: " + kind)
+    # print("history.4 status: " + status)
+    # print("history.5 path: " + path)
+    # print("history.6 history: " + str(download_history))
 
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #
