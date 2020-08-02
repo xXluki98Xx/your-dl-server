@@ -18,7 +18,7 @@ from math import pow
 from pathlib import Path
 from threading import Thread
 
-import libtorrent as lt
+# import libtorrent as lt
 from bottle import Bottle, redirect, request, route, run, static_file, view
 from extractor import Extractor
 
@@ -55,42 +55,15 @@ def constructPath(path):
 
 # --------------- # help: history append # --------------- #
 def addHistory(url, title, kind, status):
-    global download_history
-
-    print("test 4")
-    print("4.1 url: " + url)
-    print("4.2 title: " + title)
-    print("4.3 kind: " + kind)
-    print("4.4 status: " + status)
-    print("4.5 history: " + str(download_history))
 
     if status == "Started":
         print("test 3")
-        for content, item in enumerate(download_history):
-            print("3.2 content: " + content)
-            print("3.3 content: " + item)
-            if (item['kind'] == kind) and (item['title'] == title):
-                download_history[content] = {
-                    'url': url,
-                    'title': title,
-                    'kind': kind,
-                    'status': status,
-                }
-            else:
-                print("test 3.1")
-                download_history.append({
-                    'url': url,
-                    'title': title,
-                    'kind': kind,
-                    'status': status,
-                })
-
-    print("test 5")
-    print("5.1 url: " + url)
-    print("5.2 title: " + title)
-    print("5.3 kind: " + kind)
-    print("5.4 status: " + status)
-    print("5.5 history: " + str(download_history))
+        download_history.append({
+            'url': url,
+            'title': title,
+            'kind': kind,
+            'status': status,
+        })
 
     if status == "Finished":
         for content, item in enumerate(download_history):
@@ -102,13 +75,6 @@ def addHistory(url, title, kind, status):
                     'status': status,
                 }
 
-    print("test 6")
-    print("6.1 url: " + url)
-    print("6.2 title: " + title)
-    print("6.3 kind: " + kind)
-    print("6.4 status: " + status)
-    print("6.5 history: " + str(download_history))
-
     if status == "Running":
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title):
@@ -119,7 +85,7 @@ def addHistory(url, title, kind, status):
                     'status': status,
                 }
 
-    if status == "Pennding":
+    if status == "Pending":
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title):
                 download_history[content] = {
@@ -164,14 +130,8 @@ def serv_history():
 @view('download')
 def server_download(filename):
 
-    print("1 workPath: " + workPath)
-    print("1 SWAP: " + str(app_vars['SWAP']))
-
     if not workPath in str(app_vars['SWAP']):
         app_vars['SWAP'] = workPath
-
-    print("2 workPath: " + workPath)
-    print("2 SWAP: " + str(app_vars['SWAP']))
 
     path = str(app_vars['SWAP']) + "/" + constructPath(filename)
     webpage = []
@@ -264,8 +224,8 @@ def addToQueue():
     if tool == "wget":
         download_executor.submit(download_wget, url, path, parameters)
 
-    if tool == "torrent":
-        download_executor.submit(download_torrent, url, path, parameters)
+    # if tool == "torrent":
+    #     download_executor.submit(download_torrent, url, path, parameters)
 
     print("Added url " + url + " to the download queue")
 
@@ -294,16 +254,16 @@ def download_ydl(url, title, path, parameters):
     ydl, url, title = extractor.preProcessor(url, title, path, parameters)
 
     # ---
-    print("test 1")
+
     addHistory(url, title, "youtube-dl", "Started")
-    print("ydl: " + ydl)
-    print("test 2")
+
     # ---
 
-    i=0
+    i = 0
     returned_value = ""
 
     while i < 3:
+        print("try: " + str(i+1))
 
         addHistory(url, title, "youtube-dl", "Running")
         returned_value = os.system(ydl)
@@ -315,14 +275,12 @@ def download_ydl(url, title, path, parameters):
             timer = random.randint(200,1000)/100
             time.sleep(timer)
 
-            if i == 3:
+            if i >= 3:
                 addHistory(url, title, "youtube-dl", "Failed")
                 return
-            else:
-                addHistory(url, title, "youtube-dl", "Pending")
-                continue
-
-    addHistory(url, title, "youtube-dl", "Finished")
+        else:
+            addHistory(url, title, "youtube-dl", "Finished")
+            return
 
 
 # --------------- # download: wget # --------------- #
@@ -339,11 +297,11 @@ def download_wget(content, path, parameters):
 
     # ---
 
-    i=0
+    i = 0
     returned_value = ""
 
     while i < 3:
-
+        print("try: " + str(i+1))
 
         addHistory(content, content.rsplit('/',1)[1], "wget", "Running")
         returned_value = os.system(wget)
@@ -355,54 +313,52 @@ def download_wget(content, path, parameters):
             timer = random.randint(200,1000)/100
             time.sleep(timer)
 
-            if i == 3:
+            if i >= 3:
                 addHistory(content, content.rsplit('/',1)[1], "wget", "Failed")
                 return
-            else:
-                addHistory(content, content.rsplit('/',1)[1], "wget", "Pending")
-                continue
-
-    addHistory(content, content.rsplit('/',1)[1], "wget", "Finished")
+        else:
+            addHistory(content, content.rsplit('/',1)[1], "wget", "Finished")
+            return
 
 
 # --------------- # download: torrent # --------------- #
-def download_torrent(content, path, parameters):
+# def download_torrent(content, path, parameters):
 
-    dTime = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+#     dTime = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
 
-    addHistory(content, dTime, "torrent", "Started")
+#     addHistory(content, dTime, "torrent", "Started")
 
-    # ---
+#     # ---
 
-    limit = 0
+#     limit = 0
 
-    if parameters[3] != "":
-        limit = int(round(parameters[3] * pow(1024, 2)))
+#     if parameters[3] != "":
+#         limit = int(round(parameters[3] * pow(1024, 2)))
 
-    params = { 'save_path': path }
+#     params = { 'save_path': path }
 
-    # ---
+#     # ---
 
-    handler = lt.add_magnet_uri(torrentSession, content, params)
-    handler.set_download_limit(limit)
-    torrentSession.start_dht()
+#     handler = lt.add_magnet_uri(torrentSession, content, params)
+#     handler.set_download_limit(limit)
+#     torrentSession.start_dht()
 
-    addHistory(content, dTime, "torrent", "Running")
+#     addHistory(content, dTime, "torrent", "Running")
 
-    print("downloading metadata...")
-    while (not handler.has_metadata()):
-        time.sleep(1)
-    print("got metadata, starting torrent download...")
-    while (handler.status().state != lt.torrent_status.seeding):
-        s = handler.status()
-        state_str = ['queued', 'checking', 'downloading metadata', \
-              'downloading', 'finished', 'seeding', 'allocating']
-        print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
-              (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
-              s.num_peers, state_str[s.state]))
-        time.sleep(5)
+#     print("downloading metadata...")
+#     while (not handler.has_metadata()):
+#         time.sleep(1)
+#     print("got metadata, starting torrent download...")
+#     while (handler.status().state != lt.torrent_status.seeding):
+#         s = handler.status()
+#         state_str = ['queued', 'checking', 'downloading metadata', \
+#               'downloading', 'finished', 'seeding', 'allocating']
+#         print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
+#               (s.progress * 100, s.download_rate / 1024, s.upload_rate / 1024, \
+#               s.num_peers, state_str[s.state]))
+#         time.sleep(5)
 
-    addHistory(content, dTime, "torrent", "Finished")
+#     addHistory(content, dTime, "torrent", "Finished")
 
 # ---
 
@@ -466,8 +422,8 @@ if __name__ == "__main__":
 
 
     # --------------- # modul: torrent # --------------- #
-    print("Loading: Torrent")
-    torrentSession = lt.session()
+    # print("Loading: Torrent")
+    # torrentSession = lt.session()
 
 
     # --------------- # youtube-dl # --------------- #
