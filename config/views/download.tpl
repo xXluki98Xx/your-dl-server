@@ -15,42 +15,41 @@
     <title>Download</title>
   </head>
 
-
   <body>
-    <div class="container d-flex flex-column text-light text-center">
-      <div class="flex-grow-1"></div>
-        <div class="jumbotron bg-transparent flex-grow-1">
 
-          <div class = "row justify-content-center">
-            <div class = "col"><a href = "/" target=""><button class="btn btn-primary">Youtube-dl UI</button></a></div>
-            <div class = "col"><a href = "/history" target=""><button class="btn btn-primary">History</button></a></div>
-            <div class = "col"><a onclick="history.back()"><button class="btn btn-primary">Previous Folder</button></a></div>
-          </div>
+    <header>
+      <h1 class="logo">ydl-server</h1>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/downloads/">Downloads</a></li>
+          <li><a href="/history">History</a></li>
+          <li><a onclick="history.back()">Previous Site</a></li>
+        </ul>
+      </nav>
+      <label for="nav-toggle" class="nav-toggle-label">
+        <span></span>
+      </label>
+    </header>
 
-          <p></p>
-          <hr class="my-4">
-          <p></p>
+    <div class="content container">
 
-          <div>
-            <h2>Downloads</h2>
-            <table border=0 class= "row justify-content-center text-left">
-              %for item in downloads:
-              <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
-              %end
-            </table>
-          </div>
+        <h1 class="text-light">Downloaded Files:</h1>
+        <table border=0 class= "row justify-content-center text-left">
+          %for item in downloads:
+          <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
+          %end
+        </table>
 
-        </div>
-
-        <footer>
-          <div>
-            <p class="text-muted">Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
-              by <a class="text-light" href="https://twitter.com/manbearwiz">@manbearwiz</a>.</p>
-          </div>
-        </footer>
-        
-      </div>
     </div>
+
+    <footer>
+      <div>
+        <p class="text-muted">Web frontend for <a class="text-light" href="https://rg3.github.io/youtube-dl/">youtube-dl</a>,
+          by <a class="text-light" href="https://twitter.com/manbearwiz">@manbearwiz</a>.</p>
+      </div>
+    </footer>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -60,6 +59,7 @@
       crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
       crossorigin="anonymous"></script>
+
   </body>
 
 </html>
