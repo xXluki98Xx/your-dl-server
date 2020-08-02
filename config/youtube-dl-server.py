@@ -286,7 +286,7 @@ def download_ydl(url, title, path, parameters):
 # --------------- # download: wget # --------------- #
 def download_wget(content, path, parameters):
 
-    wget = "wget -c --random-wait -P {path} {url}".format(path = path, url = content)
+    wget = "wget -c -P {path} {url}".format(path = path, url = content)
 
     if parameters[3] != "":
         wget = wget + " --limit-rate={}".format(parameters[3]+"M")
