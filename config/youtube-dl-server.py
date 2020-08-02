@@ -35,6 +35,7 @@ app_defaults = {
     'SUB_PATH': "downloads",
     'SHOW_HIDDEN': False,
     'SWAP': "", # used for testing purpose
+    'HISTORY': []
 }
 
 
@@ -50,6 +51,93 @@ def constructPath(path):
     if(sys.platform=='win32'):
       return "\\"+path.replace('/','\\')
     return path #Return same path if on linux or unix
+
+
+# --------------- # help: history append # --------------- #
+def addHistory(url, title, kind, status):
+    global download_history
+
+    print("test 4")
+    print("4.1 url: " + url)
+    print("4.2 title: " + title)
+    print("4.3 kind: " + kind)
+    print("4.4 status: " + status)
+    print("4.5 history: " + str(download_history))
+
+    if status == "Started":
+        print("test 3")
+        for content, item in enumerate(download_history):
+            print("3.2 content: " + content)
+            print("3.3 content: " + item)
+            if (item['kind'] == kind) and (item['title'] == title):
+                download_history[content] = {
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                }
+            else:
+                print("test 3.1")
+                download_history.append({
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                })
+
+    print("test 5")
+    print("5.1 url: " + url)
+    print("5.2 title: " + title)
+    print("5.3 kind: " + kind)
+    print("5.4 status: " + status)
+    print("5.5 history: " + str(download_history))
+
+    if status == "Finished":
+        for content, item in enumerate(download_history):
+            if (item['kind'] == kind) and (item['title'] == title):
+                download_history[content] = {
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                }
+
+    print("test 6")
+    print("6.1 url: " + url)
+    print("6.2 title: " + title)
+    print("6.3 kind: " + kind)
+    print("6.4 status: " + status)
+    print("6.5 history: " + str(download_history))
+
+    if status == "Running":
+        for content, item in enumerate(download_history):
+            if (item['kind'] == kind) and (item['title'] == title):
+                download_history[content] = {
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                }
+
+    if status == "Pennding":
+        for content, item in enumerate(download_history):
+            if (item['kind'] == kind) and (item['title'] == title):
+                download_history[content] = {
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                }
+
+    if status == "Failed":
+        for content, item in enumerate(download_history):
+            if (item['kind'] == kind) and (item['title'] == title):
+                download_history[content] = {
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                }
 
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #
@@ -76,14 +164,14 @@ def serv_history():
 @view('download')
 def server_download(filename):
 
-    print("1 workPath" + workPath)
-    print("1 SWAP" + str(app_vars['SWAP']))
+    print("1 workPath: " + workPath)
+    print("1 SWAP: " + str(app_vars['SWAP']))
 
     if not workPath in str(app_vars['SWAP']):
         app_vars['SWAP'] = workPath
 
-    print("2 workPath" + workPath)
-    print("2 SWAP" + str(app_vars['SWAP']))
+    print("2 workPath: " + workPath)
+    print("2 SWAP: " + str(app_vars['SWAP']))
 
     path = str(app_vars['SWAP']) + "/" + constructPath(filename)
     webpage = []
@@ -206,13 +294,10 @@ def download_ydl(url, title, path, parameters):
     ydl, url, title = extractor.preProcessor(url, title, path, parameters)
 
     # ---
-
-    download_history.append({
-        "url": url,
-        "title": title,
-        "kind": "youtube-dl"
-    })
-
+    print("test 1")
+    addHistory(url, title, "youtube-dl", "Started")
+    print("ydl: " + ydl)
+    print("test 2")
     # ---
 
     i=0
@@ -220,22 +305,24 @@ def download_ydl(url, title, path, parameters):
 
     while i < 3:
 
-        print()
+        addHistory(url, title, "youtube-dl", "Running")
         returned_value = os.system(ydl)
 
         if returned_value > 0:
             i += 1
+
+            addHistory(url, title, "youtube-dl", "Pending")
             timer = random.randint(200,1000)/100
-            print("sleep for " + str(timer) + "s")
             time.sleep(timer)
 
-        if i == 3:
-            print("This was the Command: \n%s" % ydl)
-            return returned_value
-        else:
-            return returned_value
+            if i == 3:
+                addHistory(url, title, "youtube-dl", "Failed")
+                return
+            else:
+                addHistory(url, title, "youtube-dl", "Pending")
+                continue
 
-    print("finished: youtube-dl")
+    addHistory(url, title, "youtube-dl", "Finished")
 
 
 # --------------- # download: wget # --------------- #
@@ -248,11 +335,7 @@ def download_wget(content, path, parameters):
 
     # ---
 
-    download_history.append({
-        "url": content,
-        "title": content.rsplit('/',1)[1],
-       "kind": "wget",
-    })
+    addHistory(content, content.rsplit('/',1)[1], "wget", "Started")
 
     # ---
 
@@ -261,32 +344,33 @@ def download_wget(content, path, parameters):
 
     while i < 3:
 
-        print()
+
+        addHistory(content, content.rsplit('/',1)[1], "wget", "Running")
         returned_value = os.system(wget)
 
         if returned_value > 0:
             i += 1
+
+            addHistory(content, content.rsplit('/',1)[1], "wget", "Pending")
             timer = random.randint(200,1000)/100
-            print("sleep for " + str(timer) + "s")
             time.sleep(timer)
 
             if i == 3:
-                print("This was the Command: \n%s" % wget)
-                return returned_value
+                addHistory(content, content.rsplit('/',1)[1], "wget", "Failed")
+                return
             else:
-                return returned_value
+                addHistory(content, content.rsplit('/',1)[1], "wget", "Pending")
+                continue
 
-    print("finished: wget")
+    addHistory(content, content.rsplit('/',1)[1], "wget", "Finished")
 
 
 # --------------- # download: torrent # --------------- #
 def download_torrent(content, path, parameters):
 
-    download_history.append({
-        "url": content,
-        "title": datetime.now().strftime("%m-%d-%Y_%H-%M-%S"),
-        "kind": "torrent"
-    })
+    dTime = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+
+    addHistory(content, dTime, "torrent", "Started")
 
     # ---
 
@@ -303,6 +387,8 @@ def download_torrent(content, path, parameters):
     handler.set_download_limit(limit)
     torrentSession.start_dht()
 
+    addHistory(content, dTime, "torrent", "Running")
+
     print("downloading metadata...")
     while (not handler.has_metadata()):
         time.sleep(1)
@@ -316,7 +402,7 @@ def download_torrent(content, path, parameters):
               s.num_peers, state_str[s.state]))
         time.sleep(5)
 
-    print("finished: torrent")
+    addHistory(content, dTime, "torrent", "Finished")
 
 # ---
 
