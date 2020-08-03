@@ -14,6 +14,7 @@ import sys
 import time
 from collections import ChainMap
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from math import pow
 from pathlib import Path
 from threading import Thread
@@ -354,7 +355,6 @@ def download_wget(content, path, parameters):
 # --------------- # download: torrent # --------------- #
 def download_torrent(content, path, parameters):
 
-    dTime = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
 
     addHistory(content, dTime, "torrent", "Started", path)
 
