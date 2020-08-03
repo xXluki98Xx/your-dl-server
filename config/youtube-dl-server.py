@@ -11,6 +11,7 @@ import os
 import random
 import subprocess
 import sys
+import safer
 import time
 from collections import ChainMap
 from concurrent.futures import ThreadPoolExecutor
@@ -59,12 +60,14 @@ def addHistory(url, title, kind, status, path):
 
     if status == "Started":
         if len(download_history) == 0:
+            saveHistory()
             download_history.append({
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 })
         else:
             for content, item in enumerate(download_history):
@@ -75,6 +78,7 @@ def addHistory(url, title, kind, status, path):
                         'kind': kind,
                         'status': status,
                         'path': path,
+                        'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                     }
                 else:
                     download_history.append({
@@ -83,17 +87,20 @@ def addHistory(url, title, kind, status, path):
                         'kind': kind,
                         'status': status,
                         'path': path,
+                        'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                     })
 
     if status == "Finished":
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
+                saveHistory()
                 download_history[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 }
 
     if status == "Running":
@@ -105,6 +112,7 @@ def addHistory(url, title, kind, status, path):
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 }
 
     if status == "Pending":
@@ -116,18 +124,23 @@ def addHistory(url, title, kind, status, path):
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 }
 
     if status == "Failed":
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
+                saveHistory()
                 download_history[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 }
+
+    saveHistory()
 
     # print("history.1 url: " + url)
     # print("history.2 title: " + title)
@@ -135,6 +148,26 @@ def addHistory(url, title, kind, status, path):
     # print("history.4 status: " + status)
     # print("history.5 path: " + path)
     # print("history.6 history: " + str(download_history))
+
+
+# --------------- # help: write history # --------------- #
+def saveHistory():
+    try:
+
+        filename = workPath + "/logs/history.txt"
+        
+        if not os.path.isfile(filename):
+            os.makedirs(filename.rsplit("/",1)[0])
+            historyLog = open(filename, "w")
+            historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+            historyLog.close()
+
+        with safer.open(filename, 'a') as f:
+            for item in download_history:
+                print(item)
+                f.write("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
+    except:
+        print("Failure at saveHistory. Error: " + sys.exc_info()[0])
 
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #

@@ -3,6 +3,7 @@ bottle
 youtube-dl
 urllib3
 bs4
+safer
 
 # OS dependend
 # axel
