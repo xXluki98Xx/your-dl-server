@@ -60,7 +60,6 @@ def addHistory(url, title, kind, status, path):
 
     if status == "Started":
         if len(download_history) == 0:
-            saveHistory()
             download_history.append({
                     'url': url,
                     'title': title,
@@ -93,7 +92,6 @@ def addHistory(url, title, kind, status, path):
     if status == "Finished":
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                saveHistory()
                 download_history[content] = {
                     'url': url,
                     'title': title,
@@ -102,6 +100,7 @@ def addHistory(url, title, kind, status, path):
                     'path': path,
                     'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 }
+                saveHistory()
 
     if status == "Running":
         for content, item in enumerate(download_history):
@@ -130,7 +129,6 @@ def addHistory(url, title, kind, status, path):
     if status == "Failed":
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                saveHistory()
                 download_history[content] = {
                     'url': url,
                     'title': title,
@@ -139,8 +137,9 @@ def addHistory(url, title, kind, status, path):
                     'path': path,
                     'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 }
+                saveHistory()
 
-    saveHistory()
+    # saveHistory()
 
     # print("history.1 url: " + url)
     # print("history.2 title: " + title)
