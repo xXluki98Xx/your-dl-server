@@ -58,6 +58,8 @@ def constructPath(path):
 # --------------- # help: history append # --------------- #
 def addHistory(url, title, kind, status, path):
 
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
     if status == "Started":
         if len(download_history) == 0:
             download_history.append({
@@ -66,7 +68,7 @@ def addHistory(url, title, kind, status, path):
                     'kind': kind,
                     'status': status,
                     'path': path,
-                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    'timestamp': timestamp,
                 })
         else:
             for content, item in enumerate(download_history):
@@ -77,7 +79,7 @@ def addHistory(url, title, kind, status, path):
                         'kind': kind,
                         'status': status,
                         'path': path,
-                        'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                        'timestamp': timestamp,
                     }
                 else:
                     download_history.append({
@@ -86,7 +88,7 @@ def addHistory(url, title, kind, status, path):
                         'kind': kind,
                         'status': status,
                         'path': path,
-                        'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                        'timestamp': timestamp,
                     })
 
     if status == "Finished":
@@ -98,7 +100,7 @@ def addHistory(url, title, kind, status, path):
                     'kind': kind,
                     'status': status,
                     'path': path,
-                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    'timestamp': timestamp,
                 }
                 saveHistory()
 
@@ -111,7 +113,7 @@ def addHistory(url, title, kind, status, path):
                     'kind': kind,
                     'status': status,
                     'path': path,
-                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    'timestamp': timestamp,
                 }
 
     if status == "Pending":
@@ -123,7 +125,7 @@ def addHistory(url, title, kind, status, path):
                     'kind': kind,
                     'status': status,
                     'path': path,
-                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    'timestamp': timestamp,
                 }
 
     if status == "Failed":
@@ -135,7 +137,7 @@ def addHistory(url, title, kind, status, path):
                     'kind': kind,
                     'status': status,
                     'path': path,
-                    'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    'timestamp': timestamp,
                 }
                 saveHistory()
 
@@ -163,11 +165,41 @@ def saveHistory():
 
         with safer.open(filename, 'a') as f:
             for item in download_history:
-                print(item)
                 f.write("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
     except:
         print("Failure at saveHistory. Error: " + sys.exc_info()[0])
+        print("Failure at saveHistory. Error: " + str(sys.exc_info()[0]))
 
+
+# --------------- # help: write history # --------------- #
+def loadHistory():
+    try:
+
+        filename = workPath + "/logs/history.txt"
+        
+        if not os.path.isfile(filename):
+            os.makedirs(filename.rsplit("/",1)[0])
+            historyLog = open(filename, "w")
+            historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+            historyLog.close()
+        else:
+            with safer.open(filename, 'r') as f:
+                f.readline()
+
+                item = f.readline()
+                while item != "":
+                    url, title, kind, status, path, timestamp, nop = item.split(";")
+                    download_history.append({
+                        'url': url,
+                        'title': title,
+                        'kind': kind,
+                        'status': status,
+                        'path': path,
+                        'timestamp': timestamp,
+                    })
+                    item = f.readline()
+    except:
+        print("Failure at saveHistory. Error: " + str(str(sys.exc_info()[0])))
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #
 
@@ -176,15 +208,17 @@ def saveHistory():
 @app.route('/')
 @view('index')
 def serv_ui():
+    saveHistory()
     return {}
 
 
 # --------------- # view: history # --------------- #
 @app.route('/history')
 @view('history')
-def serv_history():
+def server_history():
+    saveHistory()
     return {
-        "history": download_history,
+        "history": download_history[len(download_history)-10:],
     }
 
 
@@ -351,7 +385,7 @@ def download_ydl(url, title, path, parameters):
         pass
     except:
         addHistory(url, title, "youtube-dl", "Failed", path)
-        print("Failure at Youtube-dl. Error: " + sys.exc_info()[0])
+        print("Failure at Youtube-dl. Error: " + str(sys.exc_info()[0]))
 
 
 # --------------- # download: wget # --------------- #
@@ -396,7 +430,7 @@ def download_wget(content, path, parameters):
         pass
     except:
         addHistory(content, content.rsplit('/',1)[1], "wget", "Failed", path)
-        print("Failure at wget. Error: " + sys.exc_info()[0])
+        print("Failure at wget. Error: " + str(sys.exc_info()[0]))
 
 # --------------- # download: torrent # --------------- #
 def download_torrent(content, path, parameters):
@@ -524,7 +558,11 @@ if __name__ == "__main__":
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
     download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
+    
+    
+    # --------------- # history # --------------- #
     download_history = []
+    loadHistory()
 
 
     # --------------- # app # --------------- #

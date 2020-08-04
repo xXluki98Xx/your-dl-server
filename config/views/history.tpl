@@ -38,7 +38,7 @@
       <h1 class="text-light">Download History:</h1>
       <table border=0 class= "row justify-content-center text-left">
         %for item in history:
-          <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['title'] }} | {{ item['status'] }}</a><td></tr>
+          <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
         %end
       </table>
 
