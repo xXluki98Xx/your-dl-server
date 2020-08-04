@@ -177,18 +177,15 @@ class Extractor:
 
 # --------------- # function: title from webpage # --------------- #
     def getTitleWebpage(self):
-        webpage = ""
-
-        req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
+        req = urllib.request.Request(self.content, headers = {"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req) as response:
             webpage = response.read()
 
-        # title = str(webpage).split('<title>')[1].split('</title>')[0]
         titleRegex = re.compile('<title>(.*?)</title>')
         m = titleRegex.search(str(webpage))
         if m:
             title = m.group(1)
-
+        print(title)
         return title
 
 
@@ -358,19 +355,17 @@ class Extractor:
     def host_hahomoe(self):
         webpage=""
 
-        req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
+        req = urllib.request.Request(self.content, headers = {"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req) as response:
             webpage = response.read()
 
         urlRegex = re.compile('<source src="(.*?)" type="video/mp4"></source>')
         m = urlRegex.search(str(webpage))
         if m:
-            url = m.group(1)
+            self.url = m.group(1)
 
-        title = getTitle(title.getTitleWebpage().rsplit(' ', 4)[0])
-
-        self.title = title
-        self.output = '-f best -o "{path}/{title}.mp4"'.format(title = title, path = self.path)
+        self.getTitle(self.getTitleWebpage().rsplit(' ', 4)[0])
+        self.output = '-f best -o "{path}/{title}.mp4"'.format(title = self.title, path = self.path)
         return self.download_ydl()
 
 # --------------- # extractors: hanime # --------------- #
