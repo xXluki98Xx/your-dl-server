@@ -185,7 +185,6 @@ class Extractor:
         m = titleRegex.search(str(webpage))
         if m:
             title = m.group(1)
-        print(title)
         return title
 
 

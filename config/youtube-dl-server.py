@@ -60,6 +60,8 @@ def addHistory(url, title, kind, status, path):
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+    checkHistory()
+
     if status == "Started":
         if len(download_history) == 0:
             download_history.append({
@@ -81,15 +83,16 @@ def addHistory(url, title, kind, status, path):
                         'path': path,
                         'timestamp': timestamp,
                     }
-                else:
-                    download_history.append({
-                        'url': url,
-                        'title': title,
-                        'kind': kind,
-                        'status': status,
-                        'path': path,
-                        'timestamp': timestamp,
-                    })
+                    return
+
+                download_history.append({
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                    'path': path,
+                    'timestamp': timestamp,
+                })
 
     if status == "Finished":
         for content, item in enumerate(download_history):
@@ -103,6 +106,7 @@ def addHistory(url, title, kind, status, path):
                     'timestamp': timestamp,
                 }
                 saveHistory()
+                return
 
     if status == "Running":
         for content, item in enumerate(download_history):
@@ -115,6 +119,7 @@ def addHistory(url, title, kind, status, path):
                     'path': path,
                     'timestamp': timestamp,
                 }
+                return
 
     if status == "Pending":
         for content, item in enumerate(download_history):
@@ -127,6 +132,7 @@ def addHistory(url, title, kind, status, path):
                     'path': path,
                     'timestamp': timestamp,
                 }
+                return
 
     if status == "Failed":
         for content, item in enumerate(download_history):
@@ -140,6 +146,7 @@ def addHistory(url, title, kind, status, path):
                     'timestamp': timestamp,
                 }
                 saveHistory()
+                return
 
     # saveHistory()
 
@@ -155,6 +162,8 @@ def addHistory(url, title, kind, status, path):
 def saveHistory():
     try:
 
+        checkHistory()
+
         filename = workPath + "/logs/history.txt"
         
         if not os.path.isfile(filename):
@@ -163,11 +172,22 @@ def saveHistory():
             historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
             historyLog.close()
 
-        with safer.open(filename, 'a') as f:
-            for item in download_history:
-                f.write("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
+        with safer.open(filename, 'a') as historyLog:
+            swap = download_history.copy()
+            
+
+            # cut length if needed
+            if len(swap) > 10:
+                swap = swap[9:]
+
+            # historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+            print("test2")
+            print("swap" + str(swap))
+            for item in swap:
+                print("item" + str(item))
+                print("saved item was: " + str(item))
+                historyLog.write("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
     except:
-        print("Failure at saveHistory. Error: " + sys.exc_info()[0])
         print("Failure at saveHistory. Error: " + str(sys.exc_info()[0]))
 
 
@@ -176,20 +196,21 @@ def loadHistory():
     try:
 
         filename = workPath + "/logs/history.txt"
-        
+        swapList = []
+
         if not os.path.isfile(filename):
             os.makedirs(filename.rsplit("/",1)[0])
             historyLog = open(filename, "w")
             historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
             historyLog.close()
         else:
-            with safer.open(filename, 'r') as f:
+            with safer.open(filename, "r") as f:
                 f.readline()
 
-                item = f.readline()
-                while item != "":
-                    url, title, kind, status, path, timestamp, nop = item.split(";")
-                    download_history.append({
+                swap = f.readline()
+                while swap != "":
+                    url, title, kind, status, path, timestamp, nop = swap.split(";")
+                    swapList.append({
                         'url': url,
                         'title': title,
                         'kind': kind,
@@ -197,9 +218,39 @@ def loadHistory():
                         'path': path,
                         'timestamp': timestamp,
                     })
-                    item = f.readline()
+                    swap = f.readline()
+
+                return swapList[-9:]
+
     except:
-        print("Failure at saveHistory. Error: " + str(str(sys.exc_info()[0])))
+        print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
+
+
+# --------------- # help: check history # --------------- #
+def checkHistory():
+    try:
+
+        compareList = loadHistory()
+
+        for i in download_history:
+            
+            for j in compareList:
+                # if the status is not Finished or Failed, next Item
+                if (i['status'] != "Finished") or (i['status'] != "Failed"):
+                    continue
+
+                # if item history is identical to compareList next
+                if (i['title'] == j['title']) and (i['path'] == j['path']) and (i['kind'] == j['kind']) and (i['status'] == j['status']):
+                    continue
+                else:
+                    compareList.append(i)
+
+                print(compareList)
+        return compareList
+
+    except:
+        print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
+
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #
 
@@ -240,6 +291,9 @@ def server_download(filename):
             app_vars['SWAP'] = os.getcwd()
             os.chdir(sourcePath)
             return "404! Not found.<br /> Allow accessing hidden files?"
+
+            if path.rsplit('.',1)[1] in formats:
+                return redirect("/view")
 
         return static_file(constructPath(filename), root = workPath)  #serve a file
 
@@ -535,6 +589,9 @@ if __name__ == "__main__":
     show_hidden = bool(app_vars['SHOW_HIDDEN'])
     sub = "/" + str(app_vars['SUB_PATH'])
     app_vars['SWAP'] = workPath
+
+    # View Formats
+    formats = ['mp4']
 
 
     # --------------- # modul: extractor # --------------- #
