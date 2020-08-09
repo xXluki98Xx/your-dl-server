@@ -158,40 +158,7 @@ def addHistory(url, title, kind, status, path):
     # print("history.6 history: " + str(download_history))
 
 
-# --------------- # help: write history # --------------- #
-def saveHistory():
-    try:
-
-        checkHistory()
-
-        filename = workPath + "/logs/history.txt"
-        
-        if not os.path.isfile(filename):
-            os.makedirs(filename.rsplit("/",1)[0])
-            historyLog = open(filename, "w")
-            historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
-            historyLog.close()
-
-        with safer.open(filename, 'a') as historyLog:
-            swap = download_history.copy()
-            
-
-            # cut length if needed
-            if len(swap) > 10:
-                swap = swap[9:]
-
-            # historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
-            print("test2")
-            print("swap" + str(swap))
-            for item in swap:
-                print("item" + str(item))
-                print("saved item was: " + str(item))
-                historyLog.write("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
-    except:
-        print("Failure at saveHistory. Error: " + str(sys.exc_info()[0]))
-
-
-# --------------- # help: write history # --------------- #
+# --------------- # help: load history entries # --------------- #
 def loadHistory():
     try:
 
@@ -201,7 +168,7 @@ def loadHistory():
         if not os.path.isfile(filename):
             os.makedirs(filename.rsplit("/",1)[0])
             historyLog = open(filename, "w")
-            historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+            historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
             historyLog.close()
         else:
             with safer.open(filename, "r") as f:
@@ -209,7 +176,7 @@ def loadHistory():
 
                 swap = f.readline()
                 while swap != "":
-                    url, title, kind, status, path, timestamp, nop = swap.split(";")
+                    url, title, kind, status, path, timestamp = swap.split(";")
                     swapList.append({
                         'url': url,
                         'title': title,
@@ -220,24 +187,63 @@ def loadHistory():
                     })
                     swap = f.readline()
 
-                return swapList[-9:]
+                if len(swapList)>10:
+                    return swapList[-9:]
+                else:
+                    return swapList[-(len(swapList)-1):]
 
     except:
         print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
 
 
-# --------------- # help: check history # --------------- #
+# --------------- # help: load history-log # --------------- #
+def loadLog():
+    try:
+
+        filename = workPath + "/logs/history.txt"
+        swapList = []
+
+        if not os.path.isfile(filename):
+            os.makedirs(filename.rsplit("/",1)[0])
+            historyLog = open(filename, "w")
+            historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+            historyLog.close()
+        else:
+            with safer.open(filename, "r") as f:
+                f.readline()
+
+                swap = f.readline()
+                while swap != "":
+                    url, title, kind, status, path, timestamp = swap.split(";")
+                    swapList.append({
+                        'url': url,
+                        'title': title,
+                        'kind': kind,
+                        'status': status,
+                        'path': path,
+                        'timestamp': timestamp,
+                    })
+                    swap = f.readline()
+
+                return swapList
+
+    except:
+        print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
+
+
+# --------------- # help: check history and log # --------------- #
 def checkHistory():
     try:
 
-        compareList = loadHistory()
+        compareList = loadLog()
 
         for i in download_history:
-            
+
+            # if the status is not Finished or Failed, next Item
+            if (i['status'] != "Finished") or (i['status'] != "Failed"):
+                continue
+
             for j in compareList:
-                # if the status is not Finished or Failed, next Item
-                if (i['status'] != "Finished") or (i['status'] != "Failed"):
-                    continue
 
                 # if item history is identical to compareList next
                 if (i['title'] == j['title']) and (i['path'] == j['path']) and (i['kind'] == j['kind']) and (i['status'] == j['status']):
@@ -246,10 +252,38 @@ def checkHistory():
                     compareList.append(i)
 
                 print(compareList)
+        # compareList == Logfile with new Items
         return compareList
 
     except:
         print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
+
+
+# --------------- # help: write to log # --------------- #
+def saveHistory():
+    try:
+
+        logHistory = checkHistory()
+
+        filename = workPath + "/logs/history.txt"
+
+        # if not os.path.isfile(filename):
+        #     os.makedirs(filename.rsplit("/",1)[0])
+        #     historyLog = open(filename, "w")
+        #     historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+        #     historyLog.close()
+
+        with safer.open(filename, 'w') as historyLog:
+
+            historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+            print("test2")
+            print("swap" + str(swap))
+            for item in swap:
+                print("item" + str(item))
+                print("saved item was: " + str(item))
+                historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
+    except:
+        print("Failure at saveHistory. Error: " + str(sys.exc_info()[0]))
 
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #
@@ -268,8 +302,14 @@ def serv_ui():
 @view('history')
 def server_history():
     saveHistory()
+
+    if len(download_history)>10:
+        display_history[-9:]
+    else:
+        display_history[-(len(download_history)-1):]
+
     return {
-        "history": download_history[len(download_history)-10:],
+        "history": display_history,
     }
 
 
@@ -489,7 +529,7 @@ def download_wget(content, path, parameters):
 # --------------- # download: torrent # --------------- #
 def download_torrent(content, path, parameters):
 
-    try:    
+    try:
         dTime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         addHistory(content, dTime, "torrent", "Started", path)
@@ -615,11 +655,10 @@ if __name__ == "__main__":
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
     download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
-    
-    
+
+
     # --------------- # history # --------------- #
-    download_history = []
-    loadHistory()
+    download_history = loadHistory()
 
 
     # --------------- # app # --------------- #
