@@ -172,10 +172,13 @@ def loadHistory():
             historyLog.close()
         else:
             with safer.open(filename, "r") as f:
-                f.readline()
 
                 swap = f.readline()
                 while swap != "":
+
+                    if "#" in swap:
+                        continue
+
                     url, title, kind, status, path, timestamp = swap.split(";")
                     swapList.append({
                         'url': url,
@@ -210,10 +213,13 @@ def loadLog():
             historyLog.close()
         else:
             with safer.open(filename, "r") as f:
-                f.readline()
 
                 swap = f.readline()
                 while swap != "":
+
+                    if "#" in swap:
+                        continue
+
                     url, title, kind, status, path, timestamp = swap.split(";")
                     swapList.append({
                         'url': url,
