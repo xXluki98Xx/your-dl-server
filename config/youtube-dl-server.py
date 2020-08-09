@@ -60,8 +60,6 @@ def addHistory(url, title, kind, status, path):
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    checkHistory()
-
     if status == "Started":
         if len(download_history) == 0:
             download_history.append({
@@ -162,7 +160,7 @@ def addHistory(url, title, kind, status, path):
 def loadHistory():
     try:
 
-        filename = workPath + "/logs/history.txt"
+        filename = sourcePath + "/logs/history.txt"
         swapList = []
 
         if not os.path.isfile(filename):
@@ -203,7 +201,7 @@ def loadHistory():
 def loadLog():
     try:
 
-        filename = workPath + "/logs/history.txt"
+        filename = sourcePath + "/logs/history.txt"
         swapList = []
 
         if not os.path.isfile(filename):
@@ -218,6 +216,7 @@ def loadLog():
                 while swap != "":
 
                     if "#" in swap:
+                        swap = f.readline()
                         continue
 
                     url, title, kind, status, path, timestamp = swap.split(";")
@@ -234,7 +233,7 @@ def loadLog():
                 return swapList
 
     except:
-        print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
+        print("Failure at loadLog. Error: " + str(sys.exc_info()[0]))
 
 
 # --------------- # help: check history and log # --------------- #
@@ -262,7 +261,7 @@ def checkHistory():
         return compareList
 
     except:
-        print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
+        print("Failure at checkHistory. Error: " + str(sys.exc_info()[0]))
 
 
 # --------------- # help: write to log # --------------- #
@@ -271,7 +270,7 @@ def saveHistory():
 
         logHistory = checkHistory()
 
-        filename = workPath + "/logs/history.txt"
+        filename = sourcePath + "/logs/history.txt"
 
         # if not os.path.isfile(filename):
         #     os.makedirs(filename.rsplit("/",1)[0])
@@ -299,7 +298,6 @@ def saveHistory():
 @app.route('/')
 @view('index')
 def serv_ui():
-    saveHistory()
     return {}
 
 
@@ -307,7 +305,6 @@ def serv_ui():
 @app.route('/history')
 @view('history')
 def server_history():
-    saveHistory()
 
     if len(download_history)>10:
         display_history[-9:]
