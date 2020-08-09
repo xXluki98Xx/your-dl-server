@@ -168,30 +168,35 @@ def loadHistory():
             historyLog = open(filename, "w")
             historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
             historyLog.close()
-        else:
-            with safer.open(filename, "r") as f:
 
-                swap = f.readline()
-                while swap != "":
+        with safer.open(filename, "r") as f:
 
-                    if "#" in swap:
-                        continue
+            swap = f.readline()
+            while swap != "":
 
-                    url, title, kind, status, path, timestamp = swap.split(";")
-                    swapList.append({
-                        'url': url,
-                        'title': title,
-                        'kind': kind,
-                        'status': status,
-                        'path': path,
-                        'timestamp': timestamp,
-                    })
+                if "#" in swap:
                     swap = f.readline()
+                    continue
 
-                if len(swapList)>10:
-                    return swapList[-9:]
-                else:
-                    return swapList[-(len(swapList)-1):]
+                if swap == "":
+                    swap = f.readline()
+                    continue
+
+                url, title, kind, status, path, timestamp = swap.split(";")
+                swapList.append({
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                    'path': path,
+                    'timestamp': timestamp,
+                })
+                swap = f.readline()
+
+            if len(swapList)>10:
+                return swapList[-9:]
+            else:
+                return swapList[-(len(swapList)-1):]
 
     except:
         print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
@@ -209,28 +214,32 @@ def loadLog():
             historyLog = open(filename, "w")
             historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
             historyLog.close()
-        else:
-            with safer.open(filename, "r") as f:
 
-                swap = f.readline()
-                while swap != "":
+        with safer.open(filename, "r") as f:
 
-                    if "#" in swap:
-                        swap = f.readline()
-                        continue
+            swap = f.readline()
+            while swap != "":
 
-                    url, title, kind, status, path, timestamp = swap.split(";")
-                    swapList.append({
-                        'url': url,
-                        'title': title,
-                        'kind': kind,
-                        'status': status,
-                        'path': path,
-                        'timestamp': timestamp,
-                    })
+                if "#" in swap:
                     swap = f.readline()
+                    continue
 
-                return swapList
+                if swap == "":
+                    swap = f.readline()
+                    continue
+
+                url, title, kind, status, path, timestamp = swap.split(";")
+                swapList.append({
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                    'path': path,
+                    'timestamp': timestamp,
+                })
+                swap = f.readline()
+
+            return swapList
 
     except:
         print("Failure at loadLog. Error: " + str(sys.exc_info()[0]))
@@ -256,7 +265,8 @@ def checkHistory():
                 else:
                     compareList.append(i)
 
-                print(compareList)
+                print("compareList: " + str(compareList))
+
         # compareList == Logfile with new Items
         return compareList
 
@@ -272,18 +282,17 @@ def saveHistory():
 
         filename = sourcePath + "/logs/history.txt"
 
-        # if not os.path.isfile(filename):
-        #     os.makedirs(filename.rsplit("/",1)[0])
-        #     historyLog = open(filename, "w")
-        #     historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
-        #     historyLog.close()
+        if not os.path.isfile(filename):
+            os.makedirs(filename.rsplit("/",1)[0])
+            historyLog = open(filename, "w")
+            historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+            historyLog.close()
 
         with safer.open(filename, 'w') as historyLog:
 
             historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
-            print("test2")
-            print("swap" + str(swap))
-            for item in swap:
+
+            for item in logHistory:
                 print("item" + str(item))
                 print("saved item was: " + str(item))
                 historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
@@ -306,10 +315,12 @@ def serv_ui():
 @view('history')
 def server_history():
 
+    display_history = []
+
     if len(download_history)>10:
-        display_history[-9:]
+        display_history = download_history[-9:]
     else:
-        display_history[-(len(download_history)-1):]
+        display_history = download_history[-(len(download_history)-1):]
 
     return {
         "history": display_history,
