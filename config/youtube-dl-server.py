@@ -170,7 +170,7 @@ def addHistory(url, title, kind, status, path):
 def loadHistory():
     try:
 
-        filename = sourcePath + "/logs/history.txt"
+        filename = logPath + "/history.txt"
         swapList = []
 
         if not os.path.isfile(filename):
@@ -212,7 +212,7 @@ def loadHistory():
 def loadLog():
     try:
 
-        filename = sourcePath + "/logs/history.txt"
+        filename = logPath + "/history.txt"
         swapList = []
 
         if not os.path.isfile(filename):
@@ -287,7 +287,7 @@ def saveHistory():
 
         logHistory = checkHistory()
 
-        filename = sourcePath + "/logs/history.txt"
+        filename = logPath + "/history.txt"
 
         if not os.path.isfile(filename):
             os.makedirs(filename.rsplit("/",1)[0])
@@ -637,12 +637,16 @@ if __name__ == "__main__":
     if bool(app_vars['LOCAL']):
         workPath = os.getcwd()
         sourcePath = os.getcwd()
+        logPath = os.getcwd() + "/logs"
     else:
         workPath = "/tmp/" + str(app_vars['DOWNLOAD_DIR'])
         sourcePath = "/usr/src/youtube-dl-server/run"
+        logPath = "/tmp/logs"
 
     print("Creating Download Folder: " + workPath)
     if not os.path.exists(workPath):
+        os.makedirs(workPath)
+    if not os.path.exists(logPath):
         os.makedirs(workPath)
 
 
