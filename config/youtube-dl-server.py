@@ -188,11 +188,7 @@ def loadHistory():
                     swap = f.readline()
                     continue
 
-                if swap == "":
-                    swap = f.readline()
-                    continue
-
-                url, title, kind, status, path, timestamp = swap.split(";")
+                url, title, kind, status, path, timestamp, nop = swap.split(";")
                 swapList.append({
                     'url': url,
                     'title': title,
@@ -278,8 +274,6 @@ def checkHistory():
                     else:
                         compareList.append(i)
 
-                # print("compareList: " + str(compareList))
-
         # compareList == Logfile with new Items
         return compareList
 
@@ -306,8 +300,8 @@ def saveHistory():
             historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
 
             for item in logHistory:
-                print("item" + str(item))
-                print("saved item was: " + str(item))
+            #     print("item" + str(item))
+            #     print("saved item was: " + str(item))
                 historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
     except:
         print("Failure at saveHistory. Error: " + str(sys.exc_info()[0]))
@@ -483,7 +477,7 @@ def download_ydl(url, title, path, parameters):
         returned_value = ""
 
         while i < 3:
-            print("try: " + str(i+1))
+            print("youtube-dl try: " + str(i+1))
 
             addHistory(url, title, "youtube-dl", "Running", path)
             returned_value = os.system(ydl)
@@ -528,7 +522,7 @@ def download_wget(content, path, parameters):
         returned_value = ""
 
         while i < 3:
-            print("try: " + str(i+1))
+            print("wget try: " + str(i+1))
 
             addHistory(content, content.rsplit('/',1)[1], "wget", "Running", path)
             returned_value = os.system(wget)
@@ -657,9 +651,6 @@ if __name__ == "__main__":
     show_hidden = bool(app_vars['SHOW_HIDDEN'])
     sub = "/" + str(app_vars['SUB_PATH'])
     app_vars['SWAP'] = workPath
-
-    # View Formats
-    formats = ['mp4']
 
 
     # --------------- # modul: extractor # --------------- #
