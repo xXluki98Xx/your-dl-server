@@ -544,11 +544,6 @@ def download_wget(content, path, parameters):
 def download_torrent(content, path, parameters):
 
     try:
-        dTime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-        addHistory(content, dTime, "torrent", "Started", path)
-
-        # ---
 
         limit = 0
 
@@ -564,11 +559,17 @@ def download_torrent(content, path, parameters):
             handler.set_download_limit(limit)
             torrentSession.start_dht()
 
-            addHistory(content, dTime, "torrent", "Running", path)
 
             print("downloading metadata...")
             while (not handler.has_metadata()):
                 time.sleep(1)
+
+            title = handle.get_torrent_info().name()
+
+            addHistory(content, title, "torrent", "Started", path)
+            time.sleep(2)
+            addHistory(content, title, "torrent", "Running", path)
+
             print("got metadata, starting torrent download...")
             while (handler.status().state != lt.torrent_status.seeding):
                 s = handler.status()
@@ -579,14 +580,14 @@ def download_torrent(content, path, parameters):
                     s.num_peers, state_str[s.state]))
                 time.sleep(5)
 
-            addHistory(content, dTime, "torrent", "Finished", path)
+            addHistory(content, title, "torrent", "Finished", path)
         except:
-            addHistory(content, dTime, "torrent", "Failed", path)
+            addHistory(content, title, "torrent", "Failed", path)
 
     except KeyboardInterrupt:
         pass
     except:
-        addHistory(content, dTime, "torrent", "Failed", path)
+        addHistory(content, title, "torrent", "Failed", path)
         print("Failure at torrent. Error: " + sys.exc_info()[0])
 
 # ---
