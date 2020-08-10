@@ -61,6 +61,8 @@ def addHistory(url, title, kind, status, path):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     if status == "Started":
+
+        # if donwload_history == len 0
         if len(download_history) == 0:
             download_history.append({
                     'url': url,
@@ -70,29 +72,34 @@ def addHistory(url, title, kind, status, path):
                     'path': path,
                     'timestamp': timestamp,
                 })
-        else:
-            for content, item in enumerate(download_history):
-                if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                    download_history[content] = {
-                        'url': url,
-                        'title': title,
-                        'kind': kind,
-                        'status': status,
-                        'path': path,
-                        'timestamp': timestamp,
-                    }
-                    return
+            return
 
-                download_history.append({
+        # if list not len 0
+        for content, item in enumerate(download_history):
+            if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
+                download_history[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
                     'timestamp': timestamp,
-                })
+                }
+                return
+
+        # if content not in list
+        download_history.append({
+            'url': url,
+            'title': title,
+            'kind': kind,
+            'status': status,
+            'path': path,
+            'timestamp': timestamp,
+        })
+        return
 
     if status == "Finished":
+        # search for item
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
                 download_history[content] = {
@@ -107,6 +114,7 @@ def addHistory(url, title, kind, status, path):
                 return
 
     if status == "Running":
+        # search for item
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
                 download_history[content] = {
@@ -120,6 +128,7 @@ def addHistory(url, title, kind, status, path):
                 return
 
     if status == "Pending":
+        # search for item
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
                 download_history[content] = {
@@ -133,6 +142,7 @@ def addHistory(url, title, kind, status, path):
                 return
 
     if status == "Failed":
+        # search for item
         for content, item in enumerate(download_history):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
                 download_history[content] = {
@@ -254,18 +264,21 @@ def checkHistory():
         for i in download_history:
 
             # if the status is not Finished or Failed, next Item
-            if (i['status'] != "Finished") or (i['status'] != "Failed"):
-                continue
+            if (i['status'] == "Finished") or (i['status'] == "Failed"):
 
-            for j in compareList:
-
-                # if item history is identical to compareList next
-                if (i['title'] == j['title']) and (i['path'] == j['path']) and (i['kind'] == j['kind']) and (i['status'] == j['status']):
-                    continue
-                else:
+                if len(compareList) == 0:
                     compareList.append(i)
+                    continue
 
-                print("compareList: " + str(compareList))
+                for j in compareList:
+
+                    # if item history is identical to compareList next
+                    if (i['title'] == j['title']) and (i['path'] == j['path']) and (i['kind'] == j['kind']) and (i['status'] == j['status']):
+                        continue
+                    else:
+                        compareList.append(i)
+
+                # print("compareList: " + str(compareList))
 
         # compareList == Logfile with new Items
         return compareList
@@ -564,7 +577,7 @@ def download_torrent(content, path, parameters):
             while (not handler.has_metadata()):
                 time.sleep(1)
 
-            title = handle.get_torrent_info().name()
+            title = handler.get_torrent_info().name()
 
             addHistory(content, title, "torrent", "Started", path)
             time.sleep(2)
