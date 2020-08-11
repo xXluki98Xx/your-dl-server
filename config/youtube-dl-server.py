@@ -173,12 +173,6 @@ def loadHistory():
         filename = logPath + "/history.txt"
         swapList = []
 
-        if not os.path.isfile(filename):
-            os.makedirs(filename.rsplit("/",1)[0])
-            historyLog = open(filename, "w")
-            historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-            historyLog.close()
-
         with safer.open(filename, "r") as f:
 
             swap = f.readline()
@@ -215,12 +209,6 @@ def loadLog():
         filename = logPath + "/history.txt"
         swapList = []
 
-        if not os.path.isfile(filename):
-            os.makedirs(filename.rsplit("/",1)[0])
-            historyLog = open(filename, "w")
-            historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-            historyLog.close()
-
         with safer.open(filename, "r") as f:
 
             swap = f.readline()
@@ -230,11 +218,7 @@ def loadLog():
                     swap = f.readline()
                     continue
 
-                if swap == "":
-                    swap = f.readline()
-                    continue
-
-                url, title, kind, status, path, timestamp = swap.split(";")
+                url, title, kind, status, path, timestamp, nop = swap.split(";")
                 swapList.append({
                     'url': url,
                     'title': title,
@@ -294,6 +278,7 @@ def saveHistory():
             historyLog = open(filename, "w")
             historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
             historyLog.close()
+            return
 
         with safer.open(filename, 'w') as historyLog:
 
@@ -302,7 +287,7 @@ def saveHistory():
             for item in logHistory:
             #     print("item" + str(item))
             #     print("saved item was: " + str(item))
-                historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
+                historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
     except:
         print("Failure at saveHistory. Error: " + str(sys.exc_info()[0]))
 
@@ -646,8 +631,15 @@ if __name__ == "__main__":
     print("Creating Download Folder: " + workPath)
     if not os.path.exists(workPath):
         os.makedirs(workPath)
-    if not os.path.exists(logPath):
-        os.makedirs(workPath)
+
+
+    # --------------- # history # --------------- #
+    print("Creating Log Folder: " + logPath)
+    os.makedirs(logPath.rsplit("/",1)[0])
+    historyLog = open(filename, "w")
+    historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    historyLog.close()
+    download_history = loadHistory()
 
 
     # --------------- # file browser # --------------- #
@@ -678,10 +670,6 @@ if __name__ == "__main__":
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
     download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
-
-
-    # --------------- # history # --------------- #
-    download_history = loadHistory()
 
 
     # --------------- # app # --------------- #
