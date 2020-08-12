@@ -635,10 +635,14 @@ if __name__ == "__main__":
 
     # --------------- # history # --------------- #
     print("Creating Log Folder: " + logPath)
-    os.makedirs(logPath.rsplit("/",1)[0])
-    historyLog = open(filename, "w")
-    historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    historyLog.close()
+    if not os.path.exists(logPath):
+        os.makedirs(logPath)
+
+    if not os.path.isfile(logPath + "/history.txt"):
+        historyLog = open(logPath + "/history.txt", "w")
+        historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        historyLog.close()
+
     download_history = loadHistory()
 
 
