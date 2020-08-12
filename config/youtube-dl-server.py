@@ -462,7 +462,7 @@ def download_ydl(url, title, path, parameters):
         returned_value = ""
 
         while i < 3:
-            print("youtube-dl try: " + str(i+1))
+            print("\nyoutube-dl try: " + str(i+1))
 
             addHistory(url, title, "youtube-dl", "Running", path)
             returned_value = os.system(ydl)
@@ -507,7 +507,7 @@ def download_wget(content, path, parameters):
         returned_value = ""
 
         while i < 3:
-            print("wget try: " + str(i+1))
+            print("\nwget try: " + str(i+1))
 
             addHistory(content, content.rsplit('/',1)[1], "wget", "Running", path)
             returned_value = os.system(wget)
@@ -552,7 +552,7 @@ def download_torrent(content, path, parameters):
             torrentSession.start_dht()
 
 
-            print("downloading metadata...")
+            print("\ndownloading metadata...")
             while (not handler.has_metadata()):
                 time.sleep(1)
 
