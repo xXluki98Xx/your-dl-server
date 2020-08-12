@@ -9,7 +9,7 @@ Original Work: Very spartan Web and REST interface for downloading youtube video
 ---
 
 Bugs:
-  - WebUI breaks after entering the Download section
+  - History: saving and loading
 
 Features:
 
@@ -18,6 +18,7 @@ Features:
   - Torrent Download: inspired by [samukasmk](https://gist.github.com/samukasmk/940ca5d5abd9019e8b1af77c819e4ca9)
   - Extraction: i have written an extraction module to process the data specifically for personal purpose
   - Web-UI: i complicated the WebUI, so that the user can configure diffrent parameters
+  - Download History: inspired by [nbr23](https://github.com/nbr23/youtube-dl-server)
   
   - Download:
     - wget
@@ -26,7 +27,6 @@ Features:
 
 Planned:
 
-  - Download History: inspired by [nbr23](https://github.com/nbr23/youtube-dl-server)
   - File Support: List for Downloads and torrent
 
 ---
