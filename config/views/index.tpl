@@ -63,22 +63,32 @@
           </div>
 
           <div class="input-group">
-            <input name="reference" type="reference" class="form-control" placeholder="REFERENCE" aria-label="REFERENCE" aria-describedby="button-submit" autofocus>
             <input name="title" type="title" class="form-control" placeholder="TITLE" aria-label="TITLE" aria-describedby="button-submit" autofocus>
             <input name="path" type="path" class="form-control" placeholder="PATH" aria-label="PATH" aria-describedby="button-submit" autofocus>
           </div>
 
-          <div class="input-group">
-            <input name="retries" type="retries" class="form-control" placeholder="RETRIES (5)" aria-label="RETRIES" aria-describedby="button-submit" autofocus>
-            <input name="minSleep" type="minSleep" class="form-control" placeholder="MIN SLEEP (2s)" aria-label="MINSLEEP" aria-describedby="button-submit" autofocus>
-            <input name="maxSleep" type="maxSleep" class="form-control" placeholder="MAX SLEEP (15s)" aria-label="MAXSLEEP" aria-describedby="button-submit" autofocus>
-            <input name="bandwidth" type="bandwidth" class="form-control" placeholder="BANDWIDTH (unlimited)"  aria-label="BANDWIDTH" aria-describedby="button-submit" autofocus>
-          </div>
+          <p></p>
 
           <div class="input-group">
-            <input name="username" type="username" class="form-control" placeholder="USERNAME" aria-label="USERNAME" aria-describedby="button-submit" autofocus>
-            <input name="password" type="password" class="form-control" placeholder="PASSWORD" aria-label="PASSWORD" aria-describedby="button-submit" autofocus>
+            <details><summary>Parameter</summary>
+              <input name="retries" type="retries" class="form-control" placeholder="RETRIES (5)" aria-label="RETRIES" aria-describedby="button-submit" autofocus>
+              <input name="minSleep" type="minSleep" class="form-control" placeholder="MIN SLEEP (2s)" aria-label="MINSLEEP" aria-describedby="button-submit" autofocus>
+              <input name="maxSleep" type="maxSleep" class="form-control" placeholder="MAX SLEEP (15s)" aria-label="MAXSLEEP" aria-describedby="button-submit" autofocus>
+              <input name="bandwidth" type="bandwidth" class="form-control" placeholder="BANDWIDTH (unlimited)"  aria-label="BANDWIDTH" aria-describedby="button-submit" autofocus>
+            </details>
           </div>
+
+          <p></p>
+
+          <div class="input-group">
+            <details><summary>Advanced Options</summary>
+              <input name="reference" type="reference" class="form-control" placeholder="REFERENCE" aria-label="REFERENCE" aria-describedby="button-submit" autofocus>
+              <input name="username" type="username" class="form-control" placeholder="USERNAME" aria-label="USERNAME" aria-describedby="button-submit" autofocus>
+              <input name="password" type="password" class="form-control" placeholder="PASSWORD" aria-label="PASSWORD" aria-describedby="button-submit" autofocus>
+            </details>
+          </div>
+
+          <p></p>
 
           <div class="input-group-append">
             <button class="btn btn-primary" type="submit" id="button-submit">Submit</button>
