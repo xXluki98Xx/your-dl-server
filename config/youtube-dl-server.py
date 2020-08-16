@@ -63,8 +63,8 @@ def addHistory(url, title, kind, status, path):
     if status == "Started":
 
         # if donwload_history == len 0
-        if len(download_history) == 0:
-            download_history.append({
+        if len(downloadList) == 0:
+            downloadList.append({
                     'url': url,
                     'title': title,
                     'kind': kind,
@@ -75,9 +75,9 @@ def addHistory(url, title, kind, status, path):
             return
 
         # if list not len 0
-        for content, item in enumerate(download_history):
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
@@ -88,7 +88,7 @@ def addHistory(url, title, kind, status, path):
                 return
 
         # if content not in list
-        download_history.append({
+        downloadList.append({
             'url': url,
             'title': title,
             'kind': kind,
@@ -100,9 +100,9 @@ def addHistory(url, title, kind, status, path):
 
     if status == "Finished":
         # search for item
-        for content, item in enumerate(download_history):
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
@@ -115,9 +115,9 @@ def addHistory(url, title, kind, status, path):
 
     if status == "Running":
         # search for item
-        for content, item in enumerate(download_history):
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
@@ -129,9 +129,9 @@ def addHistory(url, title, kind, status, path):
 
     if status == "Pending":
         # search for item
-        for content, item in enumerate(download_history):
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
@@ -143,9 +143,9 @@ def addHistory(url, title, kind, status, path):
 
     if status == "Failed":
         # search for item
-        for content, item in enumerate(download_history):
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
@@ -196,10 +196,10 @@ def loadHistory():
             if len(swapList)>10:
                 return swapList[-9:]
             else:
-                return swapList[-(len(swapList)-1):]
+                return swapList
 
     except:
-        print("Failure at loadHistory. Error: " + str(sys.exc_info()[0]))
+        print("Failure at loadHistory. Error: " + str(sys.exc_info()[1]))
 
 
 # --------------- # help: load history-log # --------------- #
@@ -232,37 +232,78 @@ def loadLog():
             return swapList
 
     except:
-        print("Failure at loadLog. Error: " + str(sys.exc_info()[0]))
+        print("Failure at loadLog. Error: " + str(sys.exc_info()[1]))
 
 
 # --------------- # help: check history and log # --------------- #
 def checkHistory():
     try:
 
-        compareList = loadLog()
+        logList = loadLog()
+        checkList = logList.copy()
+        downloadListCopy = downloadList.copy()
 
-        for i in download_history:
+        for i in logList:
+            counter = 0
+            for j in checkList:
+                if ( (i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status'])):
+                    counter += 1
+                    if counter > 1:
+                        checkList.remove(j)
+
+        logList = checkList
+
+        for i in downloadListCopy:
 
             # if the status is not Finished or Failed, next Item
             if (i['status'] == "Finished") or (i['status'] == "Failed"):
 
-                if len(compareList) == 0:
-                    compareList.append(i)
+                if len(logList) == 0:
+                    logList.append(i)
+                    # print("current List: " + str(downloadList))
+                    # print("log list: " + str(logList))
                     continue
 
-                for j in compareList:
+                for j in logList:
 
-                    # if item history is identical to compareList next
-                    if (i['title'] == j['title']) and (i['path'] == j['path']) and (i['kind'] == j['kind']) and (i['status'] == j['status']):
-                        continue
+                    # print("statement: " + str((i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status'])))
+                    # print("download item: " + str(i))
+                    # print("log item: " + str(j))
+
+                    # if item history is identical to logList next
+                    if ( (i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status']) ):
+                        try:
+                            downloadList.remove(i)
+                        except:
+                            pass
                     else:
-                        compareList.append(i)
+                        logList.append(i)
+                        # print("current List: " + str(downloadList))
+                        # print("log list: " + str(logList))
+
+        downloadListCopy = downloadList.copy()
+        # cleanup current downloads
+        for i in downloadListCopy:
+            if (i['status'] == "Finished") or (i['status'] == "Failed"):
+                downloadList.remove(i)
+
+        checkList = logList.copy()
+
+        for i in logList:
+            counter = 0
+            for j in checkList:
+                if ( (i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status'])):
+                    counter += 1
+                    if counter > 1:
+                        checkList.remove(j)
+
+        logList = checkList
 
         # compareList == Logfile with new Items
-        return compareList
+        return logList
 
     except:
-        print("Failure at checkHistory. Error: " + str(sys.exc_info()[0]))
+        print("Failure at checkHistory. Error: " + str(sys.exc_info()[1]))
 
 
 # --------------- # help: write to log # --------------- #
@@ -288,8 +329,11 @@ def saveHistory():
             #     print("item" + str(item))
             #     print("saved item was: " + str(item))
                 historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
+
+        download_history = loadHistory()
+
     except:
-        print("Failure at saveHistory. Error: " + str(sys.exc_info()[0]))
+        print("Failure at saveHistory. Error: " + str(sys.exc_info()[1]))
 
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #
@@ -307,15 +351,24 @@ def serv_ui():
 @view('history')
 def server_history():
 
-    display_history = []
+    display_logHistory = loadHistory()
+    display_downloads = []
 
-    if len(download_history)>10:
-        display_history = download_history[-9:]
+    if len(display_logHistory)>10:
+        display_logHistory = display_logHistory[-9:]
     else:
-        display_history = download_history[-(len(download_history)-1):]
+        display_logHistory = display_logHistory
+
+
+    # list of current running downloads
+    if len(downloadList)>10:
+        display_downloads = downloadList[-9:]
+    else:
+        display_downloads = downloadList
 
     return {
-        "history": display_history,
+        "history": display_logHistory,
+        "display_downloads": downloadList,
     }
 
 
@@ -485,7 +538,7 @@ def download_ydl(url, title, path, parameters):
         pass
     except:
         addHistory(url, title, "youtube-dl", "Failed", path)
-        print("Failure at Youtube-dl. Error: " + str(sys.exc_info()[0]))
+        print("Failure at Youtube-dl. Error: " + str(sys.exc_info()[1]))
 
 
 # --------------- # download: wget # --------------- #
@@ -530,7 +583,7 @@ def download_wget(content, path, parameters):
         pass
     except:
         addHistory(content, content.rsplit('/',1)[1], "wget", "Failed", path)
-        print("Failure at wget. Error: " + str(sys.exc_info()[0]))
+        print("Failure at wget. Error: " + str(sys.exc_info()[1]))
 
 # --------------- # download: torrent # --------------- #
 def download_torrent(content, path, parameters):
@@ -644,6 +697,7 @@ if __name__ == "__main__":
         historyLog.close()
 
     download_history = loadHistory()
+    downloadList = []
 
 
     # --------------- # file browser # --------------- #
