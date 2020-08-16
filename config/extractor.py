@@ -158,7 +158,9 @@ class Extractor:
         if self.title == "":
             if oldTitle == "":
                 now = datetime.now()
-                newTitle = "download_ydl-" + now.strftime("%m-%d-%Y_%H-%M-%S")
+                newTitle = "youtube-dl_" + now.strftime("%m-%d-%Y_%H-%M-%S")
+                self.title = newTitle
+                return newTitle
             else:
                 newTitle = oldTitle
         else:
