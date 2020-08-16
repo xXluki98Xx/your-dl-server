@@ -224,6 +224,11 @@ a {
   row-gap: 8px;
 }
 
+#history {
+  display: flex;
+  height: 90vh;
+}
+
 
 /* footer */
 /* Source: https://www.youtube.com/watch?v=yc2olxLgKLk */

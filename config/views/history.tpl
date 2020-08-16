@@ -33,14 +33,25 @@
       </label>
     </header>
 
-    <div class="content container">
+    <div id="history" class="row content">
 
-      <h1 class="text-light">Download History:</h1>
-      <table border=0 class= "row justify-content-center text-left">
-        %for item in history:
-          <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
-        %end
-      </table>
+      <div class="col-6">
+        <h1 class="text-light">Download History:</h1>
+        <table border=0 class= "row justify-content-center text-left">
+          %for item in history:
+            <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
+          %end
+        </table>
+      </div>
+
+      <div class="col-6">
+        <h1 class="text-light">Current Downloads:</h1>
+        <table border=0 class= "row justify-content-center text-left">
+          %for item in display_downloads:
+            <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
+          %end
+        </table>
+      </div>
 
     </div>
 
