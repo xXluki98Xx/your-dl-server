@@ -11,6 +11,7 @@ import os
 import random
 import subprocess
 import sys
+import safer
 import time
 from collections import ChainMap
 from concurrent.futures import ThreadPoolExecutor
@@ -57,77 +58,105 @@ def constructPath(path):
 # --------------- # help: history append # --------------- #
 def addHistory(url, title, kind, status, path):
 
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
     if status == "Started":
-        if len(download_history) == 0:
-            download_history.append({
+
+        # if donwload_history == len 0
+        if len(downloadList) == 0:
+            downloadList.append({
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': timestamp,
                 })
-        else:
-            for content, item in enumerate(download_history):
-                if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                    download_history[content] = {
-                        'url': url,
-                        'title': title,
-                        'kind': kind,
-                        'status': status,
-                        'path': path,
-                    }
-                else:
-                    download_history.append({
-                        'url': url,
-                        'title': title,
-                        'kind': kind,
-                        'status': status,
-                        'path': path,
-                    })
+            return
+
+        # if list not len 0
+        for content, item in enumerate(downloadList):
+            if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
+                downloadList[content] = {
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                    'path': path,
+                    'timestamp': timestamp,
+                }
+                return
+
+        # if content not in list
+        downloadList.append({
+            'url': url,
+            'title': title,
+            'kind': kind,
+            'status': status,
+            'path': path,
+            'timestamp': timestamp,
+        })
+        return
 
     if status == "Finished":
-        for content, item in enumerate(download_history):
+        # search for item
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': timestamp,
                 }
+                saveHistory()
+                return
 
     if status == "Running":
-        for content, item in enumerate(download_history):
+        # search for item
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': timestamp,
                 }
+                return
 
     if status == "Pending":
-        for content, item in enumerate(download_history):
+        # search for item
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': timestamp,
                 }
+                return
 
     if status == "Failed":
-        for content, item in enumerate(download_history):
+        # search for item
+        for content, item in enumerate(downloadList):
             if (item['kind'] == kind) and (item['title'] == title) and (item['path'] == path):
-                download_history[content] = {
+                downloadList[content] = {
                     'url': url,
                     'title': title,
                     'kind': kind,
                     'status': status,
                     'path': path,
+                    'timestamp': timestamp,
                 }
+                saveHistory()
+                return
+
+    # saveHistory()
 
     # print("history.1 url: " + url)
     # print("history.2 title: " + title)
@@ -135,6 +164,176 @@ def addHistory(url, title, kind, status, path):
     # print("history.4 status: " + status)
     # print("history.5 path: " + path)
     # print("history.6 history: " + str(download_history))
+
+
+# --------------- # help: load history entries # --------------- #
+def loadHistory():
+    try:
+
+        filename = logPath + "/history.txt"
+        swapList = []
+
+        with safer.open(filename, "r") as f:
+
+            swap = f.readline()
+            while swap != "":
+
+                if "#" in swap:
+                    swap = f.readline()
+                    continue
+
+                url, title, kind, status, path, timestamp, nop = swap.split(";")
+                swapList.append({
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                    'path': path,
+                    'timestamp': timestamp,
+                })
+                swap = f.readline()
+
+            if len(swapList)>10:
+                return swapList[-9:]
+            else:
+                return swapList
+
+    except:
+        print("Failure at loadHistory. Error: " + str(sys.exc_info()[1]))
+
+
+# --------------- # help: load history-log # --------------- #
+def loadLog():
+    try:
+
+        filename = logPath + "/history.txt"
+        swapList = []
+
+        with safer.open(filename, "r") as f:
+
+            swap = f.readline()
+            while swap != "":
+
+                if "#" in swap:
+                    swap = f.readline()
+                    continue
+
+                url, title, kind, status, path, timestamp, nop = swap.split(";")
+                swapList.append({
+                    'url': url,
+                    'title': title,
+                    'kind': kind,
+                    'status': status,
+                    'path': path,
+                    'timestamp': timestamp,
+                })
+                swap = f.readline()
+
+            return swapList
+
+    except:
+        print("Failure at loadLog. Error: " + str(sys.exc_info()[1]))
+
+
+# --------------- # help: check history and log # --------------- #
+def checkHistory():
+    try:
+
+        logList = loadLog()
+        checkList = logList.copy()
+        downloadListCopy = downloadList.copy()
+
+        for i in logList:
+            counter = 0
+            for j in checkList:
+                if ( (i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status'])):
+                    counter += 1
+                    if counter > 1:
+                        checkList.remove(j)
+
+        logList = checkList
+
+        for i in downloadListCopy:
+
+            # if the status is not Finished or Failed, next Item
+            if (i['status'] == "Finished") or (i['status'] == "Failed"):
+
+                if len(logList) == 0:
+                    logList.append(i)
+                    # print("current List: " + str(downloadList))
+                    # print("log list: " + str(logList))
+                    continue
+
+                for j in logList:
+
+                    # print("statement: " + str((i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status'])))
+                    # print("download item: " + str(i))
+                    # print("log item: " + str(j))
+
+                    # if item history is identical to logList next
+                    if ( (i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status']) ):
+                        try:
+                            downloadList.remove(i)
+                        except:
+                            pass
+                    else:
+                        logList.append(i)
+                        # print("current List: " + str(downloadList))
+                        # print("log list: " + str(logList))
+
+        downloadListCopy = downloadList.copy()
+        # cleanup current downloads
+        for i in downloadListCopy:
+            if (i['status'] == "Finished") or (i['status'] == "Failed"):
+                downloadList.remove(i)
+
+        checkList = logList.copy()
+
+        for i in logList:
+            counter = 0
+            for j in checkList:
+                if ( (i['title'] == j['title']) and (i['path'] == j['path']) and (i['status'] == j['status'])):
+                    counter += 1
+                    if counter > 1:
+                        checkList.remove(j)
+
+        logList = checkList
+
+        # compareList == Logfile with new Items
+        return logList
+
+    except:
+        print("Failure at checkHistory. Error: " + str(sys.exc_info()[1]))
+
+
+# --------------- # help: write to log # --------------- #
+def saveHistory():
+    try:
+
+        logHistory = checkHistory()
+
+        filename = logPath + "/history.txt"
+
+        if not os.path.isfile(filename):
+            os.makedirs(filename.rsplit("/",1)[0])
+            historyLog = open(filename, "w")
+            historyLog.write("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+            historyLog.close()
+            return
+
+        with safer.open(filename, 'w') as historyLog:
+
+            historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+
+            for item in logHistory:
+            #     print("item" + str(item))
+            #     print("saved item was: " + str(item))
+                historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
+
+        download_history = loadHistory()
+
+    except:
+        print("Failure at saveHistory. Error: " + str(sys.exc_info()[1]))
 
 
 # --------------- # --------------- # functions: app # --------------- # --------------- #
@@ -150,9 +349,26 @@ def serv_ui():
 # --------------- # view: history # --------------- #
 @app.route('/history')
 @view('history')
-def serv_history():
+def server_history():
+
+    display_logHistory = loadHistory()
+    display_downloads = []
+
+    if len(display_logHistory)>10:
+        display_logHistory = display_logHistory[-9:]
+    else:
+        display_logHistory = display_logHistory
+
+
+    # list of current running downloads
+    if len(downloadList)>10:
+        display_downloads = downloadList[-9:]
+    else:
+        display_downloads = downloadList
+
     return {
-        "history": download_history,
+        "history": display_logHistory,
+        "display_downloads": downloadList,
     }
 
 
@@ -174,6 +390,9 @@ def server_download(filename):
             app_vars['SWAP'] = os.getcwd()
             os.chdir(sourcePath)
             return "404! Not found.<br /> Allow accessing hidden files?"
+
+            if path.rsplit('.',1)[1] in formats:
+                return redirect("/view")
 
         return static_file(constructPath(filename), root = workPath)  #serve a file
 
@@ -296,7 +515,7 @@ def download_ydl(url, title, path, parameters):
         returned_value = ""
 
         while i < 3:
-            print("try: " + str(i+1))
+            print("\nyoutube-dl try: " + str(i+1))
 
             addHistory(url, title, "youtube-dl", "Running", path)
             returned_value = os.system(ydl)
@@ -319,7 +538,7 @@ def download_ydl(url, title, path, parameters):
         pass
     except:
         addHistory(url, title, "youtube-dl", "Failed", path)
-        print("Failure at Youtube-dl. Error: " + sys.exc_info()[0])
+        print("Failure at Youtube-dl. Error: " + str(sys.exc_info()[1]))
 
 
 # --------------- # download: wget # --------------- #
@@ -341,7 +560,7 @@ def download_wget(content, path, parameters):
         returned_value = ""
 
         while i < 3:
-            print("try: " + str(i+1))
+            print("\nwget try: " + str(i+1))
 
             addHistory(content, content.rsplit('/',1)[1], "wget", "Running", path)
             returned_value = os.system(wget)
@@ -364,17 +583,12 @@ def download_wget(content, path, parameters):
         pass
     except:
         addHistory(content, content.rsplit('/',1)[1], "wget", "Failed", path)
-        print("Failure at wget. Error: " + sys.exc_info()[0])
+        print("Failure at wget. Error: " + str(sys.exc_info()[1]))
 
 # --------------- # download: torrent # --------------- #
 def download_torrent(content, path, parameters):
 
-    try:    
-        dTime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-        addHistory(content, dTime, "torrent", "Started", path)
-
-        # ---
+    try:
 
         limit = 0
 
@@ -390,11 +604,17 @@ def download_torrent(content, path, parameters):
             handler.set_download_limit(limit)
             torrentSession.start_dht()
 
-            addHistory(content, dTime, "torrent", "Running", path)
 
-            print("downloading metadata...")
+            print("\ndownloading metadata...")
             while (not handler.has_metadata()):
                 time.sleep(1)
+
+            title = handler.get_torrent_info().name()
+
+            addHistory(content, title, "torrent", "Started", path)
+            time.sleep(2)
+            addHistory(content, title, "torrent", "Running", path)
+
             print("got metadata, starting torrent download...")
             while (handler.status().state != lt.torrent_status.seeding):
                 s = handler.status()
@@ -405,14 +625,14 @@ def download_torrent(content, path, parameters):
                     s.num_peers, state_str[s.state]))
                 time.sleep(5)
 
-            addHistory(content, dTime, "torrent", "Finished", path)
+            addHistory(content, title, "torrent", "Finished", path)
         except:
-            addHistory(content, dTime, "torrent", "Failed", path)
+            addHistory(content, title, "torrent", "Failed", path)
 
     except KeyboardInterrupt:
         pass
     except:
-        addHistory(content, dTime, "torrent", "Failed", path)
+        addHistory(content, title, "torrent", "Failed", path)
         print("Failure at torrent. Error: " + sys.exc_info()[0])
 
 # ---
@@ -455,13 +675,29 @@ if __name__ == "__main__":
     if bool(app_vars['LOCAL']):
         workPath = os.getcwd()
         sourcePath = os.getcwd()
+        logPath = os.getcwd() + "/logs"
     else:
         workPath = "/tmp/" + str(app_vars['DOWNLOAD_DIR'])
         sourcePath = "/usr/src/youtube-dl-server/run"
+        logPath = "/tmp/logs"
 
     print("Creating Download Folder: " + workPath)
     if not os.path.exists(workPath):
         os.makedirs(workPath)
+
+
+    # --------------- # history # --------------- #
+    print("Creating Log Folder: " + logPath)
+    if not os.path.exists(logPath):
+        os.makedirs(logPath)
+
+    if not os.path.isfile(logPath + "/history.txt"):
+        historyLog = open(logPath + "/history.txt", "w")
+        historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        historyLog.close()
+
+    download_history = loadHistory()
+    downloadList = []
 
 
     # --------------- # file browser # --------------- #
@@ -492,7 +728,6 @@ if __name__ == "__main__":
     print("Started download, thread count: " + str(app_vars['WORKER_COUNT']))
 
     download_executor = ThreadPoolExecutor(max_workers = (int(app_vars['WORKER_COUNT'])+1))
-    download_history = []
 
 
     # --------------- # app # --------------- #

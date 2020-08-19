@@ -8,6 +8,8 @@ import subprocess
 import youtube_dl
 from bottle import unicode
 
+
+# --------------- # --------------- # class singleton # --------------- # --------------- #
 class Extractor:
     __instance = None
     @staticmethod
@@ -25,7 +27,7 @@ class Extractor:
 
         self.content = ""
         self.url = ""
-        
+
         self.title = ""
         self.path = ""
         self.username = ""
@@ -38,13 +40,15 @@ class Extractor:
         self.reference = ""
 
         self.output = ""
-        
-    # --------------- #
 
+# --------------- # --------------- # functions: # --------------- # --------------- #
+
+
+# --------------- # help: var reset # --------------- #
     def defaultValues(self):
         self.content = ""
         self.url = ""
-        
+
         self.title = ""
         self.path = ""
         self.username = ""
@@ -58,6 +62,8 @@ class Extractor:
 
         self.output = ""
 
+
+# --------------- # function: preparation for use # --------------- #
     def preProcessor(self, content, title, path, parameters):
         self.defaultValues()
 
@@ -82,7 +88,7 @@ class Extractor:
 
         if self.maxSleep == "":
             self.maxSleep = "15"
-        
+
         # -----
 
         if path == "":
@@ -111,51 +117,55 @@ class Extractor:
 
         return self.extraction()
 
-    # --------------- #
 
+# --------------- # function: url switch # --------------- #
     def extraction(self):
 
+        # provider: streaming...
         if ("fruithosted" in self.content) : return self.host_fruithosted()
         elif ("oloadcdn" in self.content) : return self.host_oloadcdn()
         elif ("verystream" in self.content) : return self.host_verystream()
         elif ("vidoza" in self.content) : return self.host_vidoza()
         elif ("vivo" in self.content) : return self.host_vivo()
 
-        elif ("animeholics" in self.content) : return self.host_animeholics()
-        elif ("haho.moe" in self.content) : return self.host_hahomoe()
-        elif ("sxyprn" in self.content) : return self.host_sxyprn()
-        elif ("porngo" in self.content) : return self.host_porngo()
-        elif ("xvideos" in self.content) : return self.host_xvideos()
-
+        # provider: communities
         elif ("udemy" in self.content) : return self.host_udemy()
         elif ("anime-on-demand" in self.content) : return self.host_animeondemand()
         elif ("wakanim" in self.content) : return self.host_wakanim()
         elif ("vimeo" in self.content) : return self.host_vimeo()
         elif ("cloudfront" in self.content) : return self.host_cloudfront()
 
+        # provider: ...
+        elif ("animeholics" in self.content) : return self.host_animeholics()
+        elif ("haho.moe" in self.content) : return self.host_hahomoe()
+        elif ("sxyprn" in self.content) : return self.host_sxyprn()
+        elif ("porngo" in self.content) : return self.host_porngo()
+        elif ("xvideos" in self.content) : return self.host_xvideos()
+
         else : return self.host_default()
 
-# --------------- #
 
+# --------------- # function: ydl command # --------------- #
     def download_ydl(self):
         ydl = 'youtube-dl {parameter} {output} {url}'.format(parameter = self.parameters, output = self.output, url = self.url)
 
         return [ydl, self.url, self.title]
 
-    # --------------- # Titles # --------------- #
-
+# --------------- # function: title style # --------------- #
     def getTitle(self, oldTitle):
         newTitle = ""
-        
+
         if self.title == "":
             if oldTitle == "":
                 now = datetime.now()
-                newTitle = "download_ydl" + now.strftime("%m-%d-%Y_%H-%M-%S")
+                newTitle = "youtube-dl_" + now.strftime("%m-%d-%Y_%H-%M-%S")
+                self.title = newTitle
+                return newTitle
             else:
                 newTitle = oldTitle
         else:
             newTitle = self.title
-        
+
         newTitle = newTitle.casefold().replace(" ", "-").replace("_","-").replace(".","")
 
         while newTitle.endswith('-'):
@@ -167,21 +177,25 @@ class Extractor:
         self.title = newTitle
         return newTitle
 
-    # -----
-
+# --------------- # function: title from webpage # --------------- #
     def getTitleWebpage(self):
-        webpage = ""
-        
-        req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
+        req = urllib.request.Request(self.content, headers = {"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req) as response:
             webpage = response.read()
-        
-        title = str(webpage).split('<title>')[1].split('</title>')[0]
 
+        titleRegex = re.compile('<title>(.*?)</title>')
+        m = titleRegex.search(str(webpage))
+        if m:
+            title = m.group(1)
         return title
 
-# --------------- # --------------- # Extractors # --------------- # --------------- #
 
+# --------------- # --------------- # Extractors # --------------- # --------------- #
+# some functions are similar, but in case there is an change at the hoster, you can find and modify it this way better
+
+
+# --------------- # --------------- # Extractors: streaming... # --------------- # --------------- #
+# --------------- # extractors: default # --------------- #
     def host_default(self):
         ydl_opts = {'outtmpl': unicode('%(title)s'),'restrictfilenames':True,'forcefilename':True}
 
@@ -192,56 +206,126 @@ class Extractor:
         filename = self.getTitle(filename)
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(path = self.path, title = filename)
-
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: fruithosted # --------------- #
     def host_fruithosted(self):
         title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: openload # --------------- #
     def host_oloadcdn(self):
         title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: verystream # --------------- #
     def host_verystream(self):
         title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: vidoza # --------------- #
     def host_vidoza(self):
         title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: vivo # --------------- #
     def host_vivo(self):
         title = self.getTitle("")
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
         return self.download_ydl()
 
-    # --------------- #
 
+# --------------- # --------------- # Extractors: communities # --------------- # --------------- #
+
+
+# --------------- # extractors: udemy # --------------- #
+    def host_udemy(self):
+        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+
+        title = self.content.split('/',4)[4].rsplit('/',5)[0]
+        self.url = "https://www.udemy.com/" + title
+
+        print("media url: " + self.url)
+
+        self.title = title
+        self.output = "-f best -o '{path}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s'".format(title = title, path = self.path)
+        return self.download_ydl()
+
+
+# --------------- # extractors: animeondemand # --------------- #
+# work in progress
+    def host_animeondemand(self):
+        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+
+        if "www." not in self.url:
+            swap = self.url.split('/', 2)
+            self.url = "https://www." + swap[2]
+
+        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
+        return self.download_ydl()
+
+
+# --------------- # extractors: wakanim # --------------- #
+# work in progress
+    def host_wakanim(self):
+        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+
+        if "www." not in self.url:
+            swap = self.url.split('/', 2)
+            self.url = "https://www." + swap[2]
+
+        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
+        return self.download_ydl()
+
+
+# --------------- # extractors: crunchyroll # --------------- #
+    def host_crunchyroll(self):
+        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+
+        if "www." not in self.url:
+            swap = self.url.split('/', 2)
+            self.url = "https://www." + swap[2]
+
+        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
+        return self.download_ydl()
+
+
+# --------------- # extractors: vimeo # --------------- #
+# need reference link, if it is embeded
+    def host_vimeo(self):
+        title = self.getTitle("")
+
+        self.output = '--referer {reference} -f best -o "{path}/{title}.%(ext)s"'.format(reference = self.reference, title = title, path = self.path)
+        return self.download_ydl()
+
+
+# --------------- # extractors: cloudfront # --------------- #
+    def host_cloudfront(self):
+        title = self.getTitle("")
+
+        self.output = '-f best -o "{path}/{title}.mp4"'.format(title = title, path = self.path)
+        return self.download_ydl()
+
+
+# --------------- # --------------- # Extractors: ... # --------------- # --------------- #
+
+
+# --------------- # extractors: animeholics # --------------- #
+# not longer in maintained
     def host_animeholics(self):
         url = self.content
         webpage = ""
@@ -262,51 +346,41 @@ class Extractor:
 
         title = (serie + "-" + episode)
         title = self.getTitle(title)
-        
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
 
+        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: animeholics # --------------- #
+# new site
+    def host_hahomoe(self):
+        webpage=""
+
+        req = urllib.request.Request(self.content, headers = {"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req) as response:
+            webpage = response.read()
+
+        urlRegex = re.compile('<source src="(.*?)" type="video/mp4"></source>')
+        m = urlRegex.search(str(webpage))
+        if m:
+            self.url = m.group(1)
+
+        self.getTitle(self.getTitleWebpage().rsplit(' ', 4)[0])
+        self.output = '-f best -o "{path}/{title}.mp4"'.format(title = self.title, path = self.path)
+        return self.download_ydl()
+
+# --------------- # extractors: hanime # --------------- #
+# doesnt work
     def host_hanime(self):
         title = self.content.rsplit('?',1)[0].rsplit('/',1)[1]
 
         title = self.getTitle(title)
 
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
         return self.download_ydl()
 
-    # -----
 
-    def host_hahomoe(self):
-        # webpage = ""
-        
-        # req = urllib.request.Request(self.url, headers = {"User-Agent": "Mozilla/5.0"})
-        # with urllib.request.urlopen(req) as response:
-        #     webpage = response.read()
-        
-        # title = str(webpage).split('<title>')[1].split('</title>')[0]
-        # title = title.rsplit('-', 1)[0]
-        # title = title.casefold().replace(" ", "-").replace(".","").rsplit('-', 1)[0]
-
-        title = self.getTitleWebpage()
-
-        title = self.getTitle(title.rsplit('-', 1)[0])
-
-        if self.url.endswith('/'):
-            self.url = self.url[:-1]
-
-        title = title + "-" + self.url.rsplit('/',1)[1]
-
-        self.title = title
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
-        return self.download_ydl()
-
-    # -----
-
+# --------------- # extractors: sxyprn # --------------- #
     def host_sxyprn(self):
         title = self.getTitleWebpage()
 
@@ -317,98 +391,23 @@ class Extractor:
 
         self.title = title
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: xvideos # --------------- #
     def host_xvideos(self):
         title = self.content.rsplit("/",1)[1]
 
-        title = self.getTitle()
+        title = self.getTitle(title)
 
         self.output = '-f best -o "{path}/{title}.mp4"'.format(title=title, path = self.path)
-
         return self.download_ydl()
 
-    # -----
 
+# --------------- # extractors: porngo # --------------- #
     def host_porngo(self):
         title = self.content.rsplit('/',1)[0].rsplit('/',1)[1]
 
         self.title = title
         self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title=title, path = self.path)
-
-        return self.download_ydl()
-
-    # --------------- #
-
-    def host_udemy(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
-
-        title = self.content.split('/',4)[4].rsplit('/',5)[0]
-        self.url = "https://www.udemy.com/" + title
-
-        print("media url: " + self.url)
-
-        self.title = title
-        self.output = "-f best -o '{path}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s'".format(title = title, path = self.path)
-
-        return self.download_ydl()
-
-    # -----
-
-    def host_animeondemand(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
-
-        if "www." not in self.url:
-            swap = self.url.split('/', 2)
-            self.url = "https://www." + swap[2]
-
-        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
-
-        return self.download_ydl()
-
-    # -----
-
-    def host_wakanim(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
-
-        if "www." not in self.url:
-            swap = self.url.split('/', 2)
-            self.url = "https://www." + swap[2]
-
-        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
-
-        return self.download_ydl()
-
-    # -----
-
-    def host_crunchyroll(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
-
-        if "www." not in self.url:
-            swap = self.url.split('/', 2)
-            self.url = "https://www." + swap[2]
-
-        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
-
-        return self.download_ydl()
-
-    # -----
-
-    def host_vimeo(self):
-        title = self.getTitle("")
-
-        self.output = '--referer {reference} -f best -o "{path}/{title}.%(ext)s"'.format(reference = self.reference, title = title, path = self.path)
-
-        return self.download_ydl()
-
-    # -----
-
-    def host_cloudfront(self):
-        title = self.getTitle("")
-
-        self.output = '-f best -o "{path}/{title}.mp4"'.format(title = title, path = self.path)
-
         return self.download_ydl()

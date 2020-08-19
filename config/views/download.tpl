@@ -33,14 +33,24 @@
       </label>
     </header>
 
-    <div class="content container">
+    <div id="download" class="row content">
+      <div class="col-12 text-light">
+        <h1>Downloaded</h1>
+      </div>
 
-        <h1 class="text-light">Downloaded Files:</h1>
-        <table border=0 class= "row justify-content-center text-left">
+      <div class="col-1"></div>
+
+      <div class="col-10">
+        <h1 class="text-light">Files:</h1>
+        <br/>
+        <table border=0 class= "row justify-content-left" id="listBox">
           %for item in downloads:
-          <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
+            <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
           %end
         </table>
+      </div>
+
+      <div class="col-1"></div>
 
     </div>
 

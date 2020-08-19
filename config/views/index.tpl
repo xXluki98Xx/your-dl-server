@@ -37,11 +37,18 @@
 
       <p></p>
       <div class="text-light text-center">
-        <p>Enter a video url to download the video to the server. Url can be to YouTube or any other supported site. The server will automatically download the highest quality version available.</p>
+        <p>
+            Enter a Video URL to download the Video to the Server.<br>
+            Url can be an YouTube Link or any other supported site by Youtube-dl.<br>
+            You can customize your downloads when you added the extractor.py<br>
+            <br>
+            The server will automatically download the highest quality version available.
+        </p>
       </div>
 
       <div>
         <form action="/api/add" method="POST">
+
           <div class="input-group">
             <input name="url" type="url" class="form-control" placeholder="URL / MAGNETLINK" aria-label="URL / MAGNETLINK" aria-describedby="button-submit" autofocus>
 
@@ -63,22 +70,40 @@
           </div>
 
           <div class="input-group">
-            <input name="reference" type="reference" class="form-control" placeholder="REFERENCE" aria-label="REFERENCE" aria-describedby="button-submit" autofocus>
             <input name="title" type="title" class="form-control" placeholder="TITLE" aria-label="TITLE" aria-describedby="button-submit" autofocus>
             <input name="path" type="path" class="form-control" placeholder="PATH" aria-label="PATH" aria-describedby="button-submit" autofocus>
           </div>
 
-          <div class="input-group">
-            <input name="retries" type="retries" class="form-control" placeholder="RETRIES (5)" aria-label="RETRIES" aria-describedby="button-submit" autofocus>
-            <input name="minSleep" type="minSleep" class="form-control" placeholder="MIN SLEEP (2s)" aria-label="MINSLEEP" aria-describedby="button-submit" autofocus>
-            <input name="maxSleep" type="maxSleep" class="form-control" placeholder="MAX SLEEP (15s)" aria-label="MAXSLEEP" aria-describedby="button-submit" autofocus>
-            <input name="bandwidth" type="bandwidth" class="form-control" placeholder="BANDWIDTH (unlimited)"  aria-label="BANDWIDTH" aria-describedby="button-submit" autofocus>
+          <p></p>
+
+          <div>
+            <details><summary class="text-light">Parameter</summary>
+              <div class="input-group">
+                <input name="retries" type="retries" class="form-control" placeholder="RETRIES (5)" aria-label="RETRIES" aria-describedby="button-submit" autofocus>
+                <input name="minSleep" type="minSleep" class="form-control" placeholder="MIN SLEEP (2s)" aria-label="MINSLEEP" aria-describedby="button-submit" autofocus>
+              </div>
+              <div class="input-group">
+                <input name="maxSleep" type="maxSleep" class="form-control" placeholder="MAX SLEEP (15s)" aria-label="MAXSLEEP" aria-describedby="button-submit" autofocus>
+                <input name="bandwidth" type="bandwidth" class="form-control" placeholder="BANDWIDTH (unlimited)"  aria-label="BANDWIDTH" aria-describedby="button-submit" autofocus>
+              </div>
+            </details>
           </div>
 
-          <div class="input-group">
-            <input name="username" type="username" class="form-control" placeholder="USERNAME" aria-label="USERNAME" aria-describedby="button-submit" autofocus>
-            <input name="password" type="password" class="form-control" placeholder="PASSWORD" aria-label="PASSWORD" aria-describedby="button-submit" autofocus>
+          <p></p>
+
+          <div>
+            <details><summary class="text-light">Advanced Options</summary>
+              <div class="input-group">
+                <input name="reference" type="reference" class="form-control" placeholder="REFERENCE" aria-label="REFERENCE" aria-describedby="button-submit" autofocus>
+              </div>
+              <div class="input-group">
+                <input name="username" type="username" class="form-control" placeholder="USERNAME" aria-label="USERNAME" aria-describedby="button-submit" autofocus>
+                <input name="password" type="password" class="form-control" placeholder="PASSWORD" aria-label="PASSWORD" aria-describedby="button-submit" autofocus>
+              </div>
+            </details>
           </div>
+
+          <p></p>
 
           <div class="input-group-append">
             <button class="btn btn-primary" type="submit" id="button-submit">Submit</button>

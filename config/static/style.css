@@ -150,7 +150,7 @@ nav a:hover {
   }
 
   nav {
-    // all: unset; /* this causes issues with Edge, since it's unsupported */
+    all: unset; /* this causes issues with Edge, since it's unsupported */
 
     /* the following lines are not from my video, but add Edge support */
     position: relative;
@@ -202,7 +202,9 @@ nav a:hover {
 
 /* custom code */
 .container {
-  height: 90vh;
+  height: 100vh;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
 }
 
 div.input-group>select.custom-select {
@@ -221,6 +223,28 @@ a {
   column-gap: 8px;
   row-gap: 8px;
 }
+
+#history {
+  display: flex;
+  text-align: left;
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+#download {
+  display: flex;
+  text-align: left;
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+#listBox {
+  text-align: left;
+  background-color: rgb(33, 58, 52);
+  border: dashed;
+  height: 400px;
+}
+
 
 /* footer */
 /* Source: https://www.youtube.com/watch?v=yc2olxLgKLk */
@@ -241,4 +265,29 @@ footer p {
   margin: 0 !important;
   padding: 2px;
   color: #212529;
+}
+
+/* Collapsible Menu */
+
+.collapsible-menu {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible-menu:hover {
+  background-color: var(--background);
+}
+
+.content-menu {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
 }
