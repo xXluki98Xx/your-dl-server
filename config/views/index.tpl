@@ -37,13 +37,13 @@
 
       <p></p>
       <div class="text-light text-center">
-      <p>
-          Enter a Video URL to download the Video to the Server.<br>
-          Url can be an YouTube Link or any other supported site by Youtube-dl.<br>
-          You can customize your downloads when you added the extractor.py<br>
-          <br>
-          The server will automatically download the highest quality version available.
-      </p>
+        <p>
+            Enter a Video URL to download the Video to the Server.<br>
+            Url can be an YouTube Link or any other supported site by Youtube-dl.<br>
+            You can customize your downloads when you added the extractor.py<br>
+            <br>
+            The server will automatically download the highest quality version available.
+        </p>
       </div>
 
       <div>

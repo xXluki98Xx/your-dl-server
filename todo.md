@@ -4,10 +4,8 @@
 
 ### Improvment
 
-  - log persistence -> loading -> just the 10 finished/ failed
   - download thread timeout -> if no text is writen to output
-  - log just 10 logs
-  - dublicate log entries
+  - program is not cancel able by ctrl+c
 
 ### Features
 

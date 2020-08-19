@@ -229,6 +229,13 @@ a {
   height: 90vh;
 }
 
+#listBox {
+  text-align: left;
+  background-color: rgb(33, 58, 52);
+  border: dashed;
+  height: 400px;
+}
+
 
 /* footer */
 /* Source: https://www.youtube.com/watch?v=yc2olxLgKLk */
