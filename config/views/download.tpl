@@ -45,7 +45,7 @@
         <br/>
         <table border=0 class= "row justify-content-left" id="listBox">
           %for item in downloads:
-          <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
+            <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
           %end
         </table>
       </div>

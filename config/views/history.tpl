@@ -42,11 +42,9 @@
         <h1 class="text-light">Last:</h1>
         <br/>
         <table border=0 class= "row justify-content-left" id="listBox">
-          <ul>
-            %for item in history:
-              <li><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['status'] }} | {{ item['title'] }}</a><li>
-            %end
-          </ul>
+          %for item in history:
+            <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
+          %end
         </table>
       </div>
 
