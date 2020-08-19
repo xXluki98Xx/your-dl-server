@@ -34,14 +34,17 @@
     </header>
 
     <div id="history" class="row content">
+      <div class="col-12 text-light">
+        <h1>Download History</h1>
+      </div>
 
       <div class="col-6">
-        <h1 class="text-light">Download History:</h1>
+        <h1 class="text-light">Last:</h1>
         <br/>
-        <table border=0 class= "row justify-content-center text-left" id="listBox">
+        <table border=0 class= "row justify-content-left" id="listBox">
           <ul>
             %for item in history:
-              <li><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><li>
+              <li><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['status'] }} | {{ item['title'] }}</a><li>
             %end
           </ul>
         </table>
@@ -50,9 +53,9 @@
       <div class="col-1"></div>
 
       <div class="col-5">
-        <h1 class="text-light">Current Downloads:</h1>
+        <h1 class="text-light">Current:</h1>
         <br/>
-        <table border=0 class= "row justify-content-center text-left" id="listBox">
+        <table border=0 class= "row justify-content-left" id="listBox">
           %for item in display_downloads:
             <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
           %end

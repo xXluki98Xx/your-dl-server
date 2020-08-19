@@ -202,7 +202,7 @@ nav a:hover {
 
 /* custom code */
 .container {
-  height: 90vh;
+  height: 100vh;
   padding-left: 15px !important;
   padding-right: 15px !important;
 }
@@ -226,7 +226,16 @@ a {
 
 #history {
   display: flex;
-  height: 90vh;
+  text-align: left;
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+#download {
+  display: flex;
+  text-align: left;
+  margin-right: 0px;
+  margin-left: 0px;
 }
 
 #listBox {
