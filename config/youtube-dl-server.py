@@ -31,7 +31,7 @@ app = Bottle()
 app_defaults = {
     'YDL_SERVER_HOST': '0.0.0.0',
     'YDL_SERVER_PORT': 8080,
-    'WORKER_COUNT': 4,
+    'WORKER_COUNT': 8,
     'DOWNLOAD_DIR': "ydl-downloads",
     'LOCAL': False,
     'SUB_PATH': "downloads",
@@ -194,7 +194,7 @@ def loadHistory():
                 swap = f.readline()
 
             if len(swapList)>10:
-                return swapList[-9:]
+                return swapList[-10:]
             else:
                 return swapList
 
@@ -355,7 +355,7 @@ def server_history():
     display_downloads = []
 
     if len(display_logHistory)>10:
-        display_logHistory = display_logHistory[-9:]
+        display_logHistory = display_logHistory[-10:]
     else:
         display_logHistory = display_logHistory
 
