@@ -342,14 +342,14 @@ def saveHistory():
 # --------------- # view: home # --------------- #
 @app.route('/')
 @view('index')
-def serv_ui():
+def serve_ui():
     return {}
 
 
 # --------------- # view: history # --------------- #
 @app.route('/history')
 @view('history')
-def server_history():
+def serve_history():
 
     display_logHistory = loadHistory()
     display_downloads = []
@@ -362,7 +362,7 @@ def server_history():
 
     # list of current running downloads
     if len(downloadList)>10:
-        display_downloads = downloadList[-9:]
+        display_downloads = downloadList[-10:]
     else:
         display_downloads = downloadList
 
@@ -375,7 +375,7 @@ def server_history():
 # --------------- # view: downloads # --------------- #
 @app.route('/downloads/<filename:re:.*>') #match any string after /
 @view('download')
-def server_download(filename):
+def serve_download(filename):
 
     if not workPath in str(app_vars['SWAP']):
         app_vars['SWAP'] = workPath
@@ -434,7 +434,7 @@ def server_download(filename):
 
 # --------------- # static # --------------- #
 @app.route('/static/:filename#.*#')
-def server_static(filename):
+def serve_static(filename):
     return static_file(filename, root='./static')
 
 
