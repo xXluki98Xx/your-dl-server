@@ -360,7 +360,7 @@ class Extractor:
         with urllib.request.urlopen(req) as response:
             webpage = response.read()
 
-        urlRegex = re.compile('<source src="(.*?)" type="video/mp4"></source>')
+        urlRegex = re.compile('<source data-fluid-hd="" src="(.*?)" title="720p" type="video/mp4"></source>')
         m = urlRegex.search(str(webpage))
         if m:
             self.url = m.group(1)
