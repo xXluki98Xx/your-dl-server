@@ -1,413 +1,390 @@
-from datetime import datetime
 import re
-import sys
-import time
-import urllib.request
-import os
-import subprocess
+
+import requests
 import youtube_dl
-from bottle import unicode
+
+import downloader
+import ioutils
+from functions import *
 
 
-# --------------- # --------------- # class singleton # --------------- # --------------- #
-class Extractor:
-    __instance = None
-    @staticmethod
+# ----- # ----- #
+def getLanguage(dto, platform):
+    output = '--no-mark-watched --hls-prefer-ffmpeg --socket-timeout 15'
 
-    def getInstance():
-        if Extractor.__instance == None:
-            Extractor()
-            return Extractor.__instance
+    if platform == 'crunchyroll':
+        output += ' --all-subs --embed-subs --write-sub --merge-output-format mkv --recode-video mkv'
+        if dto.getDubLang() == 'de': return output + ' --format "best[format_id!*=hardsub][format_id*=adaptive_hls-audio-deDE]"'
 
-    def __init__(self):
-        if Extractor.__instance != None:
-            raise Exception("This class is a singleton!")
+        return output + ' --format "best[format_id!*=hardsub][format_id*=adaptive_hls-audio-jaJP]"'
+
+    # if platform == 'animeondemand':
+    #     output += ' --all-subs --embed-subs --write-sub --merge-output-format mkv --recode-video mkv'
+    #     if dto.getDubLang() == 'de': return output + ' --format "best[format_id*=ger-Dub]"'
+
+    #     return output + ' --format "best[format_id*=ger-Dub]"'
+
+    return output
+
+def getUserCredentials(dto, platform):
+    parameter = ''
+
+    if dto.getCookieFile():
+        parameter += ' --cookies ' + dto.getCookieFile()
+    else:
+        if platform in dto.getData():
+            parameter += ' --username ' + dto.getData()[platform].get('username') + ' --password ' + dto.getData()[platform].get('password') + ' '
+
+
+    dto.publishLoggerDebug(parameter)
+
+    return parameter
+
+
+# ----- # ----- #
+def ydl_extractor(dto, content):
+    title = ''
+    stringReferer = ''
+    directory = '.'
+
+    try:
+        (url, title, stringReferer, directory) = content.split(';')
+    except ValueError:
+        try:
+            (url, title, stringReferer) = content.split(';')
+        except ValueError:
+            try:
+                (url, title) = content.split(';')
+            except ValueError:
+                url = content
+
+    if ('magnet:?xt=urn:btih' in content):
+        dto.publishLoggerDebug('current Download: ' + url)
+        try:
+            (url, directory) = content.split(';')
+        except ValueError:
+            url = content
+            directory = ''
+
+        return downloader.download_aria2c_magnet(dto, url, directory)
+
+    webpageResult = ioutils.testWebpage(dto, url.split('?')[0])
+    if webpageResult != 0:
+        return webpageResult
+
+    mostly = ['fruithosted', 'oloadcdn', 'verystream', 'vidoza', 'vivo']
+
+    dto.publishLoggerInfo('current Download: ' + url)
+
+    for domain in mostly:
+        if domain in url : return host_mostly(dto, url, title, stringReferer, directory)
+
+    # if ('animeholics' in url) : return host_animeholics(dto, url, title, stringReferer, directory)
+
+    if ('haho.moe' in url) :
+        if (len(url.rsplit('/',1)[1]) < 3):
+            return host_hahomoe(dto, url, title, stringReferer, directory)
         else:
-            Extractor.__instance = self
+            i = 1
+            while ioutils.testWebpage(dto, url+'/'+str(i)) == 0:
+                ydl_extractor(dto, url+'/'+str(i))
+                i += 1
 
-        self.content = ""
-        self.url = ""
+            i = 1
+            while ioutils.testWebpage(dto, url+'/s'+str(i)) == 0:
+                ydl_extractor(dto, url+'/s'+str(i))
+                i += 1
 
-        self.title = ""
-        self.path = ""
-        self.username = ""
-        self.password = ""
-        self.retries = ""
-        self.minSleep = ""
-        self.maxSleep = ""
-        self.bandwidth = ""
-        self.axel = ""
-        self.reference = ""
+            return 0
 
-        self.output = ""
+    if ('sxyprn' in url) : return host_sxyprn(dto, url, title, stringReferer, directory)
+    if ('porngo' in url) : return host_porngo(dto, url, title, stringReferer, directory)
+    if ('xvideos' in url) : return host_xvideos(dto, url, title, stringReferer, directory)
 
-# --------------- # --------------- # functions: # --------------- # --------------- #
+    if ('udemy' in url) : return host_udemy(dto, url, title, stringReferer, directory)
+    if ('vimeo' in url) : return host_vimeo(dto, url, title, stringReferer, directory)
+    if ('cloudfront' in url) : return host_cloudfront(dto, url, title, stringReferer, directory)
+    if ('pluralsight' in url) : return host_pluralsight(dto, url, title, stringReferer, directory)
 
-
-# --------------- # help: var reset # --------------- #
-    def defaultValues(self):
-        self.content = ""
-        self.url = ""
-
-        self.title = ""
-        self.path = ""
-        self.username = ""
-        self.password = ""
-        self.retries = "5"
-        self.minSleep = "2"
-        self.maxSleep = "15"
-        self.bandwidth = ""
-        self.axel = ""
-        self.reference = ""
-
-        self.output = ""
-
-
-# --------------- # function: preparation for use # --------------- #
-    def preProcessor(self, content, title, path, parameters):
-        self.defaultValues()
-
-        # -----
-
-        self.content = content
-        self.url = content
-
-        self.title = title
-
-        # -----
-
-        self.retries, self.minSleep, self.maxSleep, self.bandwidth, self.axel, self.username, self.password, self.reference = parameters
-
-        # -----
-
-        if self.retries == "":
-            self.retries = "5"
-
-        if self.minSleep == "":
-            self.minSleep = "2"
-
-        if self.maxSleep == "":
-            self.maxSleep = "15"
-
-        # -----
-
-        if path == "":
-            self.path = "."
+    if ('crunchyroll' in url) :
+        if dto.getSync():
+            return host_crunchyroll_sync(dto, url, title, stringReferer, directory)
         else:
-            self.path = path
+            return host_crunchyroll(dto, url, title, stringReferer, directory)
 
-        # -----
+    if ('anime-on-demand' in url) : return host_animeondemand(dto, url, title, stringReferer, directory)
 
-        self.parameters = ""
-        self.parameters = "--retries {retries} --min-sleep-interval {mins} --max-sleep-interval {maxs} -c".format(retries = self.retries, mins = self.minSleep, maxs = self.maxSleep)
-
-        # -----
-
-        if self.bandwidth == "0":
-            pass
-        elif self.bandwidth == "":
-            pass
-        else:
-            self.parameters = self.parameters + " --limit-rate {}".format(self.bandwidth)
-
-        # -----
-
-        if self.axel == "axel":
-            self.parameters = self.parameters + " --external-downloader axel"
-
-        return self.extraction()
+    return host_default(dto, url, title, stringReferer, directory)
 
 
-# --------------- # function: url switch # --------------- #
-    def extraction(self):
+def host_default(dto, content, title, stringReferer, directory):
+    if not dto.getPlaylist():
 
-        # provider: streaming...
-        if ("fruithosted" in self.content) : return self.host_fruithosted()
-        elif ("oloadcdn" in self.content) : return self.host_oloadcdn()
-        elif ("verystream" in self.content) : return self.host_verystream()
-        elif ("vidoza" in self.content) : return self.host_vidoza()
-        elif ("vivo" in self.content) : return self.host_vivo()
+        ydl_opts = {
+            'outtmpl': '%(title)s',
+            'restrictfilenames': True,
+            'forcefilename':True
+        }
 
-        # provider: communities
-        elif ("udemy" in self.content) : return self.host_udemy()
-        elif ("anime-on-demand" in self.content) : return self.host_animeondemand()
-        elif ("wakanim" in self.content) : return self.host_wakanim()
-        elif ("vimeo" in self.content) : return self.host_vimeo()
-        elif ("cloudfront" in self.content) : return self.host_cloudfront()
+        try:
+            if title == '':
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(content, download = False)
+                    filename = ydl.prepare_filename(info)
 
-        # provider: ...
-        elif ("animeholics" in self.content) : return self.host_animeholics()
-        elif ("haho.moe" in self.content) : return self.host_hahomoe()
-        elif ("sxyprn" in self.content) : return self.host_sxyprn()
-        elif ("porngo" in self.content) : return self.host_porngo()
-        elif ("xvideos" in self.content) : return self.host_xvideos()
+                    dto.publishLoggerDebug('extracted filename: ' + filename)
 
-        else : return self.host_default()
+                filename = ioutils.getTitleFormated(filename)
 
-
-# --------------- # function: ydl command # --------------- #
-    def download_ydl(self):
-        ydl = 'youtube-dl {parameter} {output} {url}'.format(parameter = self.parameters, output = self.output, url = self.url)
-
-        return [ydl, self.url, self.title]
-
-# --------------- # function: title style # --------------- #
-    def getTitle(self, oldTitle):
-        newTitle = ""
-
-        if self.title == "":
-            if oldTitle == "":
-                now = datetime.now()
-                newTitle = "youtube-dl_" + now.strftime("%m-%d-%Y_%H-%M-%S")
-                self.title = newTitle
-                return newTitle
+                output = '--format best --no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
+                return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, filename, directory])
             else:
-                newTitle = oldTitle
+                filename = ioutils.getTitleFormated(title)
+
+                output = '--format best --no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
+                return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, filename, directory])
+
+        except:
+            output = '--format best --no-playlist --output "{dir}/%(title)s.%(ext)s"'.format(dir = directory)
+            return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
+
+    else:
+        output = '--ignore-errors --format best --output "{dir}/%(extractor)s--%(playlist_uploader)s_%(playlist_title)s/%(playlist_index)s_%(title)s.%(ext)s"'.format(dir = directory)
+        return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
+
+
+def host_mostly(dto, content, title, stringReferer, directory):
+    if title == '':
+        title = str(input('\nPlease enter the Title:\n'))
+
+    title = ioutils.getTitleFormated(title)
+    output = '--format best --output "{dir}/{title}.%(ext)s"'.format(title = title, dir = directory)
+
+    return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
+
+
+def host_hanime(dto, content, title, stringReferer, directory):
+    if title == '':
+        title = content.rsplit('?',1)[0].rsplit('/',1)[1]
+
+    title = ioutils.getTitleFormated(title)
+    output = '--format best --output "{dir}/{title}.%(ext)s"'.format(title = title, dir = directory)
+
+    return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
+
+
+def host_hahomoe(dto, content, title, stringReferer, directory):
+    url = content
+    webpage = ''
+
+    res = requests.get(url, allow_redirects=False)
+    url2 = re.findall('<iframe src="(https:\/\/haho\.moe\/embed\?v=.+)"', res.text)[0]
+
+    if title == '':
+        title = re.findall('<title>(.+)</title>',res.text)[0]
+
+        if title:
+            title = title.rsplit(' ',4)[0]
         else:
-            newTitle = self.title
+            title = ''
 
-        newTitle = newTitle.casefold().replace(" ", "-").replace("_","-").replace(".","")
+        title = ioutils.getTitleFormated(title)
+        dto.publishLoggerDebug(title)
 
-        while newTitle.endswith('-'):
-            newTitle = newTitle[:-1]
+    res2 = requests.get(url2, allow_redirects=False, cookies=res.cookies)
 
-        while newTitle.startswith('-'):
-            newTitle = newTitle[1:]
+    url = re.findall('<source src="(.+)" title="[0-9]{3}p" type="video/mp4">', res2.text)[0]
 
-        self.title = newTitle
-        return newTitle
+    output = '--format best --output "{dir}/{title}.mp4"'.format(title = title, dir = directory)
 
-# --------------- # function: title from webpage # --------------- #
-    def getTitleWebpage(self):
-        req = urllib.request.Request(self.content, headers = {"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req) as response:
-            webpage = response.read()
+    return downloader.download_ydl(dto, url, dto.getParameters(), output, stringReferer, [content, title, directory])
 
-        titleRegex = re.compile('<title>(.*?)</title>')
-        m = titleRegex.search(str(webpage))
-        if m:
-            title = m.group(1)
-        return title
 
+def host_sxyprn(dto, content, title, stringReferer, directory):
+    url = content
+    stringReferer = content
+    webpage = ''
 
-# --------------- # --------------- # Extractors # --------------- # --------------- #
-# some functions are similar, but in case there is an change at the hoster, you can find and modify it this way better
+    req = requests.get(url, allow_redirects=False)
+    webpage = req.text
 
+    if title == '':
+        title = str(webpage).split('<title>')[1].split('</title>')[0]
+        title = title.rsplit('-', 1)[0]
+        title = title.casefold().replace(' ', '-').replace('.','').rsplit('-', 1)[0]
 
-# --------------- # --------------- # Extractors: streaming... # --------------- # --------------- #
-# --------------- # extractors: default # --------------- #
-    def host_default(self):
-        ydl_opts = {'outtmpl': unicode('%(title)s'),'restrictfilenames':True,'forcefilename':True}
+        if '#' in title:
+            title = title.split('-#',1)[0]
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(self.url, download=False)
-            filename = ydl.prepare_filename(info)
+    title = ioutils.getTitleFormated(title)
 
-        filename = self.getTitle(filename)
+    url = re.findall("<span style='display:none' class='vidsnfo' data-vnfo='{(.*):(.+)}'><\/span>", webpage)[0][1]
+    url = url.replace('"', '').replace('\\', '').split('/')
+    url[1] = 'cdn8'
 
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(path = self.path, title = filename)
-        return self.download_ydl()
+    content = 'https://sxyprn.com' + '/'.join(url)
+    output = '--format best --output "{dir}/{title}.mp4"'.format(title = title, dir = directory)
 
+    return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
 
-# --------------- # extractors: fruithosted # --------------- #
-    def host_fruithosted(self):
-        title = self.getTitle("")
 
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
+def host_xvideos(dto, content, title, stringReferer, directory):
+    if title == '':
+        title = content.rsplit('/',1)[1]
 
+    title = ioutils.getTitleFormated(title)
+    output = '--format best --output "{dir}/{title}.mp4"'.format(title = title, dir = directory)
 
-# --------------- # extractors: openload # --------------- #
-    def host_oloadcdn(self):
-        title = self.getTitle("")
+    return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
 
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
 
+def host_porngo(dto, content, title, stringReferer, directory):
+    if title == '':
+        title = content.rsplit('/',1)[0].rsplit('/',1)[1]
 
-# --------------- # extractors: verystream # --------------- #
-    def host_verystream(self):
-        title = self.getTitle("")
+    title = ioutils.getTitleFormated(title)
+    output = '--format best --output "{dir}/{title}.%(ext)s"'.format(title = title, dir = directory)
 
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
+    return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
 
 
-# --------------- # extractors: vidoza # --------------- #
-    def host_vidoza(self):
-        title = self.getTitle("")
+def host_animeondemand(dto, content, title, stringReferer, directory):
+    parameters = dto.getParameters()
+    parameters += getUserCredentials(dto, 'animeondemand')
 
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
+    if 'www.' not in content:
+        swap = content.split('/', 2)
+        content = 'https://www.' + swap[2]
 
+    output = getLanguage(dto, 'animeondemand')
+    output += ' --output "{dir}/%(playlist)s/episode-%(playlist_index)s.%(ext)s"'
 
-# --------------- # extractors: vivo # --------------- #
-    def host_vivo(self):
-        title = self.getTitle("")
+    return downloader.download_ydl(dto, content, parameters, output, stringReferer, [content, title, directory])
 
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
 
+def host_crunchyroll(dto, content, title, stringReferer, directory):
+    parameters = dto.getParameters()
+    parameters += getUserCredentials(dto, 'crunchyroll')
 
-# --------------- # --------------- # Extractors: communities # --------------- # --------------- #
+    if 'www.' not in content:
+        swap = content.split('/', 2)
+        content = 'https://www.' + swap[2]
 
+    # replace country code
+    if len(content.split('/')) >= 4:
+        if content.endswith('/'):
+            content = content[:-1]
+        pattern = "(https:\/\/www\.crunchyroll\.com\/)(.+)(\/)"
+        content = re.sub(pattern, r"\1", content)
 
-# --------------- # extractors: udemy # --------------- #
-    def host_udemy(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+    output = getLanguage(dto, 'crunchyroll')
+    output += ' --ignore-errors --output "{dir}/%(playlist)s/season-%(season_number)s-episode-%(episode_number)s-%(episode)s.%(ext)s"'.format(dir = directory)
 
-        title = self.content.split('/',4)[4].rsplit('/',5)[0]
-        self.url = "https://www.udemy.com/" + title
+    return downloader.download_ydl(dto, content, parameters, output, stringReferer, [content, title, directory])
 
-        print("media url: " + self.url)
 
-        self.title = title
-        self.output = "-f best -o '{path}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s'".format(title = title, path = self.path)
-        return self.download_ydl()
+def host_crunchyroll_sync(dto, content, title, stringReferer, directory):
+    parameters = dto.getParameters()
+    parameters += getUserCredentials(dto, 'crunchyroll')
 
+    if 'www.' not in content:
+        swap = content.split('/', 2)
+        content = 'https://www.' + swap[2]
 
-# --------------- # extractors: animeondemand # --------------- #
-# work in progress
-    def host_animeondemand(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+    # replace country code
+    if len(content.split('/')) >= 4:
+        if content.endswith('/'):
+            content = content[:-1]
+        pattern = "(https:\/\/www\.crunchyroll\.com\/)(.+)(\/)"
+        content = re.sub(pattern, r"\1", content)
 
-        if "www." not in self.url:
-            swap = self.url.split('/', 2)
-            self.url = "https://www." + swap[2]
+    # getting all subtitle theoretisch obsolet
+    # syncOutput = '--no-mark-watched --hls-prefer-ffmpeg --socket-timeout 15'
+    # syncOutput += ' --all-subs --write-sub --skip-download'
+    # syncOutput += ' --ignore-errors --output "{dir}/%(playlist)s/season-%(season_number)s-episode-%(episode_number)s/subtitle-%(episode)s.%(ext)s"'.format(dir = directory)
 
-        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
-        return self.download_ydl()
+    # download_ydl(dto, content, parameters, syncOutput, stringReferer)
 
+    # getting all audios (low quality video) | scheinbar sind die videos unterschiedlich, also mehr als nur andere audiospur
+    syncOutput = '--no-mark-watched --socket-timeout 15'
+    # syncOutput += ' --hls-prefer-native'
+    syncOutput += ' --hls-use-mpegts'
+    syncOutput += ' --format "bestvideo[height<=480][format_id!*=hardsub][format_id!*=adaptive_hls-audio-jaJP]+bestaudio/best[height<=480][format_id!*=hardsub]"'
+    syncOutput += ' --extract-audio --audio-format aac --audio-quality 0 --keep-video'
+    syncOutput += ' --prefer-avconv'
+    # syncOutput += ' --all-subs --write-sub'
+    if dto.getOffset() > 0:
+        syncOutput += ' --playlist-start %d' % dto.getOffset()
+    syncOutput += ' --ignore-errors --output "{dir}/%(playlist)s/season-%(season_number)s-episode-%(episode_number)s/audio-%(autonumber)s-%(episode)s.%(ext)s"'.format(dir = directory)
 
-# --------------- # extractors: wakanim # --------------- #
-# work in progress
-    def host_wakanim(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+    downloader.download_ydl(dto, content, parameters, syncOutput, stringReferer, [content, title, directory])
 
-        if "www." not in self.url:
-            swap = self.url.split('/', 2)
-            self.url = "https://www." + swap[2]
+    output = '--no-mark-watched --hls-prefer-ffmpeg --socket-timeout 15'
+    output += ' --format "best[format_id*=adaptive_hls-audio-jaJP][format_id!*=hardsub]"'
+    # output += ' --all-subs --embed-subs'
+    # output += ' --merge-output-format mkv --recode-video mkv'
+    output += ' --ignore-errors --output "{dir}/%(playlist)s/season-%(season_number)s-episode-%(episode_number)s/video-%(episode)s.%(ext)s"'.format(dir = directory)
 
-        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
-        return self.download_ydl()
+    downloader.download_ydl(dto, content, parameters, output, stringReferer, [content, title, directory])
 
 
-# --------------- # extractors: crunchyroll # --------------- #
-    def host_crunchyroll(self):
-        self.parameter = "--username " + self.username + " --password " + self.password + " " + self.parameters
+def host_udemy(dto, content, title, stringReferer, directory):
+    parameter = dto.getParameters()
+    parameter += getUserCredentials(dto, 'udemy')
 
-        if "www." not in self.url:
-            swap = self.url.split('/', 2)
-            self.url = "https://www." + swap[2]
+    if '/course/' in content:
+        content = content.replace('/course', '')
 
-        self.output = "-f 'best[format_id*=ger-Dub]' -o '{path}/%(playlist)s/episode-%(playlist_index)s.%(ext)s'".format(path = self.path)
-        return self.download_ydl()
+    if 'https://udemy.com' in content:
+        content = content.replace('https://udemy.com', 'https://www.udemy.com')
 
+    title = content.split('/')[3]
 
-# --------------- # extractors: vimeo # --------------- #
-# need reference link, if it is embeded
-    def host_vimeo(self):
-        title = self.getTitle("")
+    dto.publishLoggerDebug('udemy title: ' + str(title))
+    dto.publishLoggerDebug('udemy url: ' + content)
 
-        self.output = '--referer {reference} -f best -o "{path}/{title}.%(ext)s"'.format(reference = self.reference, title = title, path = self.path)
-        return self.download_ydl()
+    output = '--format best --output "{dir}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s"'.format(title = title, dir = directory)
 
+    return downloader.download_ydl(dto, content, parameter, output, stringReferer, [content, title, directory])
 
-# --------------- # extractors: cloudfront # --------------- #
-    def host_cloudfront(self):
-        title = self.getTitle("")
 
-        self.output = '-f best -o "{path}/{title}.mp4"'.format(title = title, path = self.path)
-        return self.download_ydl()
+def host_vimeo(dto, content, title, stringReferer, directory):
+    if title == '':
+        title = str(input('\nPlease enter the Title:\n'))
 
+    if stringReferer == '':
+        stringReferer = str(input('\nPlease enter the reference URL:\n'))
 
-# --------------- # --------------- # Extractors: ... # --------------- # --------------- #
+    content = content.split('?')[0]
+    title = ioutils.getTitleFormated(title)
+    output = '--format best --output "{dir}/{title}.%(ext)s"'.format(title = title, dir = directory)
 
+    return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
 
-# --------------- # extractors: animeholics # --------------- #
-# not longer in maintained
-    def host_animeholics(self):
-        url = self.content
-        webpage = ""
 
-        req = urllib.request.Request(url, headers = {"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req) as response:
-            webpage = response.read()
+def host_cloudfront(dto, content, title, stringReferer, directory):
+    if title == '':
+        title = str(input('\nPlease enter the Title:\n'))
 
-        self.url = str(webpage)[str(webpage).find("https://filegasm.com/watch/"):int(str(webpage).find("https://filegasm.com/watch/"))+43]
+    title = ioutils.getTitleFormated(title)
+    output = '--format best --output "{dir}/{title}.mp4"'.format(title = title, dir = directory)
 
-        x = re.search('/\d/$|/s\d/$', self.content)
-        if x:
-            serie = self.content.rsplit('/',1)[0].rsplit('/',2)[1]
-            episode = self.content.rsplit('/',1)[0].rsplit('/',2)[2]
-        else:
-            serie = self.content.rsplit('/',1)[0].rsplit('/',1)[1]
-            episode = self.content.rsplit('/',1)[1]
+    return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
 
-        title = (serie + "-" + episode)
-        title = self.getTitle(title)
 
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
+def host_pluralsight(dto, content, title, stringReferer, directory):
+    parameter = dto.getParameters()
+    
+    pattern = "--retries [0-9]{1,}(.+) --continue"
+    parameter = parameter.replace(re.sub(pattern, r"\1", parameter), '')
 
+    parameter += getUserCredentials(dto, 'pluralsight')
 
-# --------------- # extractors: animeholics # --------------- #
-# new site
-    def host_hahomoe(self):
-        webpage=""
+    title = content.split('/')[5]
 
-        req = urllib.request.Request(self.content, headers = {"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req) as response:
-            webpage = response.read()
+    dto.publishLoggerDebug('pluralsight title: ' + str(title))
+    dto.publishLoggerDebug('pluralsight url: ' + content)
 
-        urlRegex = re.compile('<source data-fluid-hd="" src="(.*?)" title="720p" type="video/mp4"></source>')
-        m = urlRegex.search(str(webpage))
-        if m:
-            self.url = m.group(1)
+    output = '--min-sleep-interval 120 --max-sleep-interval 240 --format best --output "{dir}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s"'.format(title = title, dir = directory)
 
-        self.getTitle(self.getTitleWebpage().rsplit(' ', 4)[0])
-        self.output = '-f best -o "{path}/{title}.mp4"'.format(title = self.title, path = self.path)
-        return self.download_ydl()
-
-# --------------- # extractors: hanime # --------------- #
-# doesnt work
-    def host_hanime(self):
-        title = self.content.rsplit('?',1)[0].rsplit('/',1)[1]
-
-        title = self.getTitle(title)
-
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
-
-
-# --------------- # extractors: sxyprn # --------------- #
-    def host_sxyprn(self):
-        title = self.getTitleWebpage()
-
-        if "#" in title:
-            title = title.split('#',1)[0]
-
-        title = self.getTitle(title.rsplit('-', 1)[0])
-
-        self.title = title
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title = title, path = self.path)
-        return self.download_ydl()
-
-
-# --------------- # extractors: xvideos # --------------- #
-    def host_xvideos(self):
-        title = self.content.rsplit("/",1)[1]
-
-        title = self.getTitle(title)
-
-        self.output = '-f best -o "{path}/{title}.mp4"'.format(title=title, path = self.path)
-        return self.download_ydl()
-
-
-# --------------- # extractors: porngo # --------------- #
-    def host_porngo(self):
-        title = self.content.rsplit('/',1)[0].rsplit('/',1)[1]
-
-        self.title = title
-        self.output = '-f best -o "{path}/{title}.%(ext)s"'.format(title=title, path = self.path)
-        return self.download_ydl()
+    return downloader.download_ydl(dto, content, parameter, output, stringReferer, [content, title, directory])

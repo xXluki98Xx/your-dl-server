@@ -33,24 +33,33 @@
       </label>
     </header>
 
-    <div id="download" class="row content">
+    <div id="download" class="content row">
+
       <div class="col-12 text-light">
         <h1>Downloaded</h1>
       </div>
 
-      <div class="col-1"></div>
-
-      <div class="col-10">
-        <h1 class="text-light">Files:</h1>
+      <div class="col-4">
+        <h1 class="text-light">Directories:</h1>
         <br/>
-        <table border=0 class= "row justify-content-left" id="listBox">
-          %for item in downloads:
+        <table border=0 class= "row justify-content-left listBox">
+          %for item in directories:
             <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
           %end
         </table>
       </div>
 
       <div class="col-1"></div>
+
+      <div class="col-7">
+        <h1 class="text-light">Files:</h1>
+        <br/>
+        <table border=0 class= "row justify-content-left listBox">
+          %for item in files:
+            <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
+          %end
+        </table>
+      </div>
 
     </div>
 

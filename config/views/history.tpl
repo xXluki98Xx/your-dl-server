@@ -33,15 +33,16 @@
       </label>
     </header>
 
-    <div id="history" class="row content">
+    <div id="history" class="content row">
+
       <div class="col-12 text-light">
         <h1>Download History</h1>
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
         <h1 class="text-light">Last:</h1>
         <br/>
-        <table border=0 class= "row justify-content-left" id="listBox">
+        <table border=0 class= "row justify-content-left listBox">
           %for item in history:
             <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
           %end
@@ -50,10 +51,10 @@
 
       <div class="col-1"></div>
 
-      <div class="col-5">
+      <div class="col-7">
         <h1 class="text-light">Current:</h1>
         <br/>
-        <table border=0 class= "row justify-content-left" id="listBox">
+        <table border=0 class= "row justify-content-left listBox">
           %for item in display_downloads:
             <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
           %end

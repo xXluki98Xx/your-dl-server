@@ -1,0 +1,31 @@
+{
+
+    "animeondemand": [
+        {
+            "username":"",
+            "password":""
+        }
+    ],
+
+    "wakanim": [
+        {
+            "username":"",
+            "password":""
+        }
+    ],
+
+    "crunchyroll": [
+        {
+            "username":"",
+            "password":""
+        }
+    ],
+
+    "udemy": [
+        {
+            "username":"",
+            "password":""
+        }
+    ]
+
+}

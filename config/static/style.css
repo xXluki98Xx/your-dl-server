@@ -8,9 +8,9 @@ html {
   --background: rgba(0, 214, 170, .85);
 }
 
-*, *::before, *::after {
+/* *, *::before, *::after {
   box-sizing: border-box;
-}
+} */
 
 body {
 	margin: 0;
@@ -23,11 +23,17 @@ body {
 }
 
 .content {
-  height: 100vh;
   background-blend-mode: multiply;
   background-size: cover;
   display: grid;
   place-items: center;
+
+  text-align: center;
+
+  /* height: calc(100vh - 30px); */
+
+  margin-top: auto;
+  margin-bottom: 30px;
 
   padding: 3rem;
   grid-column: 2 / 3;
@@ -202,9 +208,8 @@ nav a:hover {
 
 /* custom code */
 .container {
-  height: 100vh;
-  padding-left: 15px !important;
-  padding-right: 15px !important;
+  /* padding-left: 15px !important;
+  padding-right: 15px !important; */
 }
 
 div.input-group>select.custom-select {
@@ -224,6 +229,13 @@ a {
   row-gap: 8px;
 }
 
+.listBox {
+  text-align: left;
+  background-color: rgb(33, 58, 52);
+  border: dashed;
+  height: 60vh;
+}
+
 #history {
   display: flex;
   text-align: left;
@@ -236,13 +248,6 @@ a {
   text-align: left;
   margin-right: 0px;
   margin-left: 0px;
-}
-
-#listBox {
-  text-align: left;
-  background-color: rgb(33, 58, 52);
-  border: dashed;
-  height: 400px;
 }
 
 
