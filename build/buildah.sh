@@ -3,7 +3,7 @@
 set -o errexit
 
 # Create a container
-container=$(buildah from emmercm/libtorrent)
+container=$(buildah from debian:stable-slim)
 
 # Labels
 buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
@@ -11,7 +11,7 @@ buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
 # ---
 
 # Installing Software
-buildah run $container -- apk add --no-cache --update bash ffmpeg tzdata axel git curl
+# buildah run $container -- 
 buildah run $container -- mkdir -p /usr/src/youtube-dl-server
 buildah run $container -- git clone https://github.com/xXluki98Xx/youtube-dl-server.git /usr/src/youtube-dl-server
 #buildah run $container -- bash -c "cd /usr/src/youtube-dl-server && git checkout feature"
