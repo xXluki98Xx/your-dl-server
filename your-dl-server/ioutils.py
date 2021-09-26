@@ -28,8 +28,11 @@ def getRootPath(dto):
 
             pathToRoot = pathToRoot.replace(name,'').rstrip('\n')
     except:
-        pathToRoot = os.getcwd()
-
+        try:
+            if dto.getServer():
+                pathToRoot = '/app/your-dl-server/your-dl-server'
+        except:
+            pathToRoot = os.getcwd()
 
     dto.publishLoggerDebug('rootpath is: ' + pathToRoot)
     return pathToRoot
