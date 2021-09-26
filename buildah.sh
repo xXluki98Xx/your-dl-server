@@ -3,7 +3,8 @@
 set -o errexit
 
 # Create a container
-container=$(buildah from debian:stable-slim)
+# container=$(buildah from jrottenberg/ffmpeg:4.0-nvidia)
+container=$(buildah from python:slim)
 
 # Labels
 buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
@@ -11,13 +12,12 @@ buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
 # ---
 
 # Installing Software
-buildah run $container -- apt update
-buildah run $container -- apt upgrade
-buildah run $container -- apt install -y python3 python3-pip git
+buildah run $container -- sh -c 'apt update && apt upgrade -y && apt install -y git'
 
-buildah run $container -- git clone https://github.com/xXluki98Xx/youtube-dl-server.git /app/youtube-dl-server
-buildah run $container -- cd /app/youtube-dl-server/ && git checkout refactoring
-buildah run $container -- /app/your-dl-server/docs/debian-install.sh
+buildah run $container -- git clone --branch refactoring https://github.com/xXluki98Xx/your-dl-server.git /app/your-dl-server
+
+buildah run $container -- pip3 install --no-cache-dir -r /app/your-dl-server/requirements.txt --upgrade
+buildah run $container -- sh -c 'cat /app/youtube-dl-server/requirements-apt.txt | xargs apt install -y'
 
 buildah run $container -- rm -rf \
                             /var/lib/apt/lists/* \
@@ -34,7 +34,7 @@ buildah config \
 	--healthcheck-interval 10s \
 	--healthcheck-start-period 30s \
 	--healthcheck "curl http://0.0.0.0:8080 || exit 1" \
-	--workingdir /usr/src/youtube-dl-server \
+	--workingdir /app/your-dl-server/ \
 	--cmd ./entrypoint.sh \
 	--port 8080/tcp \
 	$container
