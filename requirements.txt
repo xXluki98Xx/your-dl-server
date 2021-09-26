@@ -6,3 +6,4 @@ beautifulsoup4
 youtube-dl
 ffmpeg-python
 requests
+bottle
