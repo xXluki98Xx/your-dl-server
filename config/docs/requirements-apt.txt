@@ -1,4 +1,0 @@
-axel
-ffmpeg
-python3-pip
-aria2
