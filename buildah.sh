@@ -34,7 +34,7 @@ buildah config \
 	--healthcheck-interval 10s \
 	--healthcheck-start-period 30s \
 	--healthcheck "curl http://0.0.0.0:8080 || exit 1" \
-	--workingdir /app/your-dl-server/ \
+	--workingdir /app/your-dl-server/your-dl-server \
 	--cmd ./entrypoint.sh \
 	--port 8080/tcp \
 	$container

@@ -92,8 +92,8 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     global dto
     dto = dto()
     dto.setLogger(debug)
-
     dto.setVerbose(verbose)
+
     dto.setAxel(axel)
     # dto.setCredentials(credentials)
     dto.setPlaylist(playlist)

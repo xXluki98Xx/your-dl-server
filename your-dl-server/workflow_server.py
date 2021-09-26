@@ -5,7 +5,7 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from time import sleep
 
-from bottle import Bottle, redirect, request, route, run, static_file, view
+from bottle import Bottle, redirect, request, route, run, static_file, view, TEMPLATE_PATH
 
 import downloader
 import extractor
@@ -43,7 +43,7 @@ class Server:
             self.pathLog = os.getcwd() + "/logs"
         else:
             self.pathWork = "/tmp/" + self.downloadDir
-            self.pathSource = "/usr/src/youtube-dl-server/run"
+            self.pathSource = self.dto.getPathToRoot()
             self.pathLog = "/tmp/logs"
 
         if not os.path.exists(self.pathLog):
@@ -67,6 +67,9 @@ class Server:
 
 
     def start(self):
+        path = os.path.join(self.dto.getPathToRoot(), 'views')
+        self.dto.publishLoggerDebug('server set Template Path: ' + path)
+        TEMPLATE_PATH.insert(0, path)
         self._app.run(host=self._host, port=self._port, debug=self.dto.getLogging())
 
 
@@ -183,17 +186,20 @@ class Server:
 
 
     def serve_static(self, filename):
-        return static_file(filename, root='./static')
+        path = os.path.join(self.dto.getPathToRoot(), 'static')
+        return static_file(filename, root=path)
 
 
     def addToQueue(self):
         url = request.forms.get("url")
         title = request.forms.get("title")
         tool = request.forms.get("downloadTool")
+        
+        path = self.pathWork
         if request.forms.get("path") != '':
-            path = self.pathWork + "/" + request.forms.get("path")
-        else:
-            path = self.pathWork
+            path = os.path.join(self.pathWork, request.forms.get("path"))
+
+        print(path)
 
         parameter = '--continue'
         if request.forms.get("retries") != '':
@@ -234,8 +240,7 @@ class Server:
             self.downloadExecutor.submit(downloader.download_wget, self.dto, url, '', '')
 
         if tool == "torrent":
-            self.downloadExecutor.submit(extractor.ydl_extractor, self.dto, content)
-            # self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
+            self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
 
         self.dto.publishLoggerInfo("Added url " + url + " to the download queue")
 

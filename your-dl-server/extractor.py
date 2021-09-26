@@ -47,6 +47,16 @@ def ydl_extractor(dto, content):
     stringReferer = ''
     directory = '.'
 
+    if ('magnet:?xt=urn:btih' in content):
+        try:
+            (url, directory) = content.split(';')
+        except ValueError:
+            url = content
+            directory = ''
+
+        dto.publishLoggerInfo('current Download: ' + url)
+        return downloader.download_aria2c_magnet(dto, url, directory)
+
     try:
         (url, title, stringReferer, directory) = content.split(';')
     except ValueError:
@@ -57,16 +67,6 @@ def ydl_extractor(dto, content):
                 (url, title) = content.split(';')
             except ValueError:
                 url = content
-
-    if ('magnet:?xt=urn:btih' in content):
-        dto.publishLoggerDebug('current Download: ' + url)
-        try:
-            (url, directory) = content.split(';')
-        except ValueError:
-            url = content
-            directory = ''
-
-        return downloader.download_aria2c_magnet(dto, url, directory)
 
     webpageResult = ioutils.testWebpage(dto, url.split('?')[0])
     if webpageResult != 0:

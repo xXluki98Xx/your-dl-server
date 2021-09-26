@@ -306,8 +306,7 @@ def saveHistory(dto):
             historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
 
             for item in logHistory:
-            #     print("item" + str(item))
-            #     print("saved item was: " + str(item))
+                dto.publishLoggerDebug("saveHistory: item\n" + str(item))
                 historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
 
         dto.setDownloadHistory = loadHistory(dto)

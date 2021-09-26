@@ -14,27 +14,26 @@ from dto import dto
 def getRootPath(dto):
     pathToRoot = ''
 
-    try:
-        path = os.getenv('PATH').split(':')
+    if os.path.isdir('/app/your-dl-server/'):
+        pathToRoot = '/app/your-dl-server/your-dl-server'        
 
-        names = ['dl', 'dl.py']
+    else:
+        try:
+            path = os.getenv('PATH').split(':')
 
-        for name in names:
-            for subPath in path:
-                pathTest = subprocess.check_output(['find', subPath, '-name', name]).decode('utf-8')
-                if pathTest != '':
-                    pathToRoot = pathTest
-                    break
+            names = ['dl', 'dl.py']
 
-            pathToRoot = pathToRoot.replace(name,'').rstrip('\n')
-    except:
-        pathToRoot = os.getcwd()
+            for name in names:
+                for subPath in path:
+                    pathTest = subprocess.check_output(['find', subPath, '-name', name]).decode('utf-8')
+                    if pathTest != '':
+                        pathToRoot = pathTest
+                        break
 
-    if pathToRoot == '':
-        if dto.getServer():
-            pathToRoot = '/app/your-dl-server/your-dl-server'
-        else:
+                pathToRoot = pathToRoot.replace(name,'').rstrip('\n')
+        except:
             pathToRoot = os.getcwd()
+
 
     dto.publishLoggerDebug('rootpath is: ' + pathToRoot)
     return pathToRoot

@@ -161,7 +161,7 @@ def download_aria2c(dto, content, dir):
 
     dto.publishLoggerDebug('download aria2c: ' + dl)
 
-    return download(dto, dl, 'aria2c', content, [content, content.rsplit('/',1)[1], dir])
+    return download(dto, dl, 'aria2c', content, [content, ioutils.getTitleFormated(''), dir])
 
 
 def download_aria2c_magnet(dto, content, dir):
@@ -175,7 +175,7 @@ def download_aria2c_magnet(dto, content, dir):
 
     dl += ' "{}"'.format(content)
 
-    return download(dto, dl, 'aria2c-magnet', content, [content, content.rsplit('/',1)[1], dir])
+    return download(dto, dl, 'aria2c-magnet', content, [content, ioutils.getTitleFormated(''), dir])
 
 
 def download(dto, command, platform, content, infos):
@@ -223,11 +223,13 @@ def download(dto, command, platform, content, infos):
             else:
                 if dto.getServer():
                     server_history.addHistory(dto, infos[0], infos[1], platform, "Finished",  infos[2])
+
                 return returned_value
+
 
     except KeyboardInterrupt:
         dto.publishLoggerDebug('Interupt by User')
-        dto.publishLoggerError('Plattform: {} | Content: {}', platform, content)
+        dto.publishLoggerError('Plattform: ' + platform + ' | Content: ' + content)
         # os.system('echo "' + content + '" >> dl-error-' + platform + '.txt')
         os._exit(1)
 

@@ -46,7 +46,7 @@ class dto():
         # Logging
         self.logger_formatter = logging.Formatter('%(asctime)s — %(levelname)s — %(message)s')
         self.logger_file = 'dl.log'
-        self.logger = self.setLogger(self.string_logging)
+        self.logger = self.setInitLogger()
 
 
 # getter and setter
@@ -90,6 +90,14 @@ class dto():
         if not isinstance(self.logger_level, int):
             raise ValueError('Invalid log level: %s' % self.logger_level)
 
+        self.logger = self.get_logger()
+
+    def setInitLogger(self):
+        self.logger_level = getattr(logging, self.string_logging.upper(), logging.WARNING)
+
+        if not isinstance(self.logger_level, int):
+            raise ValueError('Invalid log level: %s' % self.logger_level)
+
         return self.get_logger()
 
     def getLogging(self):
@@ -102,7 +110,7 @@ class dto():
     def setLogPath(self, swap):
         self.string_logPath = swap
         self.logger_file = self.string_logPath + '/dl.log'
-        return self.get_logger()
+        self.get_logger()
 
     def getOffset(self):
         return self.string_offset
@@ -125,6 +133,7 @@ class dto():
         return self.boolean_verbose
     def setVerbose(self, swap):
         self.boolean_verbose = swap
+        self.get_logger()
 
     def getSync(self):
         return self.boolean_sync
