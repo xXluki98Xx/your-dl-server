@@ -3,4 +3,4 @@ set -e
 
 # ---
 
-dl.py server
+your-dl-server/dl.py server
