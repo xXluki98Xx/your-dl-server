@@ -79,7 +79,7 @@ Planned:
 This example uses the docker run command to create the container to run the app. Here we also use host networking for simplicity. Also note the `-v` argument. This directory will be used to output the resulting videos
 
 ```shell
-docker run -d -p 8080:8080 --name youtube-dl -v /home/core/yd-downloads:/tmp/yd-downloads -v /home/core/yd-config:/usr/src/youtube-dl-server/run lramm/youtube-dl-server
+docker run -d -p 8080:8080 --name your-dl-server -v ./data/ydl-downloads:/tmp/ydl-downloads -v ./data/ydl-logs:/tmp/logs lramm/youtube-dl-server
 ```
 
 ### Docker Compose
@@ -96,6 +96,18 @@ This is an example service definition that could be put in `docker-compose.yml`.
       - 8080:8080
     restart: always
 ```
+
+### Podman CLI
+
+Podman can be used like the Docker CLI.
+
+```shell
+podman run -d -p 8080:8080 --name your-dl-server -v ./data/ydl-downloads:/tmp/ydl-downloads:Z -v ./data/ydl-logs:/tmp/logs:Z lramm/youtube-dl-server
+```
+
+### K8S
+
+An Example Config for Kubernetes is Provided in the k8s directory.
 
 ### Python
 
