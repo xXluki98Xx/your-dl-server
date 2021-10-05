@@ -15,6 +15,7 @@ import downloader
 import functions
 import ioutils
 import workflow_animescrapper
+import workflow_aria2c
 import workflow_server
 import workflow_watcher
 import workflow_wget
@@ -80,7 +81,7 @@ def chunks(lst, n):
 @click.option('-bw','--bandwidth', default='0', help='Enter an Bandwidthlimit like 1.5M')
 @click.option('--max-sleep', default=15, help='Enter an Number for max-Sleep between retries/ downloads')
 @click.option('--min-sleep', default=2, help='Enter an Number for min-Sleep between retries/ downloads')
-@click.option('--retries', default=5, help='Enter an Number for Retries')
+@click.option('-r', '--retries', default=5, help='Enter an Number for Retries')
 
 # string
 @click.option('-cf','--cookie-file', default='', help='Enter Path to cookie File')
@@ -107,6 +108,7 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setCookieFile(cookie_file)
     dto.setDubLang(dub_lang)
     dto.setSubLang(sub_lang)
+    dto.setRetries(retries)
 
     dto.setPathToRoot(ioutils.getRootPath(dto))
 
@@ -260,7 +262,7 @@ def dnc(url, file, dir, chunck_size, reverse):
             #         print('\nremoved: ' + str(item) + ' | rest list ' + str(urlCopy))
 
             # if dl == 'aria':
-            if downloader.download_aria2c(dto, itemList, dir) == 0:
+            if downloader.download_aria2c_dnc(dto, itemList, dir) == 0:
                 for i in itemList:
                     urlCopy.remove(i)
 
@@ -300,10 +302,15 @@ def dnc(url, file, dir, chunck_size, reverse):
 # arguments
 @click.argument('wget', nargs=-1)
 def wget(wget, space, accept, reject):
-    dto.publishLoggerDebug('wget')
-    dto.setSpace(space)
 
-    workflow_wget.wget(dto, wget, accept, reject)
+    if wget != '':
+        dto.publishLoggerDebug('wget')
+
+        dto.setSpace(space)
+
+        workflow_wget.wget(dto, wget, accept, reject)
+    else:
+        dto.publishLoggerError('wget - no items')
 
 
 # - - - - - # - - - - - # youtube-dl
@@ -315,9 +322,30 @@ def wget(wget, space, accept, reject):
 # arguments
 @click.argument('url', nargs=-1)
 def ydl(url, offset):
-    dto.setOffset(offset)
 
-    workflow_ydl.ydl(dto, url)
+    if url != '':
+        dto.publishLoggerDebug('youtube-dl')
+
+        dto.setOffset(offset)
+
+        workflow_ydl.ydl(dto, url)
+    else:
+        dto.publishLoggerError('ydl - no url')
+
+
+# - - - - - # - - - - - # aria2c
+@main.command(help='Enter an URL for Aria2c')
+
+# arguments
+@click.argument('url', nargs=-1)
+def aria2c(url):
+
+    if url != '':
+        dto.publishLoggerDebug('aria2c')
+
+        workflow_aria2c.aria2c(dto, url)
+    else:
+        dto.publishLoggerError('aria2c - no url')
 
 
 # - - - - - # - - - - - # Anime
@@ -335,10 +363,14 @@ def ydl(url, offset):
 @click.option('-f', '--file', default=False, is_flag=True, help='download .torrent files')
 
 def anime(group, show, quality, start, end, file, dir):
-    workflow_animescrapper.anime(dto, group, show, quality, start, end, file, dir)
+
+    if show != '':
+        workflow_animescrapper.anime(dto, group, show, quality, start, end, file, dir)
+    else:
+        dto.publishLoggerError('anime - no show')
 
 
-# - - - - - # - - - - - # Anime
+# - - - - - # - - - - - # Watcher
 @main.command(help='Enter an dl.py Command (String) to be run as Watcher, Time is used as time between.')
 
 #String
@@ -350,7 +382,11 @@ def anime(group, show, quality, start, end, file, dir):
 
 @click.argument('watcher', nargs=1)
 def watcher(watcher, minutes, hours):
-    workflow_watcher.watcher(dto, watcher, minutes, hours)
+
+    if watcher != '':
+        workflow_watcher.watcher(dto, watcher, minutes, hours)
+    else:
+        dto.publishLoggerError('watcher - no command')
 
 
 # - - - - - # - - - - - # Server
@@ -369,12 +405,42 @@ def watcher(watcher, minutes, hours):
 @click.option('--local', default=False, is_flag=True, help='local')
 @click.option('--hidden', default=False, is_flag=True, help='hidden')
 
-# @click.argument('watcher', nargs=1)
 def server(host, port, worker, dir, local, subpath, hidden):
     dto.setServer(True)
     server = workflow_server.Server(host, port, worker, dir, local, subpath, hidden)
     server.setup()
     server.start()
+
+
+# - - - - - # - - - - - # Disk
+@main.command(help='Create an Compressed Backup from Disk')
+
+# String
+@click.option('-s', '--source', default='', help='Source Disk')
+@click.option('-t', '--target', default='', help='Compressed File')
+@click.option('-p', '--path', default='./', help='Path which will contain the new Files')
+
+# Switch
+@click.option('--backup', default=True, is_flag=True, help='Backup or Restore (default Backup)')
+@click.option('--compress', default=True, is_flag=True, help='Compressed or Raw (default Compressed)')
+
+def disk(source, target, path, backup, compress):
+    if source != '' and target != '':
+        if backup:
+            if compress:
+                os.system('sudo dd if=' + source + ' conv=sync,noerror bs=64K status=progress | gzip -c  > ' + path + target + '.img.gz')
+            else:
+                os.system('sudo dd if=' + source + ' of=' + path + target + '.img conv=sync,noerror bs=64K status=progress ')
+        else:
+            if compress:
+                os.system('gunzip -c ' + source  + ' | dd of=' + target + ' conv=sync,noerror bs=64K')
+            else:
+                os.system('sudo dd if=' + source + ' of=' + target + ' conv=fdatasync status=progress')
+
+    else:
+        dto.publishLoggerError('disk - missing param')
+
+    ioutils.elapsedTime(dto)
 
 
 # - - - - - # - - - - - # main

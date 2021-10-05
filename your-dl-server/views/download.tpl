@@ -12,7 +12,7 @@
       crossorigin="anonymous">
     <link href="/static/style.css" rel="stylesheet">
 
-    <title>Download</title>
+    <title>your-dl-server</title>
   </head>
 
   <body>

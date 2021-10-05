@@ -14,6 +14,7 @@ from dto import dto
 def getRootPath(dto):
     pathToRoot = ''
 
+    # for server mode
     if os.path.isdir('/app/your-dl-server/'):
         pathToRoot = '/app/your-dl-server/your-dl-server'        
 
@@ -25,9 +26,8 @@ def getRootPath(dto):
 
             for name in names:
                 for subPath in path:
-                    pathTest = subprocess.check_output(['find', subPath, '-name', name]).decode('utf-8')
-                    if pathTest != '':
-                        pathToRoot = pathTest
+                    if os.path.isfile(os.path.join(subPath, name)) != '':
+                        pathToRoot = subPath
                         break
 
                 pathToRoot = pathToRoot.replace(name,'').rstrip('\n')

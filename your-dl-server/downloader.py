@@ -78,45 +78,20 @@ def download_wget(dto, content, accept, reject):
 
         if (int(freeStorage) >= int(testSize)):
 
-            download(dto, wget, 'wget', content)
-            # i = 0
-            # returned_value = ''
-
-            # while i < 3:
-            #     returned_value = os.system('echo \'' + wget + '\' >&1 | bash')
-
-            #     if returned_value > 0:
-            #         if returned_value == 2048:
-            #             return returned_value
-            #         else:
-            #             dto.publishLoggerDebug('Error Code: ' + str(returned_value))
-            #             i += 1
-            #             timer = random.randint(200,1000)/100
-            #             dto.publishLoggerDebug('sleep for ' + str(timer) + 's')
-            #             time.sleep(timer)
-
-            #             if i == 3:
-            #                 dto.publishLoggerInfo('the Command was: %s' % wget)
-            #                 os.system('echo "{wget}" >> dl-error-wget.txt'.format(wget = content))
-            #                 return returned_value
-
-            #     else:
-            #         if dto.getSpace():
-            #             func_removeFiles(dto, path, file_count_prev)
-            #         return returned_value
+            download(dto, wget, 'wget', content, [content, title, directory])
 
         else:
             dto.publishLoggerWarn('wget - not enough space')
-            dto.publishLoggerInfo('Directory size: ' + ioutils.bytes2human(int(dirSize)*1000))
-            dto.publishLoggerInfo('free Space: ' + ioutils.bytes2human(freeStorage))
+            dto.publishLoggerWarn('Directory size: ' + ioutils.bytes2human(int(dirSize)*1000))
+            dto.publishLoggerWarn('free Space: ' + ioutils.bytes2human(freeStorage))
 
             if dto.getSpace():
                 functions.func_removeFiles(dto, path, file_count_prev)
             return 507
 
     except KeyboardInterrupt:
-        dto.publishLoggerWarn('Interupt by User')
-        os.system('echo "{wget}" >> dl-error-wget.txt'.format(wget = content))
+        dto.publishLoggerDebug('Interupt by User')
+        dto.publishLoggerError('Plattform: wget | Content: ' + content)
         os._exit(1)
 
     except:
@@ -146,7 +121,31 @@ def download_ydl(dto, content, parameters, output, stringReferer, infos):
     return download(dto, dl, 'ydl', content, infos)
 
 
-def download_aria2c(dto, content, dir):
+def download_aria2c(dto, content):
+    if ';' in content:
+        swap = content.split(';')
+        content = swap[0]
+        directory = swap[1]
+    else:
+        directory = ''
+
+    if ('magnet:?xt=urn:btih' in content):
+        return download_aria2c_magnet(dto, content, directory)
+
+    dl = 'aria2c -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads "{}" '.format(content)
+
+    if dto.getBandwidth() != '0':
+        dl += ' --max-overall-download-limit={}'.format(dto.getBandwidth())
+
+    if directory != '':
+        dl += ' --dir="{}"'.format(directory)
+
+    dto.publishLoggerDebug('download aria2c: ' + dl)
+
+    return download(dto, dl, 'aria2c', content, [content, content.rsplit('/', 1)[1], directory])
+
+
+def download_aria2c_dnc(dto, content, directory):
     links = getEchoList(content)
 
     dl = 'echo ' + links + ' | '
@@ -156,12 +155,12 @@ def download_aria2c(dto, content, dir):
     if dto.getBandwidth() != '0':
         dl += ' --max-overall-download-limit={}'.format(dto.getBandwidth())
 
-    if dir != '':
-        dl += ' --dir="{}"'.format(dir)
+    if directory != '':
+        dl += ' --dir="{}"'.format(directory)
 
     dto.publishLoggerDebug('download aria2c: ' + dl)
 
-    return download(dto, dl, 'aria2c', content, [content, ioutils.getTitleFormated(''), dir])
+    return download(dto, dl, 'aria2c', content, [content, ioutils.getTitleFormated(''), directory])
 
 
 def download_aria2c_magnet(dto, content, dir):
@@ -188,7 +187,7 @@ def download(dto, command, platform, content, infos):
         i = 0
         returned_value = ''
 
-        while i < 3:
+        while i < dto.getRetries():
             if dto.getServer():
                 server_history.addHistory(dto, infos[0], infos[1], platform, "Running",  infos[2])
 
@@ -209,7 +208,7 @@ def download(dto, command, platform, content, infos):
                     dto.publishLoggerInfo('sleep for ' + str(timer) + 's')
                     time.sleep(timer)
 
-                    if i == 3:
+                    if i == dto.getRetries():
                         if dto.getServer():
                             server_history.addHistory(dto, infos[0], infos[1], platform, "Failed",  infos[2])
 
@@ -217,7 +216,6 @@ def download(dto, command, platform, content, infos):
                         dto.publishLoggerWarn('the Command was: %s' % command)
                         dto.publishLoggerError(platform + ' - error at downloading: ' + content)
 
-                        # os.system('echo "' + content + '" >> dl-error-' + platform + '.txt')
                         return returned_value
 
             else:
@@ -230,7 +228,6 @@ def download(dto, command, platform, content, infos):
     except KeyboardInterrupt:
         dto.publishLoggerDebug('Interupt by User')
         dto.publishLoggerError('Plattform: ' + platform + ' | Content: ' + content)
-        # os.system('echo "' + content + '" >> dl-error-' + platform + '.txt')
         os._exit(1)
 
     except:

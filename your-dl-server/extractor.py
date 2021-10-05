@@ -373,11 +373,8 @@ def host_cloudfront(dto, content, title, stringReferer, directory):
 
 
 def host_pluralsight(dto, content, title, stringReferer, directory):
-    parameter = dto.getParameters()
     
-    pattern = "--retries [0-9]{1,}(.+) --continue"
-    parameter = parameter.replace(re.sub(pattern, r"\1", parameter), '')
-
+    parameter = '--retries 1 --continue'
     parameter += getUserCredentials(dto, 'pluralsight')
 
     title = content.split('/')[5]
@@ -385,6 +382,15 @@ def host_pluralsight(dto, content, title, stringReferer, directory):
     dto.publishLoggerDebug('pluralsight title: ' + str(title))
     dto.publishLoggerDebug('pluralsight url: ' + content)
 
-    output = '--min-sleep-interval 120 --max-sleep-interval 240 --format best --output "{dir}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s"'.format(title = title, dir = directory)
+    if dto.getOffset() > 0:
+        parameter += ' --playlist-start %d' % dto.getOffset()
+
+    output = '--user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36 OPR/79.0.4143.50"'
+    output += ' --add-header Referer:https://app.pluralsight.com/library/courses/'
+    output += ' --limit-rate 0.250M --min-sleep-interval 120 --max-sleep-interval 240 --abort-on-error --format best --output "{dir}/%(playlist)s - {title}/%(chapter_number)s-%(chapter)s/%(playlist_index)s-%(title)s.%(ext)s"'.format(title = title, dir = directory)
+
+    # print(parameter)
+    # print(output)
+    # os._exit(1)
 
     return downloader.download_ydl(dto, content, parameter, output, stringReferer, [content, title, directory])

@@ -24,6 +24,8 @@ class dto():
         self.string_logging = ''
         self.string_logPath = ''
         self.string_offset = ''
+        
+        self.int_retries = ''
 
         self.boolean_playlist = False
         self.boolean_removefiles = False
@@ -116,6 +118,13 @@ class dto():
         return self.string_offset
     def setOffset(self, swap):
         self.string_offset = swap
+
+
+# ----- # ----- # Int
+    def getRetries(self):
+        return self.int_retries
+    def setRetries(self, swap):
+        self.int_retries = swap
 
 
 # ----- # ----- # Boolean
