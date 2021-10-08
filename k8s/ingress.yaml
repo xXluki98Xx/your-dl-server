@@ -3,15 +3,13 @@ kind: Ingress
 metadata:
   name: ydl-ingress
   namespace: ydl
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
     - host: localhost
       http:
         paths:
           - pathType: Prefix
-            path: "/ydl"
+            path: "/"
             backend:
               service:
                 name: service-ydl

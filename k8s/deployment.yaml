@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: your-dl-server
-          image: lramm/your-dl-server:1.0
+          image: lramm/your-dl-server:1.0.0
           ports:
             - containerPort: 8080
               protocol: TCP
