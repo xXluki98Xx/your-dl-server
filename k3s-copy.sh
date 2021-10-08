@@ -13,6 +13,6 @@ for (( i=0; i<${arraylength}; i++ ));
 do
 	podman save --output "${images[$i]}.tar" "${images[$i]}:${tags[$i]}"
 	sudo k3s ctr image import "${images[$i]}.tar"
-	rm "${images[$i]}.tar"
+	#rm "${images[$i]}.tar"
 	echo "index: $i, value: ${images[$i]}:${tags[$i]}"
 done

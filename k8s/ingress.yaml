@@ -1,15 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-ydl
+  name: ydl-ingress
   namespace: ydl
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: lramm-tuxedo
+    - host: localhost
       http:
         paths:
           - pathType: Prefix
-            path: "/"
+            path: "/ydl"
             backend:
               service:
                 name: service-ydl

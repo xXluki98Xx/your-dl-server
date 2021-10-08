@@ -15,13 +15,13 @@ spec:
     spec:
       containers:
         - name: your-dl-server
-          image: localhost/your-dl-server:1.0
+          image: lramm/your-dl-server:1.0
           ports:
             - containerPort: 8080
               protocol: TCP
           resources:
             limits:
-              memory: "4Gi"
+              memory: "2Gi"
               cpu: "2"
           # envFrom:
           #   - configMapRef:
@@ -34,7 +34,7 @@ spec:
       volumes:
         - name: ydl-pvc-logs
           persistentVolumeClaim:
-            claimName: pvc-ydl-logs
+            claimName: ydl-pvc-logs
         - name: ydl-pvc-downloads
           persistentVolumeClaim:
-            claimName: pvc-ydl-downloads
+            claimName: ydl-pvc-downloads

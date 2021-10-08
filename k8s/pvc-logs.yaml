@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-ydl-logs
+  name: ydl-pvc-logs
   namespace: ydl
 spec:
   resources:
