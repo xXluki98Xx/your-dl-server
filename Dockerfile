@@ -1,6 +1,6 @@
 FROM alpine/git AS git
 
-RUN git clone --branch refactoring https://github.com/xXluki98Xx/your-dl-server.git /app/your-dl-server
+RUN git clone https://github.com/xXluki98Xx/your-dl-server.git /app/your-dl-server
 
 # -----
 
