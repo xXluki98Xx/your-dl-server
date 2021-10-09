@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-dl-server
+  namespace: ydl
+spec:
+  selector:
+    matchLabels:
+      app: your-dl-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: your-dl-server
+    spec:
+      containers:
+        - name: your-dl-server
+          image: lramm/your-dl-server:1.0.0
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "2"
+          # envFrom:
+          #   - configMapRef:
+          #       name: env-config-ydl
+          volumeMounts:
+            - name: ydl-pvc-logs
+              mountPath: /tmp/logs
+            - name: ydl-pvc-downloads
+              mountPath: /tmp/ydl-downloads
+      volumes:
+        - name: ydl-pvc-logs
+          persistentVolumeClaim:
+            claimName: ydl-pvc-logs
+        - name: ydl-pvc-downloads
+          persistentVolumeClaim:
+            claimName: ydl-pvc-downloads

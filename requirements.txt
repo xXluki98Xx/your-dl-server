@@ -1,0 +1,9 @@
+setuptools
+safer
+exitstatus
+click
+beautifulsoup4
+youtube-dl
+ffmpeg-python
+requests
+bottle

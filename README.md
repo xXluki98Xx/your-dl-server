@@ -1,6 +1,6 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/manbearwiz/youtube-dl-server/master/LICENSE)
 
-# youtube-dl-server
+# your-dl-server
 
 This project is a Branch/ Fork of the original work of [manbearwiz](https://github.com/manbearwiz/youtube-dl-server).
 
@@ -9,7 +9,8 @@ Original Work: Very spartan Web and REST interface for downloading youtube video
 ---
 
 Bugs:
-  - History: saving and loading
+
+  - 
 
 Features:
 
@@ -27,7 +28,7 @@ Features:
 
 Planned:
 
-  - File Support: List for Downloads and torrent
+  - 
 
 ---
 
@@ -55,7 +56,11 @@ Planned:
 
 ---
 
-### App Vars
+![screenshot][3]
+
+---
+
+<!-- ### App Vars
 <pre><code>  - custom Host: 'YDL_SERVER_HOST': '0.0.0.0'
   - custom Port: 'YDL_SERVER_PORT': 8080
   - simultaneous threads: 'WORKER_COUNT': 4
@@ -63,7 +68,7 @@ Planned:
   - run local or as server/ docker, typ 'LOCAL'="." for local: 'LOCAL': "run"
   - download domain path: 'SUB_PATH': "downloads"
   - show hiddenfiles: 'SHOW_HIDDEN': False
-</code></pre>
+</code></pre> -->
 
 ---
 
@@ -74,7 +79,7 @@ Planned:
 This example uses the docker run command to create the container to run the app. Here we also use host networking for simplicity. Also note the `-v` argument. This directory will be used to output the resulting videos
 
 ```shell
-docker run -d -p 8080:8080 --name youtube-dl -v /home/core/yd-downloads:/tmp/yd-downloads -v /home/core/yd-config:/usr/src/youtube-dl-server/run lramm/youtube-dl-server
+docker run -d -p 8080:8080 --name your-dl-server -v ./data/ydl-downloads:/tmp/ydl-downloads -v ./data/ydl-logs:/tmp/logs lramm/youtube-dl-server
 ```
 
 ### Docker Compose
@@ -83,14 +88,26 @@ This is an example service definition that could be put in `docker-compose.yml`.
 
 ```yml
   youtube-dl:
-    image: "lramm/youtube-dl-server"
+    image: "lramm/your-dl-server"
     volumes:
-      - /home/core/yd-downloads:/tmp/yd-downloads
-      - /home/core/yd-config:/usr/src/youtube-dl-server/run
+      - ./data/ydl-logs:/tmp/logs
+      - ./data/ydl-downloads:/tmp/ydl-downloads
     ports:
       - 8080:8080
     restart: always
 ```
+
+### Podman CLI
+
+Podman can be used like the Docker CLI.
+
+```shell
+podman run -d -p 8080:8080 --name your-dl-server -v ./data/ydl-downloads:/tmp/ydl-downloads:Z -v ./data/ydl-logs:/tmp/logs:Z lramm/youtube-dl-server
+```
+
+### K8S
+
+An Example Config for Kubernetes is Provided in the k8s directory.
 
 ### Python
 
@@ -153,5 +170,6 @@ The server uses [`bottle`](https://github.com/bottlepy/bottle) for the web frame
 
 This buildah image is based on [`python:3-alpine`](https://registry.hub.docker.com/_/python/).
 
-[1]:docu/ui-download.png
-[2]:docu/ui-fileserver.png
+[1]:docs/ui-download.png
+[2]:docs/ui-fileserver.png
+[3]:docs/ui-history.png

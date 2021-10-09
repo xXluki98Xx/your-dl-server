@@ -12,7 +12,7 @@
       crossorigin="anonymous">
     <link href="/static/style.css" rel="stylesheet">
 
-    <title>Download</title>
+    <title>your-dl-server</title>
   </head>
 
   <body>
@@ -33,24 +33,33 @@
       </label>
     </header>
 
-    <div id="download" class="row content">
+    <div id="history" class="content row">
+
       <div class="col-12 text-light">
-        <h1>Downloaded</h1>
+        <h1>Download History</h1>
       </div>
 
-      <div class="col-1"></div>
-
-      <div class="col-10">
-        <h1 class="text-light">Files:</h1>
+      <div class="col-4">
+        <h1 class="text-light">Last:</h1>
         <br/>
-        <table border=0 class= "row justify-content-left" id="listBox">
-          %for item in downloads:
-            <td><a href = "{{ item['url'] }}">{{ item['title'] }}</a><td></tr>
+        <table border=0 class= "row justify-content-left listBox">
+          %for item in history:
+            <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
           %end
         </table>
       </div>
 
       <div class="col-1"></div>
+
+      <div class="col-7">
+        <h1 class="text-light">Current:</h1>
+        <br/>
+        <table border=0 class= "row justify-content-left listBox">
+          %for item in display_downloads:
+            <td><a href="{{ item['url'] }}" target="blank">{{ item['kind'] }} | {{ item['timestamp'] }} | {{ item['status'] }} | {{ item['title'] }}</a><td></tr>
+          %end
+        </table>
+      </div>
 
     </div>
 
