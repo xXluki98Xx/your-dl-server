@@ -40,20 +40,17 @@ def getRootPath(dto):
 
 
 def update(dto):
-    updateRepo(dto)
-    updatePackages(dto)
-
-
-def updateRepo(dto):
-    dto.publishLoggerInfo('Sync Git Repo')
-
     path = os.path.dirname(dto.getPathToRoot())
-    command = ['cd ' + path, 'git pull']
+    updateRepo(dto, path)
+    updatePackages(dto, path)
+
+
+def updateRepo(dto, path):
+    dto.publishLoggerInfo('Sync Git Repo')
 
     proc = subprocess.Popen(
         ['git', 'pull'], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
-
 
     output, error = proc.communicate()
 
@@ -61,10 +58,10 @@ def updateRepo(dto):
     dto.publishLoggerError(error.decode('ascii'))
 
 
-def updatePackages(dto):
+def updatePackages(dto, path):
     dto.publishLoggerInfo('Updating Packages')
 
-    path = os.path.join(dto.getPathToRoot() + 'docs/', 'requirements.txt')
+    path = os.path.join(path, 'requirements.txt')
     command = ['pip3', 'install', '-U', '-r', path]
 
     proc = subprocess.Popen(
