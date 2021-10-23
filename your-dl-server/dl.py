@@ -421,18 +421,18 @@ def server(host, port, worker, dir, local, subpath, hidden):
 @click.option('-p', '--path', default='./', help='Path which will contain the new Files')
 
 # Switch
-@click.option('--backup', default=True, is_flag=True, help='Backup or Restore (default Backup)')
-@click.option('--compress', default=True, is_flag=True, help='Compressed or Raw (default Compressed)')
+@click.option('--not-backup', default=False, is_flag=True, help='Backup or Restore (default Backup)')
+@click.option('--not-compress', default=False, is_flag=True, help='Compressed or Raw (default Compressed)')
 
-def disk(source, target, path, backup, compress):
+def disk(source, target, path, not_backup, not_compress):
     if source != '' and target != '':
-        if backup:
-            if compress:
+        if not not_backup:
+            if not not_compress:
                 os.system('sudo dd if=' + source + ' conv=sync,noerror bs=64K status=progress | gzip -c  > ' + path + target + '.img.gz')
             else:
                 os.system('sudo dd if=' + source + ' of=' + path + target + '.img conv=sync,noerror bs=64K status=progress ')
         else:
-            if compress:
+            if not not_compress:
                 os.system('gunzip -c ' + source  + ' | dd of=' + target + ' conv=sync,noerror bs=64K')
             else:
                 os.system('sudo dd if=' + source + ' of=' + target + ' conv=fdatasync status=progress')
