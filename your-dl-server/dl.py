@@ -75,7 +75,6 @@ def chunks(lst, n):
 @click.option('-s', '--single', default=False, is_flag=True, help='close after finish')
 @click.option('-sc', '--skip-checks', default=False, is_flag=True, help='skip checks')
 @click.option('-sy', '--sync', default=False, is_flag=True, help='')
-@click.option('-up', '--update-packages', default=False, is_flag=True, help='updates packages listed in requirements.txt')
 
 # int
 @click.option('-bw','--bandwidth', default='0', help='Enter an Bandwidthlimit like 1.5M')
@@ -89,7 +88,7 @@ def chunks(lst, n):
 @click.option('-dl','--dub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
 
-def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, update_packages, debug, sync, verbose, single, credentials, skip_checks):
+def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks):
     global dto
     dto = dto()
     dto.setLogger(debug)
@@ -111,9 +110,6 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setRetries(retries)
 
     dto.setPathToRoot(ioutils.getRootPath(dto))
-
-    if update_packages:
-        ioutils.update(dto, dto.getPathToRoot())
 
     dto.setData(ioutils.loadConfig(dto.getPathToRoot()))
 
@@ -406,6 +402,7 @@ def watcher(watcher, minutes, hours):
 @click.option('--hidden', default=False, is_flag=True, help='displaying hidden files')
 
 def server(host, port, worker, dir, local, hidden):
+
     dto.setServer(True)
     server = workflow_server.Server(host, port, worker, dir, local, hidden)
     server.setup()
@@ -425,6 +422,7 @@ def server(host, port, worker, dir, local, hidden):
 @click.option('--not-compress', default=False, is_flag=True, help='Compressed or Raw (default Compressed)')
 
 def disk(source, target, path, not_backup, not_compress):
+
     if source != '' and target != '':
         if not not_backup:
             if not not_compress:
@@ -439,6 +437,16 @@ def disk(source, target, path, not_backup, not_compress):
 
     else:
         dto.publishLoggerError('disk - missing param')
+
+    ioutils.elapsedTime(dto)
+
+
+# - - - - - # - - - - - # Disk
+@main.command(help='Update git repo and packages')
+
+def update():
+
+    ioutils.update(dto)
 
     ioutils.elapsedTime(dto)
 
