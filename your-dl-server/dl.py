@@ -157,7 +157,7 @@ def replace(replace, old, new):
 
 
 # - - - - - # - - - - - # convertFiles command
-@main.command(help='Path for convert, not file')
+@main.command(help='ffmpeg File convert')
 
 # switch
 @click.option('-f', '--ffmpeg', default=False, is_flag=True, help='ffmpeg')
@@ -205,7 +205,7 @@ def convertFiles(newformat, path, subpath, ffmpeg, vcodec, acodec, no_fix, no_re
 
 
 # - - - - - # - - - - - #
-@main.command(help='Path for fileMerging, not file')
+@main.command(help='ffmpeg file merge')
 
 # arguments
 @click.argument('newformat', nargs=1)
@@ -217,7 +217,7 @@ def mergeFiles(paths, newformat):
 
 
 # - - - - - # - - - - - # divideAndConquer command
-@main.command(help='')
+@main.command(help='divide and conquer for large list')
 
 # switch
 @click.option('-r', '--reverse', default=False, is_flag=True, help='reverse')
@@ -290,7 +290,7 @@ def dnc(url, file, dir, chunck_size, reverse):
 
 
 # - - - - - # - - - - - # wget
-@main.command(help='Enter an URL')
+@main.command(help='wget downloader')
 
 # switch
 @click.option('-sp', '--space', default=False, is_flag=True, help='check if old file are deletable')
@@ -314,7 +314,7 @@ def wget(wget, space, accept, reject):
 
 
 # - - - - - # - - - - - # youtube-dl
-@main.command(help='Enter an URL for YoutubeDL')
+@main.command(help='YoutubeDL downloader')
 
 #String
 @click.option('-os', '--offset', default=0, help='String Offset')
@@ -334,7 +334,7 @@ def ydl(url, offset):
 
 
 # - - - - - # - - - - - # aria2c
-@main.command(help='Enter an URL for Aria2c')
+@main.command(help='Aria2c downloader')
 
 # arguments
 @click.argument('url', nargs=-1)
@@ -349,7 +349,7 @@ def aria2c(url):
 
 
 # - - - - - # - - - - - # Anime
-@main.command(help='Enter an URL for YoutubeDL')
+@main.command(help='Animescrapper')
 
 #String
 @click.option('-g', '--group', default='er', help='Sub Group')
@@ -390,24 +390,24 @@ def watcher(watcher, minutes, hours):
 
 
 # - - - - - # - - - - - # Server
-@main.command(help='')
+@main.command(help='Webgui for dl Utility')
 
 # String
 @click.option('-h', '--host', default='0.0.0.0', help='Host')
 @click.option('-p', '--port', default='8080', help='Port')
 @click.option('-d', '--dir', default='ydl-downloads', help='Path which will contain the new Files')
-@click.option('-sp', '--subpath', default='downloads', help='Path which will contain the new Files')
+# @click.option('-sp', '--subpath', default='downloads', help='Path which will contain the new Files')
 
 # Int
 @click.option('-w', '--worker', default=8, help='Port')
 
 # Switch
 @click.option('--local', default=False, is_flag=True, help='local')
-@click.option('--hidden', default=False, is_flag=True, help='hidden')
+@click.option('--hidden', default=False, is_flag=True, help='displaying hidden files')
 
-def server(host, port, worker, dir, local, subpath, hidden):
+def server(host, port, worker, dir, local, hidden):
     dto.setServer(True)
-    server = workflow_server.Server(host, port, worker, dir, local, subpath, hidden)
+    server = workflow_server.Server(host, port, worker, dir, local, hidden)
     server.setup()
     server.start()
 
@@ -416,9 +416,9 @@ def server(host, port, worker, dir, local, subpath, hidden):
 @main.command(help='Create an Compressed Backup from Disk')
 
 # String
-@click.option('-s', '--source', default='', help='Source Disk')
-@click.option('-t', '--target', default='', help='Compressed File')
-@click.option('-p', '--path', default='./', help='Path which will contain the new Files')
+@click.option('-s', '--source', default='', help='Source')
+@click.option('-t', '--target', default='', help='Target')
+@click.option('-p', '--path', default='./', help='Subpath which will contain the new Files')
 
 # Switch
 @click.option('--not-backup', default=False, is_flag=True, help='Backup or Restore (default Backup)')

@@ -33,7 +33,7 @@
       </label>
     </header>
 
-    <div class="content container">
+    <div class="content-index container">
 
       <p></p>
       <div class="text-light text-center">
@@ -99,6 +99,12 @@
               <div class="input-group">
                 <input name="username" type="username" class="form-control" placeholder="USERNAME" aria-label="USERNAME" aria-describedby="button-submit" autofocus>
                 <input name="password" type="password" class="form-control" placeholder="PASSWORD" aria-label="PASSWORD" aria-describedby="button-submit" autofocus>
+              </div>
+              <div class="input-group">
+                <textarea name="list" type="list" class="form-control" placeholder="LIST" aria-label="LIST" aria-describedby="button-submit" autofocus></textarea>
+              </div>
+              <div class="input-group">
+                <textarea name="cookie" type="cookie" class="form-control" placeholder="COOKIE" aria-label="COOKIE" aria-describedby="button-submit" autofocus></textarea>
               </div>
             </details>
           </div>

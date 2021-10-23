@@ -15,7 +15,7 @@ from dto import dto
 
 
 class Server:
-    def __init__ (self, host, port, worker, dir, local, subpath, hidden):
+    def __init__ (self, host, port, worker, dir, local, hidden):
         self._app = Bottle()
         self._host = host
         self._port = port
@@ -26,7 +26,7 @@ class Server:
         self.local = local
         self.hidden = hidden
 
-        self.pathSub = '/' + subpath
+        self.pathSub = '/downloads'
         self.pathWork = ''
         self.pathSource = ''
         self.pathLog = ''
@@ -194,12 +194,13 @@ class Server:
         url = request.forms.get("url")
         title = request.forms.get("title")
         tool = request.forms.get("downloadTool")
-        
+
+        cookie = request.forms.get("cookie")
+        linkList = request.forms.get("list").splitlines()
+
         path = self.pathWork
         if request.forms.get("path") != '':
             path = os.path.join(self.pathWork, request.forms.get("path"))
-
-        print(path)
 
         parameter = '--continue'
         if request.forms.get("retries") != '':
@@ -216,7 +217,7 @@ class Server:
             request.forms.get("password"),
         ]
 
-        if not url:
+        if not url and not linkList:
             return {"success": False, "error": "/q called without a 'url' query param"}
 
 
@@ -234,13 +235,26 @@ class Server:
             tool = "torrent"
 
         if tool == "youtube-dl":
-            self.downloadExecutor.submit(extractor.ydl_extractor, self.dto, content)
+            if url != '':
+                self.downloadExecutor.submit(extractor.ydl_extractor, self.dto, content)
+            else:
+                for item in linkList:
+                    self.downloadExecutor.submit(extractor.ydl_extractor, self.dto, item)
 
         if tool == "wget":
-            self.downloadExecutor.submit(downloader.download_wget, self.dto, url, '', '')
+            if url != '':
+                self.downloadExecutor.submit(downloader.download_wget, self.dto, url, '', '')
+            else:
+                for item in linkList:
+                    pass
 
         if tool == "torrent":
-            self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
+            if url != '':
+                self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
+            else:
+                for item in linkList:
+                    # self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
+                    pass
 
         self.dto.publishLoggerInfo("Added url " + url + " to the download queue")
 

@@ -212,6 +212,15 @@ nav a:hover {
   padding-right: 15px !important; */
 }
 
+.content-index {
+  background-blend-mode: multiply;
+  background-size: cover;
+  place-items: center;
+
+  margin-top: auto;
+  margin-bottom: 30px;
+}
+
 div.input-group>select.custom-select {
   flex: 0.1 1 100px;
 }
