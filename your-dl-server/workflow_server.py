@@ -224,9 +224,13 @@ class Server:
         # Prepare Data
         content = url + ';' + title + ';' + request.forms.get('reference') + ';' + path
 
-        if request.forms.get("bandwidth") != '':
-            self.dto.setBandwidth(request.forms.get("bandwidth") + 'M')
-    
+        bandwidth = request.forms.get("bandwidth")
+        if bandwidth != '':
+            if not bandwidth[-1].isalpha():
+                self.dto.setBandwidth(bandwidth + 'M')
+            else:
+                self.dto.setBandwidth(bandwidth)
+
         self.dto.setAxel(request.forms.get("download") == 'axel')
 
 
