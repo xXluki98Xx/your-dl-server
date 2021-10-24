@@ -27,7 +27,6 @@ from dto import dto
 def getLinkList(link, listFile):
     dto.publishLoggerInfo('beginning link extraction')
 
-    itemList = 'list_Links'
     page = requests.get(link)
     if page.status_code == 200:
         dto.publishLoggerInfo('got page')
@@ -89,6 +88,7 @@ def chunks(lst, n):
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
 
 def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks):
+
     global dto
     dto = dto()
     dto.setLogger(debug)
@@ -132,6 +132,7 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
 @click.argument('rename', nargs=-1)
 
 def rename(rename, offset, cut, platform, single):
+
     dto.setSingle(single)
 
     for itemPath in rename:
@@ -148,6 +149,7 @@ def rename(rename, offset, cut, platform, single):
 # arguments
 @click.argument('replace', nargs=-1)
 def replace(replace, old, new):
+
     for itemPath in replace:
         functions.func_replace(dto, itemPath, old, new)
 
@@ -170,6 +172,7 @@ def replace(replace, old, new):
 @click.argument('path', nargs=-1)
 
 def convertFiles(newformat, path, subpath, ffmpeg, vcodec, acodec, no_fix, no_renaming):
+
     if ffmpeg:
         try:
             for itemPath in path:
@@ -208,6 +211,7 @@ def convertFiles(newformat, path, subpath, ffmpeg, vcodec, acodec, no_fix, no_re
 @click.argument('paths', nargs=-1)
 
 def mergeFiles(paths, newformat):
+
     for path in paths:
         functions.func_ffmpegDirMerge(dto, path, newformat)
 
@@ -229,6 +233,7 @@ def mergeFiles(paths, newformat):
 @click.argument('url', nargs=1)
 
 def dnc(url, file, dir, chunck_size, reverse):
+
     if not os.path.isfile(file):
         getLinkList(url, file)
 
