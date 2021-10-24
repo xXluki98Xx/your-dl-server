@@ -194,7 +194,7 @@ def human2bytes(n):
 
     swapSize = float(n[:-1]) * switcher.get(size, 0)
 
-    return '%s' % swapSize
+    return '%s' % int(swapSize)
 
 
 # ----- # ----- # formating

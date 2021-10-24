@@ -135,7 +135,7 @@ def download_aria2c(dto, content):
     dl = 'aria2c -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads "{}" '.format(content)
 
     if dto.getBandwidth() != '0':
-        dl += ' --max-overall-download-limit={}'.format(dto.getBandwidth())
+        dl += ' --max-overall-download-limit={}'.format(ioutils.human2bytes(dto.getBandwidth()))
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
@@ -170,7 +170,7 @@ def download_aria2c_magnet(dto, content, dir):
         dl += ' --dir="{}"'.format(dir)
 
     if dto.getBandwidth() != '0':
-        dl += ' --max-overall-download-limit={}'.format(dto.getBandwidth())
+        dl += ' --max-overall-download-limit={}'.format(ioutils.human2bytes(dto.getBandwidth()))
 
     dl += ' "{}"'.format(content)
 
