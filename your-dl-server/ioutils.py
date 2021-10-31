@@ -217,7 +217,8 @@ def formatingDirectories(text):
 
 
 def formatingFilename(text):
-    reg = re.compile(r'[^\w\d\s\-\_\/\.+|]')
+    regCharacters = re.compile(r'[^\w\d\s\-\_\/\.+|]')
+    regBrackets = re.compile(r'\[(.*?)\]')
     reg3 = re.compile(r'-{3,}')
 
     extensionsList = [
@@ -227,11 +228,13 @@ def formatingFilename(text):
                         '.iso', '.zip', '.rar',
                         '.jpg', '.jpeg', '.svg', '.png',
                         '.csv', '.html', '.ppt', '.pptx', '.xls', '.xlsx',
+                        '.log',
                     ]
 
     swap = text.casefold()
 
-    swap = re.sub(reg, '', swap)
+    swap = re.sub(regBrackets, '', swap)
+    swap = re.sub(regCharacters, '', swap)
 
     if any(ext in swap for ext in extensionsList):
         fileSwap = swap.rsplit('.',1)
