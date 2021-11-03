@@ -9,6 +9,8 @@ import functions
 import ioutils
 import server_history
 
+from nbstreamreader import NonBlockingStreamReader as NBSR
+
 
 # ----- # ----- #
 def getEchoList(stringList):
@@ -184,6 +186,16 @@ def download(dto, command, platform, content, infos):
         if dto.getServer():
             server_history.addHistory(dto, infos[0], infos[1], platform, "Started",  infos[2])
 
+        if dto.getDownloadLegacy():
+            if 'aria2c' in platform:
+                command += ' --console-log-level=info'
+
+            if 'wget' in platform:
+                command += ' -q --show-progress 2>&1'
+
+            if 'ydl' in platform:
+                command += ' --newline'
+
         i = 0
         returned_value = ''
 
@@ -191,9 +203,37 @@ def download(dto, command, platform, content, infos):
             if dto.getServer():
                 server_history.addHistory(dto, infos[0], infos[1], platform, "Running",  infos[2])
 
-            returned_value = os.system('echo \'' + command + '\' >&1 | bash')
 
-            if returned_value > 0:
+            if dto.getDownloadLegacy():
+                returned_value = os.system('echo \'' + command + '\' >&1 | bash')
+            else:
+                p = subprocess.Popen(['bash'], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, bufsize=1, universal_newlines=True)
+                nbsr_out = NBSR(p.stdout)
+
+                p.stdin.write(command + '\n') 
+
+                while True:
+                    output = nbsr_out.readline(30) # 0.1 secs to let the shell output the result
+                    
+                    if not output:
+                        dto.publishLoggerWarn('[No more data]')
+                        p.stdin.write('echo $? 2>&1\n')
+
+                        try:
+                            returned_value = nbsr_out.readline(3)
+                        except NBSR.UnexpectedEndOfStream:
+                            pass
+
+                        p.kill()
+                        nbsr_out.stop()
+                        break
+
+                    if output != '' and len(output) > 1:
+                        # dto.publishLoggerDebug(len(output))
+                        dto.publishLoggerDebug(output)
+
+
+            if returned_value is None or int(returned_value) > 0:
                 if returned_value == 2048:
                     return returned_value
                 else:

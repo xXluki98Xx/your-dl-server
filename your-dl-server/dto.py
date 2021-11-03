@@ -38,6 +38,7 @@ class dto():
         self.boolean_break = False
         self.boolean_skip_checks = False
         self.boolean_server = False
+        self.boolean_downloader_legacy = False
 
         self.downloadList = []
 
@@ -183,6 +184,11 @@ class dto():
         return self.boolean_server
     def setServer(self, swap):
         self.boolean_server = swap
+
+    def getDownloadLegacy(self):
+        return self.boolean_downloader_legacy
+    def setDownloadLegacy(self, swap):
+        self.boolean_downloader_legacy = swap
 
 
 # ----- # ----- # Time

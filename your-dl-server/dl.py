@@ -74,6 +74,7 @@ def chunks(lst, n):
 @click.option('-s', '--single', default=False, is_flag=True, help='close after finish')
 @click.option('-sc', '--skip-checks', default=False, is_flag=True, help='skip checks')
 @click.option('-sy', '--sync', default=False, is_flag=True, help='')
+@click.option('-ul', '--use-legacy', default=False, is_flag=True, help='')
 
 # int
 @click.option('-bw','--bandwidth', default='0', help='Enter an Bandwidthlimit like 1.5M')
@@ -87,12 +88,13 @@ def chunks(lst, n):
 @click.option('-dl','--dub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
 
-def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks):
+def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy):
 
     global dto
     dto = dto()
     dto.setLogger(debug)
     dto.setVerbose(verbose)
+    dto.setDownloadLegacy(use_legacy)
 
     dto.setAxel(axel)
     # dto.setCredentials(credentials)
