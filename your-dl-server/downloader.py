@@ -171,7 +171,7 @@ def download(dto, command, platform, content, infos):
         if dto.getServer():
             server_history.addHistory(dto, infos[0], infos[1], platform, "Started",  infos[2])
 
-        if dto.getDownloadLegacy():
+        if not dto.getDownloadLegacy():
             if 'aria2c' in platform:
                 command += ' --console-log-level=info'
 
