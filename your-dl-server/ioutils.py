@@ -5,12 +5,24 @@ import subprocess
 import sys
 from datetime import datetime
 
+import bs4
 import requests
+import safer
 
 from dto import dto
 
 
 # ----- # ----- #
+def constructPath(path):
+    '''
+    Needed for File Serving
+    Convert path to windows path format.
+    '''
+    if(sys.platform=='win32'):
+      return "\\"+path.replace('/','\\')
+    return path #Return same path if on linux or unix
+
+
 def getRootPath(dto):
     pathToRoot = ''
 
@@ -197,6 +209,39 @@ def human2bytes(n):
     return '%s' % int(swapSize)
 
 
+def getAccelerator(dto):
+    parameters = ''
+    extParams = ''
+
+    if dto.getAxel():
+        parameters += ' --external-downloader axel'
+        extParams = '-s {}'.format(human2bytes(dto.getBandwidth()))
+
+    if dto.getAria2c():
+        parameters += ' --external-downloader aria2c'
+        extParams = '-x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads --max-overall-download-limit {}'.format(human2bytes(dto.getBandwidth()))
+
+    if parameters != '':
+        parameters += ' --external-downloader-args "{}"'.format(extParams)
+
+    return parameters
+
+
+def getBandwith(dto, plattform):
+    parameters = ''
+
+    if dto.getBandwidth() == '0B':
+        return ''
+
+    if plattform == 'wget' or plattform == 'ydl':
+        parameters += ' --limit-rate'
+
+    if plattform == 'aria2c':
+        parameters += ' --max-overall-download-limit'
+
+    return parameters + ' {}'.format(human2bytes(dto.getBandwidth()))
+
+
 # ----- # ----- # formating
 def formatingDirectories(text):
     if text.startswith('.'):
@@ -261,11 +306,39 @@ def elapsedTime(dto):
     dto.publishLoggerInfo('Time elapsed (hh:mm:ss.ms): {}'.format(time_elapsed))
 
 
-def constructPath(path):
-    '''
-    Needed for File Serving
-    Convert path to windows path format.
-    '''
-    if(sys.platform=='win32'):
-      return "\\"+path.replace('/','\\')
-    return path #Return same path if on linux or unix
+# ----- # ----- # divide and conquer
+def getLinkList(link, listFile):
+    dto.publishLoggerInfo('beginning link extraction')
+
+    page = requests.get(link)
+    if page.status_code == 200:
+        dto.publishLoggerInfo('got page')
+        content = page.content
+
+        DOMdocument = bs4.BeautifulSoup(content, 'html.parser')
+
+        listLinks = []
+
+        # for a in DOMdocument.find_all('a'):
+        #     if 'serie/' in a:
+        #         listLinks.append(a.string)
+
+        dto.publishLoggerInfo('writting links to file')
+        with safer.open(listFile, 'w') as f:
+            for url in listLinks:
+                if 'pdf' in url:
+                    f.write(link+'%s\n' % url)
+        dto.publishLoggerInfo('finished writing')
+
+
+def split_list(alist, wanted_parts=1):
+    length = len(alist)
+    return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts]
+        for i in range(wanted_parts) ]
+
+
+def chunks(lst, n):
+    '''Yield successive n-sized chunks from lst.'''
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+

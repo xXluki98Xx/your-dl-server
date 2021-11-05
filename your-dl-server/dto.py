@@ -33,12 +33,13 @@ class dto():
         self.boolean_sync = False
         self.boolean_single = False
         self.boolean_axel = False
+        self.boolean_aria2c = False
         self.boolean_space = False
         self.boolean_credential = False
         self.boolean_break = False
         self.boolean_skip_checks = False
         self.boolean_server = False
-        self.boolean_downloader_legacy = False
+        self.boolean_downloader_legacy = True
 
         self.downloadList = []
 
@@ -189,6 +190,11 @@ class dto():
         return self.boolean_downloader_legacy
     def setDownloadLegacy(self, swap):
         self.boolean_downloader_legacy = swap
+
+    def getAria2c(self):
+        return self.boolean_aria2c
+    def setAria2c(self, swap):
+        self.boolean_aria2c = swap
 
 
 # ----- # ----- # Time

@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-import random
 import sys
-from collections import ChainMap
-from datetime import datetime
 
-import bs4
 import click
-import requests
-import safer
 
-import downloader
 import functions
 import ioutils
 import workflow_animescrapper
@@ -23,64 +16,26 @@ import workflow_ydl
 from dto import dto
 
 
-# ----- # ----- #
-def getLinkList(link, listFile):
-    dto.publishLoggerInfo('beginning link extraction')
-
-    page = requests.get(link)
-    if page.status_code == 200:
-        dto.publishLoggerInfo('got page')
-        content = page.content
-
-        DOMdocument = bs4.BeautifulSoup(content, 'html.parser')
-
-        listLinks = []
-
-        # for a in DOMdocument.find_all('a'):
-        #     if 'serie/' in a:
-        #         listLinks.append(a.string)
-
-        dto.publishLoggerInfo('writting links to file')
-        with safer.open(listFile, 'w') as f:
-            for url in listLinks:
-                if 'pdf' in url:
-                    f.write(link+'%s\n' % url)
-        dto.publishLoggerInfo('finished writing')
-
-
-def split_list(alist, wanted_parts=1):
-    length = len(alist)
-    return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts]
-        for i in range(wanted_parts) ]
-
-
-def chunks(lst, n):
-    '''Yield successive n-sized chunks from lst.'''
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
-
-
-# - - - - - # - - - - - # - - - - - # - - - - - # main functions
-
 # - - - - - # - - - - - # main
 @click.group()
 
 # switch
 @click.option('-v', '--verbose', default=False, is_flag=True, help='Verbose mode')
-@click.option('-a', '--axel', default=False, is_flag=True, help='Using Axel')
+@click.option('--axel', default=False, is_flag=True, help='Using Axel as Accelerator')
+@click.option('--aria2c', default=False, is_flag=True, help='Using Aria2c as Accelerator')
 @click.option('-cr', '--credentials', default=False, is_flag=True, help='Need Credentials')
 @click.option('-nr', '--no-remove', default=False, is_flag=True, help='remove Files at wget')
 @click.option('-p', '--playlist', default=False, is_flag=True, help='Playlist')
 @click.option('-s', '--single', default=False, is_flag=True, help='close after finish')
 @click.option('-sc', '--skip-checks', default=False, is_flag=True, help='skip checks')
 @click.option('-sy', '--sync', default=False, is_flag=True, help='')
-@click.option('-ul', '--use-legacy', default=False, is_flag=True, help='')
+@click.option('-ul', '--use-legacy', default=True, is_flag=True, help='')
 
 # int
-@click.option('-bw','--bandwidth', default='0', help='Enter an Bandwidthlimit like 1.5M')
+@click.option('-bw','--bandwidth', default='0B', help='Enter an Bandwidthlimit like 1.5M')
 @click.option('--max-sleep', default=15, help='Enter an Number for max-Sleep between retries/ downloads')
 @click.option('--min-sleep', default=2, help='Enter an Number for min-Sleep between retries/ downloads')
-@click.option('-r', '--retries', default=5, help='Enter an Number for Retries')
+@click.option('-r', '--retries', default=3, help='Enter an Number for Retries')
 
 # string
 @click.option('-cf','--cookie-file', default='', help='Enter Path to cookie File')
@@ -88,7 +43,7 @@ def chunks(lst, n):
 @click.option('-dl','--dub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
 
-def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy):
+def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, aria2c):
 
     global dto
     dto = dto()
@@ -97,6 +52,7 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setDownloadLegacy(use_legacy)
 
     dto.setAxel(axel)
+    dto.setAria2c(aria2c)
     # dto.setCredentials(credentials)
     dto.setPlaylist(playlist)
     dto.setRemoveFiles(no_remove)
@@ -160,7 +116,6 @@ def replace(replace, old, new):
 @main.command(help='ffmpeg File convert')
 
 # switch
-@click.option('-f', '--ffmpeg', default=False, is_flag=True, help='ffmpeg')
 @click.option('-nf', '--no-fix', default=False, is_flag=True, help='fixing')
 @click.option('-nr', '--no-renaming', default=False, is_flag=True, help='Directories Rename?')
 
@@ -175,32 +130,31 @@ def replace(replace, old, new):
 
 def convertFiles(newformat, path, subpath, ffmpeg, vcodec, acodec, no_fix, no_renaming):
 
-    if ffmpeg:
-        try:
-            for itemPath in path:
-                itemPathComplete = os.path.join(os.getcwd(), itemPath)
+    try:
+        for itemPath in path:
+            itemPathComplete = os.path.join(os.getcwd(), itemPath)
 
-                dto.publishLoggerDebug('convertFiles')
-                dto.publishLoggerDebug('filePathComplete: ' + itemPath)
+            dto.publishLoggerDebug('convertFiles')
+            dto.publishLoggerDebug('filePathComplete: ' + itemPath)
 
-                if os.path.isfile(itemPathComplete):
-                    dto.publishLoggerDebug('is File: ' + str(os.path.isfile(itemPathComplete)))
-                    functions.func_convertFilesFfmpeg(dto, itemPathComplete, newformat, subpath, vcodec, acodec, no_fix)
-
-
-                if os.path.isdir(itemPathComplete):
-                    dto.publishLoggerDebug('is Dir: ' + str(os.path.isdir(itemPathComplete)))
-                    functions.func_convertDirFiles(dto, itemPathComplete, newformat, subpath, vcodec, acodec, no_fix)
-
-                    if not no_renaming:
-                        try:
-                            os.rename(itemPath, ioutils.formatingDirectories(itemPath))
-                        except:
-                            pass
+            if os.path.isfile(itemPathComplete):
+                dto.publishLoggerDebug('is File: ' + str(os.path.isfile(itemPathComplete)))
+                functions.func_convertFilesFfmpeg(dto, itemPathComplete, newformat, subpath, vcodec, acodec, no_fix)
 
 
-        except:
-            dto.publishLoggerError('convertfiles - error at ffmpeg: ' + str(sys.exc_info()))
+            if os.path.isdir(itemPathComplete):
+                dto.publishLoggerDebug('is Dir: ' + str(os.path.isdir(itemPathComplete)))
+                functions.func_convertDirFiles(dto, itemPathComplete, newformat, subpath, vcodec, acodec, no_fix)
+
+                if not no_renaming:
+                    try:
+                        os.rename(itemPath, ioutils.formatingDirectories(itemPath))
+                    except:
+                        pass
+
+
+    except:
+        dto.publishLoggerError('convertfiles - error at ffmpeg: ' + str(sys.exc_info()))
 
     ioutils.elapsedTime(dto)
 
@@ -235,61 +189,61 @@ def mergeFiles(paths, newformat):
 @click.argument('url', nargs=1)
 
 def dnc(url, file, dir, chunck_size, reverse):
+    pass
+    # if not os.path.isfile(file):
+    #     getLinkList(url, file)
 
-    if not os.path.isfile(file):
-        getLinkList(url, file)
+    # dto.publishLoggerDebug('dnc')
 
-    dto.publishLoggerDebug('dnc')
+    # with safer.open(file) as f:
+    #     urlList = f.readlines()
+    #     urlList = [x.strip() for x in urlList]
 
-    with safer.open(file) as f:
-        urlList = f.readlines()
-        urlList = [x.strip() for x in urlList]
+    # urlCopy = urlList.copy()
 
-    urlCopy = urlList.copy()
+    # chunkedList = list(chunks(urlCopy, chunck_size))
 
-    chunkedList = list(chunks(urlCopy, chunck_size))
+    # if reverse:
+    #     chunkedList.reverse()
 
-    if reverse:
-        chunkedList.reverse()
+    # for itemList in chunkedList:
 
-    for itemList in chunkedList:
+    #     random.shuffle(itemList)
 
-        random.shuffle(itemList)
+    #     try:
+    #         dto.publishLoggerDebug('downloading: ' + str(itemList))
 
-        try:
-            dto.publishLoggerDebug('downloading: ' + str(itemList))
+    #         # if dl == 'wget':
+    #         #     if download_wget2(str(item), dir) == 0:
+    #         #         urlCopy.remove(item)
+    #         #         print('\nremoved: ' + str(item) + ' | rest list ' + str(urlCopy))
 
-            # if dl == 'wget':
-            #     if download_wget2(str(item), dir) == 0:
-            #         urlCopy.remove(item)
-            #         print('\nremoved: ' + str(item) + ' | rest list ' + str(urlCopy))
+    #         # if dl == 'aria':
+    #         if downloader.download_aria2c_dnc(dto, itemList, dir) == 0:
+    #             for i in itemList:
+    #                 urlCopy.remove(i)
 
-            # if dl == 'aria':
-            if downloader.download_aria2c_dnc(dto, itemList, dir) == 0:
-                for i in itemList:
-                    urlCopy.remove(i)
+    #             dto.publishLoggerDebug('removed: ' + str(itemList) + ' | rest list ' + str(urlCopy))
 
-                dto.publishLoggerDebug('removed: ' + str(itemList) + ' | rest list ' + str(urlCopy))
+    #     except KeyboardInterrupt:
+    #         with safer.open(file, 'w') as f:
+    #             for url in urlCopy:
+    #                 f.write('%s\n' % url)
+    #         dto.publishLoggerWarn('Interupt by User')
+    #         ioutils.elapsedTime(dto)
+    #         os._exit(1)
+    #         break
 
-        except KeyboardInterrupt:
-            with safer.open(file, 'w') as f:
-                for url in urlCopy:
-                    f.write('%s\n' % url)
-            dto.publishLoggerWarn('Interupt by User')
-            ioutils.elapsedTime(dto)
-            os._exit(1)
-            break
+    #     except:
+    #         dto.publishLoggerError('divideAndConquer - error at list: ' + str(sys.exc_info()))
 
-        except:
-            dto.publishLoggerError('divideAndConquer - error at list: ' + str(sys.exc_info()))
+    #     finally:
+    #         # will always be executed last, with or without exception
+    #         with safer.open(file, 'w') as f:
+    #             for url in urlCopy:
+    #                 f.write('%s\n' % url)
 
-        finally:
-            # will always be executed last, with or without exception
-            with safer.open(file, 'w') as f:
-                for url in urlCopy:
-                    f.write('%s\n' % url)
-
-    ioutils.elapsedTime(dto)
+    # ioutils.elapsedTime(dto)
 
 
 # - - - - - # - - - - - # wget
@@ -461,3 +415,4 @@ def update():
 # - - - - - # - - - - - # main
 if __name__ == '__main__':
     main()
+    pass

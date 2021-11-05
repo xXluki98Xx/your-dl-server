@@ -9,7 +9,7 @@ import functions
 import ioutils
 import server_history
 
-from nbstreamreader import NonBlockingStreamReader as NBSR
+from nbstreamreader import NonBlockingStreamReader as NBSR, UnexpectedEndOfStream
 
 
 # ----- # ----- #
@@ -38,7 +38,7 @@ def download_wget(dto, content, accept, reject):
 
         path = os.path.join(os.getcwd(),directory)
 
-        wget = 'wget -c -w 5 --random-wait --limit-rate={bw} -e robots=off'.format(bw = dto.getBandwidth())
+        wget = 'wget -c -w 5 --random-wait -e robots=off{}'.format(ioutils.getBandwith(dto, 'wget'))
 
         if directory != '':
             wget += ' -P {dir}'.format(dir = path)
@@ -101,14 +101,8 @@ def download_wget(dto, content, accept, reject):
 
 
 def download_ydl(dto, content, parameters, output, stringReferer, infos):
-    if dto.getBandwidth() != '0':
-        parameters += ' --limit-rate {}'.format(dto.getBandwidth())
-
-    if dto.getAxel():
-        parameters += ' --external-downloader axel'
-
-        if dto.getBandwidth() != '0':
-            parameters += ' --external-downloader-args "-s {}"'.format(ioutils.human2bytes(dto.getBandwidth()))
+    parameters += ioutils.getBandwith(dto, 'ydl')
+    parameters += ioutils.getAccelerator(dto)
 
     if stringReferer != '':
         parameters += ' --referer "{reference}"'.format(reference = stringReferer)
@@ -134,10 +128,7 @@ def download_aria2c(dto, content):
     if ('magnet:?xt=urn:btih' in content):
         return download_aria2c_magnet(dto, content, directory)
 
-    dl = 'aria2c -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads "{}" '.format(content)
-
-    if dto.getBandwidth() != '0':
-        dl += ' --max-overall-download-limit={}'.format(ioutils.human2bytes(dto.getBandwidth()))
+    dl = 'aria2c -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads "{}"{}'.format(content, ioutils.getBandwith(dto, 'aria2'))
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
@@ -152,10 +143,7 @@ def download_aria2c_dnc(dto, content, directory):
 
     dl = 'echo ' + links + ' | '
 
-    dl += 'aria2c -i - -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads'
-
-    if dto.getBandwidth() != '0':
-        dl += ' --max-overall-download-limit={}'.format(dto.getBandwidth())
+    dl += 'aria2c -i - -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads {}'.format(ioutils.getBandwith(dto, 'aria2'))
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
@@ -171,10 +159,7 @@ def download_aria2c_magnet(dto, content, dir):
     if dir != '':
         dl += ' --dir="{}"'.format(dir)
 
-    if dto.getBandwidth() != '0':
-        dl += ' --max-overall-download-limit={}'.format(ioutils.human2bytes(dto.getBandwidth()))
-
-    dl += ' "{}"'.format(content)
+    dl += ' "{}"{}'.format(content, ioutils.getBandwith(dto, 'aria2c'))
 
     return download(dto, dl, 'aria2c-magnet', content, [content, ioutils.getTitleFormated(''), dir])
 
@@ -218,11 +203,8 @@ def download(dto, command, platform, content, infos):
                     if not output:
                         dto.publishLoggerWarn('[No more data]')
                         p.stdin.write('echo $? 2>&1\n')
+                        returned_value = nbsr_out.readline(3)
 
-                        try:
-                            returned_value = nbsr_out.readline(3)
-                        except NBSR.UnexpectedEndOfStream:
-                            pass
 
                         p.kill()
                         nbsr_out.stop()
@@ -243,7 +225,6 @@ def download(dto, command, platform, content, infos):
                     if dto.getServer():
                         server_history.addHistory(dto, infos[0], infos[1], platform, "Pending",  infos[2])
 
-
                     timer = random.randint(200,1000)/100
                     dto.publishLoggerInfo('sleep for ' + str(timer) + 's')
                     time.sleep(timer)
@@ -251,7 +232,6 @@ def download(dto, command, platform, content, infos):
                     if i == dto.getRetries():
                         if dto.getServer():
                             server_history.addHistory(dto, infos[0], infos[1], platform, "Failed",  infos[2])
-
 
                         dto.publishLoggerWarn('the Command was: %s' % command)
                         dto.publishLoggerError(platform + ' - error at downloading: ' + content)
