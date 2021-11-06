@@ -56,6 +56,7 @@
               <optgroup label="Download Tool">
                 <option value="youtube-dl">Youtube-DL</option>
                 <option value="wget">wget</option>
+                <option value="aria2c">aria2c</option>
                 <option value="torrent">Torrent</option>
               </optgroup>
             </select>
@@ -64,6 +65,7 @@
               <optgroup label="Download">
                 <option value="normal">Normal</option>
                 <option value="axel">Axel</option>
+                <option value="aria2c">Aria2c</option>
               </optgroup>
             </select>
 
