@@ -69,7 +69,8 @@ def func_rename(dto, filePath, offset, cut):
             dto.publishLoggerWarn('function - func_rename: could the path be wrong?')
 
         try:
-            new = ioutils.formatingDirectories(filePath)
+            path, origDir = os.path.split(filePath)
+            new = os.path.join(path, ioutils.formatingDirectories(origDir))
 
             dto.publishLoggerDebug('function - func_rename: rename directory from {} to {}'.format(filePath, new))
             os.rename(filePath, new)
@@ -87,7 +88,7 @@ def func_replace(dto, filePath, old, new):
         for f in os.listdir(path):
             oldFile = os.path.join(path,f)
             f = f.replace(old, new)
-            newFile = os.path.join(path,ioutils.formatingFilename(f))
+            newFile = os.path.join(path, ioutils.formatingFilename(f))
             os.rename(oldFile, newFile)
 
     except:
