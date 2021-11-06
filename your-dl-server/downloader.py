@@ -102,7 +102,11 @@ def download_wget(dto, content, accept, reject):
 
 def download_ydl(dto, content, parameters, output, stringReferer, infos):
     parameters += ioutils.getBandwith(dto, 'ydl')
-    parameters += ioutils.getAccelerator(dto)
+
+    if '.m3u8' not in content:
+        parameters += ioutils.getAccelerator(dto)
+    else:
+        dto.publishLoggerWarn('.m3u8 found in url, ffmpeg handles that one')
 
     if stringReferer != '':
         parameters += ' --referer "{reference}"'.format(reference = stringReferer)
