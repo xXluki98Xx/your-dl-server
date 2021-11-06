@@ -3,8 +3,6 @@ import random
 import sys
 from datetime import datetime
 
-import safer
-
 import downloader
 import ioutils
 
@@ -50,10 +48,7 @@ def wget(dto, wget, accept, reject):
 
 # ----- # ----- #
 def wget_list(dto, itemList, accept, reject):
-    with safer.open(itemList) as f:
-        urlList = f.readlines()
-        urlList = [x.strip() for x in urlList]
-
+    urlList = ioutils.openfile(dto, itemList)
     urlCopy = urlList.copy()
 
     if dto.getSync():
@@ -80,9 +75,8 @@ def wget_list(dto, itemList, accept, reject):
 
         except KeyboardInterrupt:
             if not dto.getSync():
-                with safer.open(itemList, 'w') as f:
-                    for url in urlCopy:
-                        f.write('%s\n' % url)
+                ioutils.savefile(dto, itemList, urlCopy, 'wget')
+
             dto.publishLoggerWarn('Interupt by User')
             ioutils.elapsedTime(dto)
             os._exit(1)
@@ -93,6 +87,6 @@ def wget_list(dto, itemList, accept, reject):
         finally:
             # will always be executed last, with or without exception
             if not dto.getSync():
-                with safer.open(itemList, 'w') as f:
-                    for url in urlCopy:
-                        f.write('%s\n' % url)
+                ioutils.savefile(dto, itemList, urlCopy, 'wget')
+
+    ioutils.elapsedTime(dto)

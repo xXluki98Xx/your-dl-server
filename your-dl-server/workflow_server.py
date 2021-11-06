@@ -92,7 +92,7 @@ class Server:
     @view('history')
     def serve_history(self):
 
-        display_logHistory = server_history.loadHistory(self.dto)
+        display_logHistory = server_history.loadHistory(self.dto, 'history')
         display_downloads = []
 
         if len(display_logHistory)>10:
@@ -232,6 +232,7 @@ class Server:
                 self.dto.setBandwidth(bandwidth)
 
         self.dto.setAxel(request.forms.get("download") == 'axel')
+        self.dto.setAria2c(request.forms.get("download") == 'aria2c')
 
 
         # URL Serperation
@@ -245,19 +246,26 @@ class Server:
                 for item in linkList:
                     self.downloadExecutor.submit(extractor.ydl_extractor, self.dto, item)
 
+        if tool == "aria2c":
+            if url != '':
+                self.downloadExecutor.submit(downloader.download_aria2c, self.dto, content, path)
+            else:
+                self.downloadExecutor.submit(downloader.download_aria2c_dnc, self.dto, linkList, path)
+
         if tool == "wget":
             if url != '':
                 self.downloadExecutor.submit(downloader.download_wget, self.dto, url, '', '')
             else:
                 for item in linkList:
-                    pass
+                    self.downloadExecutor.submit(downloader.download_wget, self.dto, url, '', '')
+
 
         if tool == "torrent":
             if url != '':
                 self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
             else:
                 for item in linkList:
-                    # self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
+                    self.downloadExecutor.submit(downloader.download_aria2c_dnc, self.dto, linkList, path)
                     pass
 
         self.dto.publishLoggerInfo("Added url " + url + " to the download queue")

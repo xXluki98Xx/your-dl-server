@@ -2,9 +2,8 @@ import os
 import sys
 from datetime import datetime
 
-import safer
-
 from dto import dto
+import ioutils
 
 
 # ----- # ----- #
@@ -142,80 +141,47 @@ def addHistory(dto, url, title, kind, status, path):
     dto.publishLoggerDebug("history.6 history: " + str(dto.getHistory))
 
 
-# --------------- # help: load history-log # --------------- #
-def loadLog(dto):
-    try:
-
-        filename = dto.getLogPath() + "/history.txt"
-        swapList = []
-
-        with safer.open(filename, "r") as f:
-
-            swap = f.readline()
-            while swap != "":
-
-                if "#" in swap:
-                    swap = f.readline()
-                    continue
-
-                url, title, kind, status, path, timestamp, nop = swap.split(";")
-                swapList.append({
-                    'url': url,
-                    'title': title,
-                    'kind': kind,
-                    'status': status,
-                    'path': path,
-                    'timestamp': timestamp,
-                })
-                swap = f.readline()
-
-            return swapList
-
-    except:
-        dto.publishLoggerError("Failure at loadLog. Error: " + str(sys.exc_info()[1]))
-        return []
-
-
 # --------------- # help: load history entries # --------------- #
-def loadHistory(dto):
+def loadHistory(dto, kind):
     try:
         filename = dto.getLogPath() + "/history.txt"
         swapList = []
 
-        with safer.open(filename, "r") as f:
+        fileList = ioutils.openfile(dto, filename)
+        for swap in fileList:
 
-            swap = f.readline()
-            while swap != "":
+            if "#" in swap:
+                continue
 
-                if "#" in swap:
-                    swap = f.readline()
-                    continue
+            if swap == '':
+                continue
 
-                url, title, kind, status, path, timestamp, nop = swap.split(";")
-                swapList.append({
-                    'url': url,
-                    'title': title,
-                    'kind': kind,
-                    'status': status,
-                    'path': path,
-                    'timestamp': timestamp,
-                })
-                swap = f.readline()
+            url, title, kind, status, path, timestamp, nop = swap.split(";")
+            swapList.append({
+                'url': url,
+                'title': title,
+                'kind': kind,
+                'status': status,
+                'path': path,
+                'timestamp': timestamp,
+            })
 
+        if kind == 'history':
             if len(swapList)>10:
                 return swapList[-10:]
-            else:
-                return swapList
+
+        return swapList
 
     except:
-        dto.publishLoggerError("Failure at loadHistory. Error: " + str(sys.exc_info()[1]))
+        dto.publishLoggerError("Failure at loadHistory. Error: " + str(sys.exc_info()))
         return swapList
+
 
 # --------------- # help: check history and log # --------------- #
 def checkHistory(dto):
     try:
 
-        logList = loadLog(dto)
+        logList = loadHistory(dto, 'log')
         checkList = logList.copy()
 
         downloadList = dto.getDownloadList()
@@ -301,15 +267,9 @@ def saveHistory(dto):
             historyLog.close()
             return
 
-        with safer.open(filename, 'w') as historyLog:
+        ioutils.savefile(dto, filename, logHistory, 'history')
 
-            historyLog.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
-
-            for item in logHistory:
-                dto.publishLoggerDebug("saveHistory: item\n" + str(item))
-                historyLog.writelines("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
-
-        dto.setDownloadHistory = loadHistory(dto)
+        dto.setDownloadHistory = loadHistory(dto, 'history')
 
     except:
         dto.publishLoggerError("Failure at saveHistory. Error: " + str(sys.exc_info()))

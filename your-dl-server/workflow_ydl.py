@@ -49,10 +49,7 @@ def ydl(dto, url):
 
 # ----- # ----- # list
 def ydl_list(dto, itemList):
-    with safer.open(itemList) as f:
-        urlList = f.readlines()
-        urlList = [x.strip() for x in urlList]
-
+    urlList = ioutils.openfile(dto, itemList)
     urlCopy = urlList.copy()
 
     dto.publishLoggerDebug('youtube-dl')
@@ -78,9 +75,8 @@ def ydl_list(dto, itemList):
         except KeyboardInterrupt:
             dto.publishLoggerDebug('Interupt by User')
             if not dto.getSync():
-                with safer.open(itemList, 'w') as f:
-                    for url in urlCopy:
-                        f.write('%s\n' % url)
+                ioutils.savefile(dto, itemList, urlCopy, 'ydl')
+
             ioutils.elapsedTime(dto)
             os._exit(1)
 
@@ -90,8 +86,6 @@ def ydl_list(dto, itemList):
         finally:
             # will always be executed last, with or without exception
             if not dto.getSync():
-                with safer.open(itemList, 'w') as f:
-                    for url in urlCopy:
-                        f.write('%s\n' % url)
+                ioutils.savefile(dto, itemList, urlCopy, 'ydl')
 
     ioutils.elapsedTime(dto)

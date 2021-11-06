@@ -3,8 +3,6 @@ import random
 import sys
 from datetime import datetime
 
-import safer
-
 import downloader
 import ioutils
 
@@ -50,10 +48,7 @@ def aria2c(dto, url):
 
 # ----- # ----- #
 def aria2c_list(dto, itemList):
-    with safer.open(itemList) as f:
-        urlList = f.readlines()
-        urlList = [x.strip() for x in urlList]
-
+    urlList = ioutils.openfile(dto, itemList)
     urlCopy = urlList.copy()
 
     if dto.getSync():
@@ -80,9 +75,8 @@ def aria2c_list(dto, itemList):
 
         except KeyboardInterrupt:
             if not dto.getSync():
-                with safer.open(itemList, 'w') as f:
-                    for url in urlCopy:
-                        f.write('%s\n' % url)
+                ioutils.savefile(dto, itemList, urlCopy, 'aria2c_list')
+
             dto.publishLoggerWarn('Interupt by User')
             ioutils.elapsedTime(dto)
             os._exit(1)
@@ -93,6 +87,6 @@ def aria2c_list(dto, itemList):
         finally:
             # will always be executed last, with or without exception
             if not dto.getSync():
-                with safer.open(itemList, 'w') as f:
-                    for url in urlCopy:
-                        f.write('%s\n' % url)
+                ioutils.savefile(dto, itemList, urlCopy, 'aria2c_list')
+
+    ioutils.elapsedTime(dto)

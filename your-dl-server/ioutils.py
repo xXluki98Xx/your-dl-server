@@ -342,3 +342,37 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
+
+def openfile(dto, filename):
+    dto.publishLoggerInfo('reading from file: ' + filename)
+
+    try:
+        with open(filename, 'r') as f:
+            data = f.readlines()
+            data = [x.strip() for x in data]
+    except:
+        data = []
+
+    return data
+
+
+def savefile(dto, filename, data, kind):
+    dto.publishLoggerInfo('writing to file: ' + filename)
+    
+    try:
+        with open(filename, 'w') as f:
+
+            if kind == 'history':
+                f.writelines("# History Log: " + datetime.now().strftime("%Y-%m-%d_%H-%M-%S\n"))
+
+                for item in data:
+                    dto.publishLoggerDebug("saveHistory: item\n" + str(item))
+                    f.writelines("{url};{title};{kind};{status};{path};{timestamp};\n".format(url=item['url'], title=item['title'], kind=item['kind'],status=item['status'], path=item['path'], timestamp=item['timestamp']))
+
+                return
+
+            for item in data:
+                f.write('%s\n' % item)
+
+    except:
+        dto.publishLoggerError('error at writing data to file: ' + str(sys.exc_info()))
