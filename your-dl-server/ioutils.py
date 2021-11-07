@@ -51,10 +51,12 @@ def getRootPath(dto):
     return pathToRoot
 
 
-def update(dto):
+def update(dto, pip):
     path = os.path.dirname(dto.getPathToRoot())
     updateRepo(dto, path)
-    updatePackages(dto, path)
+
+    if pip:
+        updatePackages(dto, path)
 
 
 def updateRepo(dto, path):
@@ -66,8 +68,11 @@ def updateRepo(dto, path):
 
     output, error = proc.communicate()
 
-    dto.publishLoggerDebug(output.decode('ascii'))
-    dto.publishLoggerError(error.decode('ascii'))
+    if len(output) > 1:
+        dto.publishLoggerDebug(output.decode('ascii'))
+    
+    if error != '':
+        dto.publishLoggerError(error.decode('ascii'))
 
 
 def updatePackages(dto, path):
@@ -82,8 +87,11 @@ def updatePackages(dto, path):
 
     output, error = proc.communicate()
 
-    dto.publishLoggerDebug(output.decode('ascii'))
-    dto.publishLoggerError(error.decode('ascii'))
+    if len(output) > 1:
+        dto.publishLoggerDebug(output.decode('ascii'))
+    
+    if error != '':
+        dto.publishLoggerError(error.decode('ascii'))
 
 
 def loadConfig(pathToRoot):

@@ -386,9 +386,12 @@ def disk(source, target, path, not_backup, not_compress):
 # - - - - - # - - - - - # Disk
 @main.command(help='Update git repo and packages')
 
-def update():
+# Switch
+@click.option('-p', '--pip', default=False, is_flag=True, help='update pip Packages?')
 
-    ioutils.update(dto)
+def update(pip):
+
+    ioutils.update(dto, pip)
 
     ioutils.elapsedTime(dto)
 
