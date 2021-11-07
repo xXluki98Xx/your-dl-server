@@ -150,7 +150,8 @@ def getAria2cDefaults(dto):
     params += '--max-connection-per-server 8 --max-concurrent-downloads 16 --continue --min-split-size=1M --optimize-concurrent-downloads'
 
     if dto.getVerbose():
-        params += ' --log-level {}'.format(dto.getLogging())
+        if dto.getLogging() != '':
+            params += ' --log-level {}'.format(dto.getLogging())
 
     return params
 
@@ -209,9 +210,9 @@ def human2bytes(n):
 
     switcher = {
         'B': 1,
-        'K': 1000,
-        'M': pow(1000,2),
-        'G': pow(1000,3),
+        'K': 1024,
+        'M': pow(1024,2),
+        'G': pow(1024,3),
     }
 
     swapSize = float(n[:-1]) * switcher.get(size, 0)
@@ -224,15 +225,15 @@ def getAccelerator(dto):
     extParams = ''
 
     if dto.getAxel():
-        parameters += ' --external-downloader axel'
+        parameters += '--external-downloader axel'
         extParams = '-s {}'.format(human2bytes(dto.getBandwidth()))
 
     if dto.getAria2c():
-        parameters += ' --external-downloader aria2c'
-        extParams = '-x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads --max-overall-download-limit {}'.format(human2bytes(dto.getBandwidth()))
+        parameters += '--external-downloader aria2c'
+        extParams = '{} {}'.format(getAria2cDefaults(dto), getBandwith(dto, 'aria2c'))
 
     if parameters != '':
-        parameters += ' --external-downloader-args "{}"'.format(extParams)
+        parameters += '--external-downloader-args "{}"'.format(extParams)
 
     return parameters
 
@@ -249,7 +250,10 @@ def getBandwith(dto, plattform):
     if plattform == 'aria2c':
         parameters += '--max-overall-download-limit'
 
-    return parameters + ' {}'.format(human2bytes(dto.getBandwidth()))
+    if parameters != '':
+        parameters += ' {}'.format(human2bytes(dto.getBandwidth()))
+
+    return parameters
 
 
 # ----- # ----- # formating
