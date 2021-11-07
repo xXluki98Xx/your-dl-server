@@ -63,12 +63,15 @@ def func_rename(dto, filePath, offset, cut):
             for file in files:
                 func_rename(dto, os.path.join(filePath, file), offset, cut)
 
-
         except:
             dto.publishLoggerError('function - func_rename: ' + str(sys.exc_info()))
             dto.publishLoggerWarn('function - func_rename: could the path be wrong?')
 
+
         try:
+            if (filePath[-1] == '/'):
+                filePath = filePath[:-1]
+
             path, origDir = os.path.split(filePath)
             new = os.path.join(path, ioutils.formatingDirectories(origDir))
 
@@ -92,12 +95,18 @@ def func_replace(dto, filePath, old, new):
             os.rename(oldFile, newFile)
 
     except:
-        dto.publishLoggerError(' function - func_replace: ' + str(sys.exc_info()))
+        dto.publishLoggerError('function - func_replace: ' + str(sys.exc_info()))
         dto.publishLoggerWarn('function - func_rename: could the path be wrong?')
 
 
     try:
-        os.rename(filePath, ioutils.formatingDirectories(filePath))
+        if (filePath[-1] == '/'):
+            filePath = filePath[:-1]
+
+        path, origDir = os.path.split(filePath)
+        new = os.path.join(path, ioutils.formatingDirectories(origDir))
+
+        os.rename(filePath, new)
     except:
         pass
 

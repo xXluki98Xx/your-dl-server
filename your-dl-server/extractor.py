@@ -81,7 +81,10 @@ def ydl_extractor(dto, content):
 
     # if ('animeholics' in url) : return host_animeholics(dto, url, title, stringReferer, directory)
 
-    if ('haho.moe' in url) :
+    if ('haho.moe' in url):
+        if (url[-1] == '/'):
+            url = url[:-1]
+
         if (len(url.rsplit('/',1)[1]) < 3):
             return host_hahomoe(dto, url, title, stringReferer, directory)
         else:
@@ -96,6 +99,7 @@ def ydl_extractor(dto, content):
                 i += 1
 
             return 0
+
 
     if ('sxyprn' in url) : return host_sxyprn(dto, url, title, stringReferer, directory)
     if ('porngo' in url) : return host_porngo(dto, url, title, stringReferer, directory)
