@@ -14,7 +14,7 @@ buildah config --label maintainer="lRamm <lukas.ramm.1998@gmail.com>" $container
 # Installing Software
 buildah run $container -- sh -c 'apt update && apt upgrade -y && apt install -y git'
 
-buildah run $container -- git clone --branch refactoring https://github.com/xXluki98Xx/your-dl-server.git /app/your-dl-server
+buildah run $container -- git clone https://github.com/xXluki98Xx/your-dl-server.git /app/your-dl-server
 
 buildah run $container -- pip3 install --no-cache-dir -r /app/your-dl-server/requirements.txt --upgrade
 buildah run $container -- sh -c 'cat /app/your-dl-server/requirements-apt.txt | xargs apt install -y'

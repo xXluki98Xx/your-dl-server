@@ -233,11 +233,11 @@ def getAccelerator(dto):
     extParams = ''
 
     if dto.getAxel():
-        parameters += '--external-downloader axel'
+        parameters += ' --external-downloader axel'
         extParams = '-s {}'.format(human2bytes(dto.getBandwidth()))
 
     if dto.getAria2c():
-        parameters += '--external-downloader aria2c'
+        parameters += ' --external-downloader aria2c'
         extParams = '{} {}'.format(getAria2cDefaults(dto), getBandwith(dto, 'aria2c'))
 
     if parameters != '':
