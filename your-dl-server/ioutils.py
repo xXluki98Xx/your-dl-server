@@ -144,6 +144,16 @@ def getMainParametersFromDto(dto):
 
     return parameters
 
+def getAria2cDefaults(dto):
+    params = ''
+
+    params += '--max-connection-per-server 8 --max-concurrent-downloads 16 --continue --min-split-size=1M --optimize-concurrent-downloads'
+
+    if dto.getVerbose():
+        params += ' --log-level {}'.format(dto.getLogging())
+
+    return params
+
 
 # ----- # ----- #
 def testWebpage(dto, url):
@@ -234,10 +244,10 @@ def getBandwith(dto, plattform):
         return ''
 
     if plattform == 'wget' or plattform == 'ydl':
-        parameters += ' --limit-rate'
+        parameters += '--limit-rate'
 
     if plattform == 'aria2c':
-        parameters += ' --max-overall-download-limit'
+        parameters += '--max-overall-download-limit'
 
     return parameters + ' {}'.format(human2bytes(dto.getBandwidth()))
 

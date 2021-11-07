@@ -132,7 +132,7 @@ def download_aria2c(dto, content):
     if ('magnet:?xt=urn:btih' in content):
         return download_aria2c_magnet(dto, content, directory)
 
-    dl = 'aria2c -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads "{}"{}'.format(content, ioutils.getBandwith(dto, 'aria2c'))
+    dl = 'aria2c {} {} "{}"'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'), content)
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
@@ -147,7 +147,7 @@ def download_aria2c_dnc(dto, content, directory):
 
     dl = 'echo ' + links + ' | '
 
-    dl += 'aria2c -i - -x 8 -j 16 --continue --min-split-size=1M --optimize-concurrent-downloads {}'.format(ioutils.getBandwith(dto, 'aria2c'))
+    dl += 'aria2c -i - {} {}'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'))
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
@@ -163,7 +163,7 @@ def download_aria2c_magnet(dto, content, dir):
     if dir != '':
         dl += ' --dir="{}"'.format(dir)
 
-    dl += ' "{}"{}'.format(content, ioutils.getBandwith(dto, 'aria2c'))
+    dl += ' {} {} "{}"'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'), content)
 
     return download(dto, dl, 'aria2c-magnet', content, [content, ioutils.getTitleFormated(''), dir])
 
