@@ -81,35 +81,16 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
 # string
 @click.option('-os', '--offset', default=0, help='String Offset')
 @click.option('-c', '--cut', default=0, help='Cut String')
-@click.option('-p', '--platform', default='', help='Platform')
-
-# switch
-@click.option('-s', '--single', default=False, is_flag=True, help='series is only one Season')
-
-# arguments
-@click.argument('rename', nargs=-1)
-
-def rename(rename, offset, cut, platform, single):
-
-    dto.setSingle(single)
-
-    for itemPath in rename:
-        functions.func_rename(dto, itemPath, offset, cut)
-
-
-# - - - - - # - - - - - # replace command
-@main.command(help='Path, old String, new String')
-
-# string
 @click.option('-o', '--old', default='', help='old String')
 @click.option('-n', '--new', default='', help='new String')
 
 # arguments
-@click.argument('replace', nargs=-1)
-def replace(replace, old, new):
+@click.argument('rename', nargs=-1)
 
-    for itemPath in replace:
-        functions.func_replace(dto, itemPath, old, new)
+def rename(rename, offset, cut, old, new):
+
+    for itemPath in rename:
+        functions.func_rename(dto, itemPath, offset, cut, old, new)
 
 
 # - - - - - # - - - - - # convertFiles command

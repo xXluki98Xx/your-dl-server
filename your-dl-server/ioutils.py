@@ -277,13 +277,15 @@ def formatingFilename(text):
     reg3 = re.compile(r'-{3,}')
 
     extensionsList = [
+                        '.py',
+                        '.md',
                         '.mp4', '.mkv', '.avi', '.m4a', '.mov',
-                        '.flac', '.wav', '.mp3', '.aac',
-                        '.py', '.txt', '.md', '.pdf', '.doc', 'docx',
+                        '.wav', '.mp3', '.aac',
+                        '.txt', '.pdf', '.csv', '.log',
+                        '.doc', '.ppt', '.xls',
                         '.iso', '.zip', '.rar',
-                        '.jpg', '.jpeg', '.svg', '.png',
-                        '.csv', '.html', '.ppt', '.pptx', '.xls', '.xlsx',
-                        '.log',
+                        '.jpg', '.svg', '.png',
+                        '.flac', '.jpeg', 'docx', '.pptx', '.xlsx', '.html',
                     ]
 
     swap = text.casefold()
@@ -293,7 +295,7 @@ def formatingFilename(text):
 
     if any(ext in swap for ext in extensionsList):
         fileSwap = swap.rsplit('.',1)
-        swap = fileSwap[0].replace('/','').replace('.','') + '.' + fileSwap[1]
+        swap = fileSwap[0].replace('/','').replace('.','-') + '.' + fileSwap[1]
     else:
         swap = swap.replace('/','').replace('.','')
 

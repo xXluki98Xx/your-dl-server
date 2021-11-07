@@ -30,14 +30,15 @@ def func_renameEpisode(season, episode, title, seasonOffset):
 
 
 # ----- # ----- # file operations
-def func_rename(dto, filePath, offset, cut):
+def func_rename(dto, filePath, offset, cut, oldPattern, newPattern):
     if os.path.isfile(filePath):
         path, origFile = os.path.split(filePath)
 
         if origFile.startswith('.'):
             return
 
-        file = ioutils.formatingFilename(origFile)
+        targetFile = origFile.replace(oldPattern, newPattern)
+        file = ioutils.formatingFilename(targetFile)
 
         if offset > 0:
             file = file[offset:]
@@ -58,10 +59,11 @@ def func_rename(dto, filePath, offset, cut):
             for directory in dirs:
                 if directory.startswith('.'):
                     continue
-                func_rename(dto, os.path.join(filePath, directory), offset, cut)
+
+                func_rename(dto, os.path.join(filePath, directory), offset, cut, oldPattern, newPattern)
 
             for file in files:
-                func_rename(dto, os.path.join(filePath, file), offset, cut)
+                func_rename(dto, os.path.join(filePath, file), offset, cut, oldPattern, newPattern)
 
         except:
             dto.publishLoggerError('function - func_rename: ' + str(sys.exc_info()))
@@ -73,42 +75,13 @@ def func_rename(dto, filePath, offset, cut):
                 filePath = filePath[:-1]
 
             path, origDir = os.path.split(filePath)
-            new = os.path.join(path, ioutils.formatingDirectories(origDir))
+            targetDir = origDir.replace(oldPattern, newPattern)
+            new = os.path.join(path, ioutils.formatingDirectories(targetDir))
 
             dto.publishLoggerDebug('function - func_rename: rename directory from {} to {}'.format(filePath, new))
             os.rename(filePath, new)
         except:
             pass
-
-
-def func_replace(dto, filePath, old, new):
-    try:
-        path, dirs, files = next(os.walk(filePath))
-
-        for directory in dirs:
-            func_replace(dto, os.path.join(filePath, directory), old, new)
-
-        for f in os.listdir(path):
-            oldFile = os.path.join(path,f)
-            f = f.replace(old, new)
-            newFile = os.path.join(path, ioutils.formatingFilename(f))
-            os.rename(oldFile, newFile)
-
-    except:
-        dto.publishLoggerError('function - func_replace: ' + str(sys.exc_info()))
-        dto.publishLoggerWarn('function - func_rename: could the path be wrong?')
-
-
-    try:
-        if (filePath[-1] == '/'):
-            filePath = filePath[:-1]
-
-        path, origDir = os.path.split(filePath)
-        new = os.path.join(path, ioutils.formatingDirectories(origDir))
-
-        os.rename(filePath, new)
-    except:
-        pass
 
 
 def func_removeFiles(dto, path, file_count_prev):
