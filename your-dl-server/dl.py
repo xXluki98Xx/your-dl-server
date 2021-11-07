@@ -36,6 +36,7 @@ from dto import dto
 @click.option('--max-sleep', default=15, help='Enter an Number for max-Sleep between retries/ downloads')
 @click.option('--min-sleep', default=2, help='Enter an Number for min-Sleep between retries/ downloads')
 @click.option('-r', '--retries', default=3, help='Enter an Number for Retries')
+@click.option('--connections', default=5, help='Enter an Number for Concurrent Connections')
 
 # string
 @click.option('-cf','--cookie-file', default='', help='Enter Path to cookie File')
@@ -43,7 +44,7 @@ from dto import dto
 @click.option('-dl','--dub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
 
-def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, aria2c):
+def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, aria2c, connections):
 
     global dto
     dto = dto()
@@ -66,6 +67,7 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setDubLang(dub_lang)
     dto.setSubLang(sub_lang)
     dto.setRetries(retries)
+    dto.setConnections(connections)
 
     dto.setPathToRoot(ioutils.getRootPath(dto))
 

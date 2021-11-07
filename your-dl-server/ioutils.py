@@ -152,14 +152,26 @@ def getMainParametersFromDto(dto):
 
     return parameters
 
+
 def getAria2cDefaults(dto):
     params = ''
 
-    params += '--max-connection-per-server 8 --max-concurrent-downloads 16 --continue --min-split-size=1M --optimize-concurrent-downloads'
+    params += '--max-connection-per-server {} --max-concurrent-downloads 16 --continue --min-split-size=1M --optimize-concurrent-downloads'.format(dto.getConnections())
 
     if dto.getVerbose():
         if dto.getLogging() != '':
             params += ' --log-level {}'.format(dto.getLogging())
+
+    return params
+
+
+def getAxelDefaults(dto):
+    params = ''
+
+    params += '--num-connection {} --alternate'.format(dto.getConnections())
+
+    if dto.getVerbose():
+        params += ' --verbose'
 
     return params
 
@@ -234,20 +246,20 @@ def getAccelerator(dto):
 
     if dto.getAxel():
         parameters += ' --external-downloader axel'
-        extParams = '-s {}'.format(human2bytes(dto.getBandwidth()))
+        extParams = '{} {}'.format(getAxelDefaults(dto), getBandwith(dto, 'axel'))
 
     if dto.getAria2c():
         parameters += ' --external-downloader aria2c'
         extParams = '{} {}'.format(getAria2cDefaults(dto), getBandwith(dto, 'aria2c'))
 
     if parameters != '':
-        parameters += '--external-downloader-args "{}"'.format(extParams)
+        parameters += ' --external-downloader-args "{}"'.format(extParams)
 
     return parameters
 
 
 def getBandwith(dto, plattform):
-    parameters = ''
+    parameters = ' '
 
     if dto.getBandwidth() == '0B':
         return ''
@@ -257,6 +269,9 @@ def getBandwith(dto, plattform):
 
     if plattform == 'aria2c':
         parameters += '--max-overall-download-limit'
+
+    if plattform == 'axel':
+        parameters += '--max-speed'
 
     if parameters != '':
         parameters += ' {}'.format(human2bytes(dto.getBandwidth()))

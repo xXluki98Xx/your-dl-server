@@ -25,7 +25,8 @@ class dto():
         self.string_logPath = ''
         self.string_offset = ''
         
-        self.int_retries = ''
+        self.int_retries = 3
+        self.int_connections = 5
 
         self.boolean_playlist = False
         self.boolean_removefiles = False
@@ -127,6 +128,11 @@ class dto():
         return self.int_retries
     def setRetries(self, swap):
         self.int_retries = swap
+
+    def getConnections(self):
+        return self.int_connections
+    def setConnections(self, swap):
+        self.int_connections = swap
 
 
 # ----- # ----- # Boolean
