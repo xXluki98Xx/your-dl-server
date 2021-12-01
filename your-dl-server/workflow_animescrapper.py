@@ -27,8 +27,9 @@ subsplease_url = URL('https://nyaa.si/user/subsplease?f=0&c=0_0&q={}&o=desc&p={}
 erairaws_url = URL('https://nyaa.si/user/Erai-raws?f=0&c=0_0&q={}&o=desc&p={}', -2, -1, -3, -2, lambda x: "[Multiple Subtitle]" in x) # condition returns True if the given row_title or content['title'] should use the alt indices
 horriblesubs_url = URL('https://nyaa.si/user/HorribleSubs?f=0&c=0_0&q={}&o=desc&p={}', -2, -1)
 smallsizedanimations_url = URL('https://nyaa.si/user/SmallSizedAnimations?f=0&c=0_0&q={}&o=desc&p={}', -2, -1)
+akihitoSubsWeeklies_url = URL('https://nyaa.si/user/AkihitoSubsWeeklies?f=0&c=0_0&q={}&o=desc&p={}', -5, -4)
 
-groups = {'hs' : horriblesubs_url, 'er' : erairaws_url, 'sp' : subsplease_url, 'ssa' : smallsizedanimations_url}
+groups = {'hs' : horriblesubs_url, 'er' : erairaws_url, 'sp' : subsplease_url, 'ssa' : smallsizedanimations_url, 'asw' : akihitoSubsWeeklies_url}
 
 base_url = 'https://nyaa.si/'
 
@@ -57,6 +58,7 @@ def download(dto, group, show_name, quality, start_ep, end_ep, req_file, dir, sl
                 # Checking that content being looked at is the 'a' element with the episode name
                 if content.has_attr('title') and show_name.upper() in content['title'].upper():
                     row_title = content['title'].split(" ")
+                    dto.publishLoggerDebug(row_title)
 
                     if group.condition(content['title']):
                         ep_index = group.alt_ep_index
