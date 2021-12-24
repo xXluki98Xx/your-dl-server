@@ -22,7 +22,7 @@ from dto import dto
 # switch
 @click.option('-v', '--verbose', default=False, is_flag=True, help='Verbose mode')
 @click.option('--axel', default=False, is_flag=True, help='Using Axel as Accelerator')
-@click.option('--aria2c', default=False, is_flag=True, help='Using Aria2c as Accelerator')
+@click.option('-a', '--aria2c', default=False, is_flag=True, help='Using Aria2c as Accelerator')
 @click.option('-cr', '--credentials', default=False, is_flag=True, help='Need Credentials')
 @click.option('-nr', '--no-remove', default=False, is_flag=True, help='remove Files at wget')
 @click.option('-p', '--playlist', default=False, is_flag=True, help='Playlist')
@@ -254,7 +254,7 @@ def wget(wget, space, accept, reject):
 
 
 # - - - - - # - - - - - # youtube-dl
-@main.command(help='YoutubeDL downloader')
+@main.command(help='YoutubeDL downloader usage: dl.py [options] ydl url;tile;referer;directory')
 
 #String
 @click.option('-os', '--offset', default=0, help='String Offset')
