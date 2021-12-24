@@ -161,7 +161,7 @@ def download_aria2c_magnet(dto, content, dir):
     dl = 'aria2c --seed-time=0'
 
     if dir != '':
-        dl += ' --dir="{}"'.format(dir)
+        dl += ' --output="{}"'.format(dir)
 
     dl += ' {} {} "{}"'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'), content)
 
