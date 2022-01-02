@@ -145,7 +145,7 @@ def download_aria2c(dto, content):
 def download_aria2c_dnc(dto, content, directory):
     links = getEchoList(content)
 
-    dl = 'echo ' + links + ' | '
+    dl = 'echo "' + links + '" | '
 
     dl += 'aria2c -i - {} {}'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'))
 

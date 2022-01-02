@@ -346,7 +346,7 @@ def elapsedTime(dto):
 
 
 # ----- # ----- # divide and conquer
-def getLinkList(link, listFile):
+def getLinkList(dto, link, listFile):
     dto.publishLoggerInfo('beginning link extraction')
 
     page = requests.get(link)
@@ -370,13 +370,13 @@ def getLinkList(link, listFile):
         dto.publishLoggerInfo('finished writing')
 
 
-def split_list(alist, wanted_parts=1):
+def split_list(dto, alist, wanted_parts=1):
     length = len(alist)
     return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts]
         for i in range(wanted_parts) ]
 
 
-def chunks(lst, n):
+def chunks(dto, lst, n):
     '''Yield successive n-sized chunks from lst.'''
     for i in range(0, len(lst), n):
         yield lst[i:i + n]

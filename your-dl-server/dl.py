@@ -2,10 +2,13 @@
 
 import os
 import sys
+# from random 
+import random
 
 import click
 
 import functions
+import downloader
 import ioutils
 import workflow_animescrapper
 import workflow_aria2c
@@ -172,61 +175,57 @@ def mergeFiles(paths, newformat):
 @click.argument('url', nargs=1)
 
 def dnc(url, file, dir, chunck_size, reverse):
-    pass
-    # if not os.path.isfile(file):
-    #     getLinkList(url, file)
+    if os.path.isfile(url):
+        file = url
 
-    # dto.publishLoggerDebug('dnc')
+    if not os.path.isfile(file):
+        ioutils.getLinkList(dto, url, file)
 
-    # with safer.open(file) as f:
-    #     urlList = f.readlines()
-    #     urlList = [x.strip() for x in urlList]
+    dto.publishLoggerDebug('dnc')
 
-    # urlCopy = urlList.copy()
+    urlList = ioutils.openfile(dto, file)
+    urlCopy = urlList.copy()
 
-    # chunkedList = list(chunks(urlCopy, chunck_size))
+    chunkedList = list(ioutils.chunks(dto, urlCopy, chunck_size))
 
-    # if reverse:
-    #     chunkedList.reverse()
+    if reverse:
+        chunkedList.reverse()
 
-    # for itemList in chunkedList:
+    for itemList in chunkedList:
 
-    #     random.shuffle(itemList)
+        random.shuffle(itemList)
 
-    #     try:
-    #         dto.publishLoggerDebug('downloading: ' + str(itemList))
+        try:
+            dto.publishLoggerDebug('downloading: ' + str(itemList))
 
-    #         # if dl == 'wget':
-    #         #     if download_wget2(str(item), dir) == 0:
-    #         #         urlCopy.remove(item)
-    #         #         print('\nremoved: ' + str(item) + ' | rest list ' + str(urlCopy))
+            # if dl == 'wget':
+            #     if download_wget2(str(item), dir) == 0:
+            #         urlCopy.remove(item)
+            #         print('\nremoved: ' + str(item) + ' | rest list ' + str(urlCopy))
 
-    #         # if dl == 'aria':
-    #         if downloader.download_aria2c_dnc(dto, itemList, dir) == 0:
-    #             for i in itemList:
-    #                 urlCopy.remove(i)
+            # if dl == 'aria':
+            if downloader.download_aria2c_dnc(dto, itemList, dir) == 0:
+                for i in itemList:
+                    urlCopy.remove(i)
 
-    #             dto.publishLoggerDebug('removed: ' + str(itemList) + ' | rest list ' + str(urlCopy))
+                dto.publishLoggerDebug('removed: ' + str(itemList) + ' | rest list ' + str(urlCopy))
 
-    #     except KeyboardInterrupt:
-    #         with safer.open(file, 'w') as f:
-    #             for url in urlCopy:
-    #                 f.write('%s\n' % url)
-    #         dto.publishLoggerWarn('Interupt by User')
-    #         ioutils.elapsedTime(dto)
-    #         os._exit(1)
-    #         break
+        except KeyboardInterrupt:
+            ioutils.savefile(dto, file, urlCopy, "aria2c-dnc")
 
-    #     except:
-    #         dto.publishLoggerError('divideAndConquer - error at list: ' + str(sys.exc_info()))
+            dto.publishLoggerWarn('Interupt by User')
+            ioutils.elapsedTime(dto)
+            os._exit(1)
+            break
 
-    #     finally:
-    #         # will always be executed last, with or without exception
-    #         with safer.open(file, 'w') as f:
-    #             for url in urlCopy:
-    #                 f.write('%s\n' % url)
+        except:
+            dto.publishLoggerError('divideAndConquer - error at list: ' + str(sys.exc_info()))
 
-    # ioutils.elapsedTime(dto)
+        finally:
+            # will always be executed last, with or without exception
+            ioutils.savefile(dto, file, urlCopy, "aria2c-dnc")
+
+    ioutils.elapsedTime(dto)
 
 
 # - - - - - # - - - - - # wget
