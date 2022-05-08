@@ -430,9 +430,6 @@ def filewalker(filenames, directory):
         dto.publishLoggerDebug('filewalker - founds - {}'.format(filePaths))
 
         for filePath in filePaths:
-            dto.setSkipChecks(True)
-            dto.setSingle(True)
-
             dto.publishLoggerDebug('filewalker - current download - {}'.format(filePath))
 
             workDir = filePath[:-len(filename)]
