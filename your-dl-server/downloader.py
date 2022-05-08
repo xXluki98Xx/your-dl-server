@@ -23,7 +23,7 @@ def getEchoList(stringList):
 
 
 # ----- # ----- #
-def download_wget(dto, content, accept, reject):
+def download_wget(dto, content, params):
     dto.publishLoggerDebug('download wget')
 
     try:
@@ -46,11 +46,8 @@ def download_wget(dto, content, accept, reject):
         if title != '':
             wget += ' -O {title}'.format(title = ioutils.getTitleFormated(title))
 
-        if accept != '':
-            wget += ' --accept {extention}'.format(extention = accept)
-
-        if reject != '':
-            wget += ' --reject {extention}'.format(extention = reject)
+        if params != '':
+            wget += ' {extention}'.format(extention = params)
 
         # --no-http-keep-alive --no-clobber
 

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-import sys
-# from random 
+import sys 
 import random
 
 import click
@@ -235,19 +234,18 @@ def dnc(url, file, dir, chunck_size, reverse):
 @click.option('-sp', '--space', default=False, is_flag=True, help='check if old file are deletable')
 
 # string
-@click.option('-a', '--accept', default='', help='Comma Seprated List of Accepted extensions, like iso,xz')
-@click.option('-r', '--reject', default='', help='Comma Seprated List of Rejected extensions, like iso,xz')
+@click.option('-p', '--params', default='', help='String of params')
 
 # arguments
 @click.argument('wget', nargs=-1)
-def wget(wget, space, accept, reject):
+def wget(wget, space, params):
 
     if wget != '':
         dto.publishLoggerDebug('wget')
 
         dto.setSpace(space)
 
-        workflow_wget.wget(dto, wget, accept, reject)
+        workflow_wget.wget(dto, wget, params)
     else:
         dto.publishLoggerError('wget - no items')
 
@@ -395,6 +393,23 @@ def update(pip):
     ioutils.update(dto, pip)
 
     ioutils.elapsedTime(dto)
+
+
+# ----- # ----- # livedisk
+@main.command(help="Enter an List with URL for LiveDisk Sync")
+@click.argument("listFiles", nargs= -1)
+def ld_list(listFiles):
+
+    dto.setSync(True)
+
+    for listFile in listFiles:
+
+        if listFile != '':
+            dto.publishLoggerDebug('liveDisk')
+
+            downloader.download_wget(dto, listFile, '--no-http-keep-alive -A "*.iso" -A "*.raw.xz"')
+        else:
+            dto.publishLoggerError('liveDisk - no url')
 
 
 # - - - - - # - - - - - # main
