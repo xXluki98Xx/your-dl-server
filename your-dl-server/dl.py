@@ -398,7 +398,7 @@ def update(pip):
 # ----- # ----- # livedisk
 @main.command(help="Enter an List with URL for LiveDisk Sync")
 @click.argument("listFiles", nargs= -1)
-def ld_list(listFiles):
+def livedisk(listFiles):
 
     dto.setSync(True)
 
@@ -410,6 +410,30 @@ def ld_list(listFiles):
             downloader.download_wget(dto, listFile, '--no-http-keep-alive -A "*.iso" -A "*.raw.xz"')
         else:
             dto.publishLoggerError('liveDisk - no url')
+
+
+# ----- # ----- #
+@main.command(help="Enter an Filename and a Root Path for ydl download")
+@click.argument("filenames", nargs= -1)
+
+@click.option('-d', '--directory', default='.', help='Root Path for file search')
+
+def filewalker(filenames, directory):
+
+    dto.publishLoggerDebug('filewalker')
+
+    for filename in filenames:
+        filePaths = ioutils.findFiles(filename, directory)
+
+        dto.publishLoggerDebug('filewalker - founds - {}'.format(filePaths))
+
+        for filePath in filePaths:
+            dto.setSkipChecks(True)
+            dto.setSingle(True)
+
+            dto.publishLoggerDebug('filewalker - current download - {}'.format(filePath))
+
+            workflow_ydl.ydl_list(dto, filePath)
 
 
 # - - - - - # - - - - - # main

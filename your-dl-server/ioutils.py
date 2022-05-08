@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 from datetime import datetime
+from glob import glob
 
 import bs4
 import requests
@@ -415,3 +416,10 @@ def savefile(dto, filename, data, kind):
 
     except:
         dto.publishLoggerError('error at writing data to file: ' + str(sys.exc_info()))
+
+
+def findFiles(filename, search_path):
+
+    result = glob(search_path + '/**/' + filename, recursive=True)
+
+    return result
