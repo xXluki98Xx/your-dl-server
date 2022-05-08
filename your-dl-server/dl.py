@@ -420,6 +420,8 @@ def livedisk(listFiles):
 
 def filewalker(filenames, directory):
 
+    origPath = os.getcwd()
+
     dto.publishLoggerDebug('filewalker')
 
     for filename in filenames:
@@ -433,7 +435,13 @@ def filewalker(filenames, directory):
 
             dto.publishLoggerDebug('filewalker - current download - {}'.format(filePath))
 
+            workDir = filePath[:-len(filename)]
+            os.chdir(workDir)
+            dto.publishLoggerDebug('filewalker - change Dir - {}'.format(workDir))
+
             workflow_ydl.ydl_list(dto, filePath)
+
+            os.chdir(origPath)
 
 
 # - - - - - # - - - - - # main
