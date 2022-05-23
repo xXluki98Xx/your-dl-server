@@ -132,7 +132,7 @@ def getMainParametersFromDto(dto):
     if dto.getSync():
         parameters += ' --sync'
 
-    
+
     # int
     if dto.getBandwidth():
         parameters += ' --bandwidth ' + dto.getBandwidth()
@@ -314,6 +314,7 @@ def formatingFilename(text):
                         '.iso', '.zip', '.rar',
                         '.jpg', '.svg', '.png',
                         '.flac', '.jpeg', 'docx', '.pptx', '.xlsx', '.html',
+                        '.srt', '.ssa', '.ttml', '.sbv', '.vtt', '.dfxp',
                     ]
 
     swap = text.casefold()
