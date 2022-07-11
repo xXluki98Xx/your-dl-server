@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-import sys 
+import sys
 import random
 
 import click
@@ -113,7 +113,7 @@ def rename(rename, offset, cut, old, new):
 @click.argument('newformat', nargs=1)
 @click.argument('path', nargs=-1)
 
-def convertFiles(newformat, path, subpath, ffmpeg, vcodec, acodec, no_fix, no_renaming):
+def convertFiles(newformat, path, subpath, vcodec, acodec, no_fix, no_renaming):
 
     try:
         for itemPath in path:

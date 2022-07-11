@@ -100,8 +100,8 @@ def func_removeFiles(dto, path, file_count_prev):
             index = 0
             for f in os.listdir(path):
                 index += 1
-                if ( os.stat(os.path.join(path,f)).st_mtime < (datetime.now().timestamp() - (6 * 30 * 86400)) ):
-                    files.append(os.path.join(path,f))
+                if ( os.stat(os.path.join(path, f)).st_mtime < (datetime.now().timestamp() - (6 * 30 * 86400)) ):
+                    files.append(os.path.join(path, f))
 
             if index > len(files):
                 for i in files:
@@ -113,8 +113,8 @@ def func_removeFiles(dto, path, file_count_prev):
             index = 0
             for f in os.listdir(path):
                 index += 1
-                if ( os.stat(os.path.join(path,f)).st_mtime < (datetime.now().timestamp() - (12 * 30 * 86400)) ):
-                    files.append(os.path.join(path,f))
+                if ( os.stat(os.path.join(path, f)).st_mtime < (datetime.now().timestamp() - (12 * 30 * 86400)) ):
+                    files.append(os.path.join(path, f))
 
             if index > len(files):
                 for i in files:
@@ -160,7 +160,6 @@ def func_convertDirFiles(dto, path, newformat, subpath, vcodec, acodec, fix):
 
             dto.publishLoggerDebug('newformat: ' + newformat)
             dto.publishLoggerDebug('nextPath: ' + nextPath)
-            dto.publishLoggerDebug('ffmpeg: ' + str(ffmpeg))
 
             func_convertDirFiles(dto, nextPath, newformat, subpath, vcodec, acodec, fix)
     except:
@@ -169,37 +168,44 @@ def func_convertDirFiles(dto, path, newformat, subpath, vcodec, acodec, fix):
 
 def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, fix):
     prePath, fileOrig = os.path.split(fileName)
+    sourceFile = fileName
 
     # if file has no format
     if fileOrig.find('.') == -1:
+        dto.publishLoggerDebug('file has nor Format: ' + fileOrig)
         return
     
     fileTarget = ''
-    sourceFile = prePath + fileOrig
 
-    pathAbort = prePath + 'abort/'
-    pathFix = prePath + 'fix/'
-    pathSwap = prePath + 'swap/'
-    pathFinish = prePath + 'orig/'
+    dto.publishLoggerDebug('fileName: ' + fileName)
+    dto.publishLoggerDebug('prePath: ' + prePath)
+    dto.publishLoggerDebug('fileOrig: ' + fileOrig)
+
+    pathAbort = os.path.join(prePath, 'abort')
+    pathFix = os.path.join(prePath, 'fix')
+    pathSwap = os.path.join(prePath, 'swap')
+    pathFinish = os.path.join(prePath, 'orig')
 
     try:
         output = ''
         newFile = fileOrig.rsplit('.', 1)[0]
         title = ioutils.getTitleFormated(newFile)
+    
+        dto.publishLoggerDebug('newFile: ' + newFile)
 
         if subPath:
-            dto.publishLoggerDebug('create subPath')
             dto.publishLoggerDebug('subPath: ' + subPath)
-            dto.publishLoggerDebug('newFile: ' + newFile)
-            dto.publishLoggerDebug('subPath: ' + str(prePath + subPath))
-            dto.publishLoggerDebug('subPath exist: ' + str(os.path.exists(prePath + subPath)))
 
-            path = prePath + subPath
+            path = os.path.join(prePath, subPath)
 
             if not os.path.exists(path):
+                dto.publishLoggerDebug('create subPath')
+                dto.publishLoggerDebug('subPath: ' + path)
                 os.makedirs(path)
+     
+            dto.publishLoggerDebug('subPath exist: ' + str(os.path.exists(path)))
 
-            output = subPath + '/' + title
+            output = os.path.join(subPath, title)
 
         else:
             output = title
@@ -217,7 +223,7 @@ def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, f
                 os.mkdir(pathAbort)
 
             try:
-                shutil.move(prePath + fileOrig, pathAbort + fileOrig)
+                shutil.move(os.path.join(prePath, fileOrig), os.path.join(pathAbort, fileOrig))
             except:
                 pass
 
@@ -226,14 +232,14 @@ def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, f
         if not fix:
             try:
                 dto.publishLoggerDebug('fixing')
-                dto.publishLoggerDebug('fileOrig: ' + prePath + fileOrig)
-                dto.publishLoggerDebug('fileFix: '+ pathFix + fileOrig)
+                dto.publishLoggerDebug('fileOrig: ' + os.path.join(prePath, fileOrig))
+                dto.publishLoggerDebug('fileFix: '+ os.path.join(pathFix, fileOrig))
                 dto.publishLoggerDebug('exist?: ' + str(os.path.isfile(pathFix + fileOrig)))
 
                 if not os.path.isdir(pathFix):
                     os.mkdir(pathFix)
 
-                ffmpeg.input(prePath + fileOrig).output(pathFix + fileOrig, vcodec='copy', acodec='copy', map='0', **{'bsf:v': 'mpeg4_unpack_bframes'}).run()
+                ffmpeg.input(os.path.join(prePath, fileOrig)).output(os.path.join(pathFix, fileOrig), vcodec='copy', acodec='copy', map='0', **{'bsf:v': 'mpeg4_unpack_bframes'}).run()
 
             except KeyboardInterrupt:
                 dto.publishLoggerWarn('Interupt by User')
@@ -246,12 +252,12 @@ def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, f
                 except:
                     pass
 
-        if os.path.isfile(pathFix + fileOrig):
-            sourceFile = pathFix + fileOrig
+        if os.path.isfile(os.path.join(pathFix, fileOrig)):
+            sourceFile = os.path.join(pathFix, fileOrig)
 
         if vcodec != '':
             try:
-                ffmpeg.input(sourceFile).output(prePath + fileTarget, vcodec=vcodec, acodec=acodec, map='0').run()
+                ffmpeg.input(sourceFile).output(os.path.join(prePath, fileTarget), vcodec=vcodec, acodec=acodec, map='0').run()
 
             except KeyboardInterrupt:
                 dto.publishLoggerWarn('Interupt by User')
@@ -273,7 +279,7 @@ def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, f
 
                 try:
                     ffmpeg.input(sourceFile).output(pathSwap + fileSwap, map='0', scodec='copy').run()
-                    ffmpeg.input(pathSwap + fileSwap).output(prePath + fileTarget, map='0', vcodec=vcodec, acodec=acodec, scodec='copy').run()
+                    ffmpeg.input(os.path.join(pathSwap, fileSwap)).output(os.path.join(prePath, fileTarget), map='0', vcodec=vcodec, acodec=acodec, scodec='copy').run()
 
                 except:
                     dto.publishLoggerError('function - func_convertFilesFfmpeg with vcodec second try with swapping: ' + str(sys.exc_info()))
@@ -281,17 +287,17 @@ def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, f
 
                     try:
                         dto.publishLoggerDebug('pathAbort: ' + pathAbort)
-                        dto.publishLoggerDebug('fileOrig: ' + prePath+fileOrig)
-                        dto.publishLoggerDebug('swapFile: ' + prePath+fileSwap)
-                        dto.publishLoggerDebug('fileTarget: ' + prePath+fileTarget)
+                        dto.publishLoggerDebug('fileOrig: ' + os.path.join(prePath, fileOrig))
+                        dto.publishLoggerDebug('swapFile: ' + os.path.join(prePath, fileSwap))
+                        dto.publishLoggerDebug('fileTarget: ' + os.path.join(prePath, fileTarget))
 
                         if not os.path.isdir(pathAbort):
                             os.mkdir(pathAbort)
 
-                        shutil.move(prePath + fileOrig, pathAbort + fileOrig)
+                        shutil.move(os.path.join(prePath, fileOrig), os.path.join(pathAbort, fileOrig))
 
-                        os.remove(prePath + fileSwap)
-                        os.remove(prePath + fileTarget)
+                        os.remove(os.path.join(prePath, fileSwap))
+                        os.remove(os.path.join(prePath, fileTarget))
                     except:
                         dto.publishLoggerError('function - func_convertFilesFfmpeg with vcodec second try with swapping at swap removing: ' + str(sys.exc_info()))
 
@@ -299,7 +305,7 @@ def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, f
         else:
             try:
                 dto.publishLoggerDebug('fileTarget: ' + fileTarget)
-                ffmpeg.input(sourceFile).output(prePath + fileTarget).run()
+                ffmpeg.input(sourceFile).output(os.path.join(prePath, fileTarget)).run()
 
             except KeyboardInterrupt:
                 dto.publishLoggerWarn('Interupt by User')
@@ -308,23 +314,23 @@ def func_convertFilesFfmpeg(dto, fileName, newFormat, subPath, vcodec, acodec, f
             except:
                 dto.publishLoggerError('function - func_convertFilesFfmpeg at simple converting: ' + str(sys.exc_info()))
 
-        dto.publishLoggerDebug('Permissions: ' + oct(stat.S_IMODE(os.lstat(prePath + fileOrig).st_mode)))
-        dto.publishLoggerDebug('owner: ' + Path(prePath + fileOrig).owner() + ' | ' + str(pwd.getpwnam(Path(prePath + fileOrig).owner()).pw_uid))
-        dto.publishLoggerDebug('group: ' + Path(prePath + fileOrig).group() + ' | ' + str(grp.getgrnam(Path(prePath + fileOrig).group()).gr_gid))
+        dto.publishLoggerDebug('Permissions: ' + oct(stat.S_IMODE(os.lstat(fileName).st_mode)))
+        dto.publishLoggerDebug('owner: ' + Path(fileName).owner() + ' | ' + str(pwd.getpwnam(Path(fileName).owner()).pw_uid))
+        dto.publishLoggerDebug('group: ' + Path(fileName).group() + ' | ' + str(grp.getgrnam(Path(fileName).group()).gr_gid))
 
-        dto.publishLoggerDebug('changing permission on: ' + prePath+fileTarget)
-        Path(prePath + fileTarget).chmod(stat.S_IMODE(os.lstat(prePath + fileOrig).st_mode))
-        os.chown(prePath + fileTarget, pwd.getpwnam(Path(prePath + fileOrig).owner()).pw_uid, grp.getgrnam(Path(prePath + fileOrig).group()).gr_gid)
+        dto.publishLoggerDebug('changing permission on: ' + os.path.join(prePath, fileTarget))
+        Path(os.path.join(prePath, fileTarget)).chmod(stat.S_IMODE(os.lstat(os.path.join(prePath, fileOrig)).st_mode))
+        os.chown(os.path.join(prePath, fileTarget), pwd.getpwnam(Path(os.path.join(prePath, fileOrig)).owner()).pw_uid, grp.getgrnam(Path(os.path.join(prePath, fileOrig)).group()).gr_gid)
 
         try:
             dto.publishLoggerDebug('pathFinish: ' + pathFinish)
             dto.publishLoggerDebug('sourceFile: ' + sourceFile)
-            dto.publishLoggerDebug('origFile: ' + prePath + fileOrig)
+            dto.publishLoggerDebug('origFile: ' + os.path.join(prePath, fileOrig))
 
             if not os.path.isdir(pathFinish):
                 os.mkdir(pathFinish)
 
-            shutil.move(prePath + fileOrig, pathFinish + fileOrig)
+            shutil.move(os.path.join(prePath, fileOrig), os.path.join(pathFinish, fileOrig))
         except:
             dto.publishLoggerError('function - func_convertFilesFfmpeg finish at orig directory')
 
