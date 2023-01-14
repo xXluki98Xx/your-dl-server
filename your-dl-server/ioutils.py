@@ -29,22 +29,25 @@ def getRootPath(dto):
 
     # for server mode
     if os.path.isdir('/app/your-dl-server/'):
-        pathToRoot = '/app/your-dl-server/your-dl-server'        
-
+        pathToRoot = '/app/your-dl-server/your-dl-server'
     else:
         try:
-            path = os.getenv('PATH').split(':')
+            paths = os.getenv('PATH').split(':')
 
-            names = ['dl', 'dl.py']
+            dto.publishLoggerDebug('paths : ' + str(paths))
+
+            names = ['dl.py', 'dl']
 
             for name in names:
-                for subPath in path:
-                    if os.path.isfile(os.path.join(subPath, name)) != '':
+                for subPath in paths:
+                    if os.path.isfile(os.path.join(subPath, name)):
                         pathToRoot = subPath
                         break
 
-                pathToRoot = pathToRoot.replace(name,'').rstrip('\n')
+#            pathToRoot = pathToRoot.replace(name,'').rstrip('\n')
+
         except:
+            dto.publishLoggerError('Startup Error : ' + str(sys.exc_info()))
             pathToRoot = os.getcwd()
 
 
@@ -71,7 +74,7 @@ def updateRepo(dto, path):
 
     if len(output) > 1:
         dto.publishLoggerDebug(output.decode('ascii'))
-    
+
     if error != '':
         dto.publishLoggerError(error.decode('ascii'))
 
@@ -90,7 +93,7 @@ def updatePackages(dto, path):
 
     if len(output) > 1:
         dto.publishLoggerDebug(output.decode('ascii'))
-    
+
     if error != '':
         dto.publishLoggerError(error.decode('ascii'))
 
@@ -399,7 +402,7 @@ def openfile(dto, filename):
 
 def savefile(dto, filename, data, kind):
     dto.publishLoggerInfo('writing to file: ' + filename)
-    
+
     try:
         with open(filename, 'w') as f:
 
