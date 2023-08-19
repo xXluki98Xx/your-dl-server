@@ -111,7 +111,7 @@ def download_ydl(dto, content, parameters, output, stringReferer, infos):
     if dto.getVerbose():
         parameters += ' --verbose'
 
-    dl = 'youtube-dl {parameter} {output} "{url}"'.format(parameter = parameters, output = output, url = content)
+    dl = 'yt-dlp {parameter} {output} "{url}"'.format(parameter = parameters, output = output, url = content)
 
     dto.publishLoggerDebug('download ydl: ' + dl)
 
