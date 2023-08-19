@@ -3,7 +3,7 @@ safer
 exitstatus
 click
 beautifulsoup4
-youtube-dl
+yt-dlp
 ffmpeg-python
 requests
 bottle

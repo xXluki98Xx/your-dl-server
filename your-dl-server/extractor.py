@@ -1,7 +1,7 @@
 import re
 
 import requests
-import youtube_dl
+from yt_dlp import YoutubeDL
 
 import downloader
 import ioutils
@@ -132,7 +132,7 @@ def host_default(dto, content, title, stringReferer, directory):
 
         try:
             if title == '':
-                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                with YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(content, download = False)
                     filename = ydl.prepare_filename(info)
 
