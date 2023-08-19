@@ -5,6 +5,7 @@ oPath="$PWD"
 cd ..
 
 pip3 install -r requirements.txt --upgrade
+sudo apt update
 cat requirements-apt.txt | xargs sudo apt install -y
 
 cd your-dl-server
