@@ -4,7 +4,7 @@ from datetime import datetime
 
 import safer
 
-import your_dl_server.downloader as downloader
+import your_dl_server.extractor as extractor
 import your_dl_server.ioutils as ioutils
 
 
