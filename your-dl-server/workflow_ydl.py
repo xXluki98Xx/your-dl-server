@@ -4,8 +4,8 @@ from datetime import datetime
 
 import safer
 
-import extractor
-import ioutils
+import your_dl_server.downloader as downloader
+import your_dl_server.ioutils as ioutils
 
 
 def ydl(dto, url):

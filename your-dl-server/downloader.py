@@ -5,11 +5,11 @@ import subprocess
 import sys
 import time
 
-import functions
-import ioutils
-import server_history
+import your_dl_server.functions as functions
+import your_dl_server.ioutils as ioutils
+import your_dl_server.server_history as server_history
 
-from nbstreamreader import NonBlockingStreamReader as NBSR, UnexpectedEndOfStream
+from your_dl_server.nbstreamreader import NonBlockingStreamReader as NBSR, UnexpectedEndOfStream
 
 
 # ----- # ----- #

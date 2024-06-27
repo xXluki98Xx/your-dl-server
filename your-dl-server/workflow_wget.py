@@ -3,8 +3,8 @@ import random
 import sys
 from datetime import datetime
 
-import downloader
-import ioutils
+import your_dl_server.downloader as downloader
+import your_dl_server.ioutils as ioutils
 
 
 def wget(dto, wget, accept, reject):

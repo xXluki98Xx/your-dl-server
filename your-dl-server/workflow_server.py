@@ -7,11 +7,11 @@ from time import sleep
 
 from bottle import Bottle, redirect, request, route, run, static_file, view, TEMPLATE_PATH
 
-import downloader
-import extractor
-import ioutils
-import server_history
-from dto import dto
+import your_dl_server.downloader as downloader
+import your_dl_server.ioutils as ioutils
+import your_dl_server.extractor as extractor
+import your_dl_server.server_history as server_history
+from your_dl_server.dto import dto
 
 
 class Server:

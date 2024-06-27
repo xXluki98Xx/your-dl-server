@@ -6,16 +6,16 @@ import random
 
 import click
 
-import functions
-import downloader
-import ioutils
-import workflow_animescrapper
-import workflow_aria2c
-import workflow_server
-import workflow_watcher
-import workflow_wget
-import workflow_ydl
-from dto import dto
+import your_dl_server.functions as functions
+import your_dl_server.downloader as downloader
+import your_dl_server.ioutils as ioutils
+import your_dl_server.workflow_animescrapper as workflow_animescrapper
+import your_dl_server.workflow_aria2c as workflow_aria2c
+import your_dl_server.workflow_server as workflow_server
+import your_dl_server.workflow_watcher as workflow_watcher
+import your_dl_server.workflow_wget as workflow_wget
+import your_dl_server.workflow_ydl as workflow_ydl
+from your_dl_server.dto import dto
 
 
 # - - - - - # - - - - - # main

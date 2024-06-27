@@ -6,8 +6,8 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-import downloader
-import ioutils
+import your_dl_server.downloader as downloader
+import your_dl_server.ioutils as ioutils
 
 
 class URL:

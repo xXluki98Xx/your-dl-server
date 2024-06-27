@@ -3,9 +3,9 @@ import re
 import requests
 from yt_dlp import YoutubeDL
 
-import downloader
-import ioutils
-from functions import *
+import your_dl_server.downloader as downloader
+import your_dl_server.ioutils as ioutils
+from your_dl_server.functions import *
 
 
 # ----- # ----- #

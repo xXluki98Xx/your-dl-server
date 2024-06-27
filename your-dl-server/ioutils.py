@@ -10,7 +10,7 @@ import bs4
 import requests
 import safer
 
-from dto import dto
+from your_dl_server.dto import dto
 
 
 # ----- # ----- #
