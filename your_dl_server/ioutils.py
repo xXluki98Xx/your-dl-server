@@ -99,6 +99,7 @@ def updatePackages(dto, path):
 
 
 def loadConfig(pathToRoot):
+    return
     path = os.path.join(pathToRoot, 'env')
 
     with open(path) as json_file:
