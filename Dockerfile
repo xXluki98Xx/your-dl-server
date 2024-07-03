@@ -1,28 +1,35 @@
-FROM alpine/git AS git
+FROM docker.io/python:slim AS build
 
-RUN git clone https://github.com/xXluki98Xx/your-dl-server.git /app/your-dl-server
+COPY ./ /app
+
+RUN cd /app \
+    && pip install build \
+    && python -m build
 
 # -----
 
-FROM python:slim
+FROM docker.io/python:slim
 MAINTAINER "lRamm <lukas.ramm.1998@gmail.com>"
 
+
+COPY ./*requirements /app/
+
+RUN apt-get update && apt-get upgrade -y \
+    && pip3 install --no-cache-dir -r /app/pip.requirements --upgrade \
+    && cat /app/apt.requirements | xargs apt-get install -y \ 
+    && rm -rf /var/lib/apt/lists/* /var/tmp/*
+
+
+COPY --from=build /app/dist/* /app/
+
+RUN cd /app \
+    && ls -la \
+    && pip install *.gz
+
 # -----
 
-COPY --from=git /app/your-dl-server/entrypoint.sh /app/your-dl-server/entrypoint.sh
-COPY --from=git /app/your-dl-server/requirements.txt /app/your-dl-server/requirements.txt
-COPY --from=git /app/your-dl-server/requirements-apt.txt /app/your-dl-server/requirements-apt.txt
-
-COPY --from=git /app/your-dl-server/your-dl-server /app/your-dl-server/your-dl-server
-
-RUN apt update && apt upgrade -y && \
-    pip3 install --no-cache-dir -r /app/your-dl-server/requirements.txt --upgrade && cat /app/your-dl-server/requirements-apt.txt | xargs apt install -y && \
-    rm -rf /var/lib/apt/lists/* /var/tmp/*
-
-# -----
-
-WORKDIR /app/your-dl-server
+WORKDIR /srv
 
 EXPOSE 8080
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "dl" ]

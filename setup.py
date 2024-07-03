@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'requests==2.25.1',
-        'click==8.1.7',
+        'click>=8.1.3',
         'beautifulsoup4==4.12.2',
         'safer==4.8.0',
         'bottle==0.12.25',
