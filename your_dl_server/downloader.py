@@ -196,11 +196,11 @@ def download(dto, command, platform, content, infos):
                 p = subprocess.Popen(['bash'], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, bufsize=1, universal_newlines=True)
                 nbsr_out = NBSR(p.stdout)
 
-                p.stdin.write(command + '\n') 
+                p.stdin.write(command + '\n')
 
                 while True:
                     output = nbsr_out.readline(30) # 0.1 secs to let the shell output the result
-                    
+
                     if not output:
                         dto.publishLoggerWarn('[No more data]')
                         p.stdin.write('echo $? 2>&1\n')

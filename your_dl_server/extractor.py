@@ -140,12 +140,12 @@ def host_default(dto, content, title, stringReferer, directory):
 
                 filename = ioutils.getTitleFormated(filename)
 
-                output = '--format best --no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
+                output = '--no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
                 return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, filename, directory])
             else:
                 filename = ioutils.getTitleFormated(title)
 
-                output = '--format best --no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
+                output = '--no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
                 return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, filename, directory])
 
         except:
@@ -377,7 +377,7 @@ def host_cloudfront(dto, content, title, stringReferer, directory):
 
 
 def host_pluralsight(dto, content, title, stringReferer, directory):
-    
+
     parameter = '--retries 1 --continue'
     parameter += getUserCredentials(dto, 'pluralsight')
 
