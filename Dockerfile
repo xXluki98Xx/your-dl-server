@@ -11,25 +11,30 @@ RUN cd /app \
 FROM docker.io/python:slim
 MAINTAINER "lRamm <lukas.ramm.1998@gmail.com>"
 
+ARG WORKPATH=/app
 
-COPY ./*requirements /app/
+
+COPY ./*requirements $WORKPATH/
 COPY entrypoint.sh /
 
 RUN apt-get update && apt-get upgrade -y \
-    && pip3 install --no-cache-dir -r /app/pip.requirements --upgrade \
-    && cat /app/apt.requirements | xargs apt-get install -y \ 
+    && pip3 install --no-cache-dir -r $WORKPATH/pip.requirements --upgrade \
+    && cat $WORKPATH/apt.requirements | xargs apt-get install -y \
+    && rm $WORKPATH/*requirements \
     && rm -rf /var/lib/apt/lists/* /var/tmp/*
 
 
-COPY --from=build /app/dist/* /app/
+COPY --from=build /app/dist/* $WORKPATH/
 
-RUN cd /app \
+RUN cd $WORKPATH \
     && ls -la \
-    && pip install *.gz
+    && pip install *.gz \
+    && rm -r $WORKPATH/* \
+    && ls -la
 
 # -----
 
-WORKDIR /srv
+WORKDIR $WORKPATH
 
 EXPOSE 8080
 
