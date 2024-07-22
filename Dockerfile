@@ -13,6 +13,7 @@ MAINTAINER "lRamm <lukas.ramm.1998@gmail.com>"
 
 
 COPY ./*requirements /app/
+COPY entrypoint.sh /
 
 RUN apt-get update && apt-get upgrade -y \
     && pip3 install --no-cache-dir -r /app/pip.requirements --upgrade \
@@ -32,4 +33,5 @@ WORKDIR /srv
 
 EXPOSE 8080
 
-ENTRYPOINT [ "dl" ]
+CMD [ "server" ]
+ENTRYPOINT [ "/entrypoint.sh" ]

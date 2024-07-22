@@ -1,6 +1,17 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -o errexit
 
-# ---
 
-dl server
+# how should commands be handled
+case "$1" in
+    sh|bash)
+        echo "got extra command: $@"
+        set -- "$@"
+    ;;
+    *)
+        set -- dl "$@"
+    ;;
+esac
+echo "---"
+echo "running: $@"
+exec "$@"
