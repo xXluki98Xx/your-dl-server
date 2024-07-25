@@ -382,19 +382,6 @@ def disk(source, target, path, not_backup, not_compress):
     ioutils.elapsedTime(dto)
 
 
-# - - - - - # - - - - - # Disk
-@main.command(help='Update git repo and packages')
-
-# Switch
-@click.option('-p', '--pip', default=False, is_flag=True, help='update pip Packages?')
-
-def update(pip):
-
-    ioutils.update(dto, pip)
-
-    ioutils.elapsedTime(dto)
-
-
 # ----- # ----- # livedisk
 @main.command(help="Enter an List with URL for LiveDisk Sync")
 @click.argument("listFiles", nargs= -1)
