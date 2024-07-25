@@ -25,8 +25,6 @@ from your_dl_server.dto import dto
 
 # switch
 @click.option('-v', '--verbose', default=False, is_flag=True, help='Verbose mode')
-@click.option('--axel', default=False, is_flag=True, help='Using Axel as Accelerator')
-@click.option('-a', '--aria2c', default=False, is_flag=True, help='Using Aria2c as Accelerator')
 @click.option('-cr', '--credentials', default=False, is_flag=True, help='Need Credentials')
 @click.option('-nr', '--no-remove', default=False, is_flag=True, help='remove Files at wget')
 @click.option('-p', '--playlist', default=False, is_flag=True, help='Playlist')
@@ -44,13 +42,14 @@ from your_dl_server.dto import dto
 @click.option('--connections', default=5, help='Enter an Number for Concurrent Connections')
 
 # string
+@click.option('-ed', '--external-downloader', default='', help='Using Accelerator: axel, aria2, ...')
 @click.option('-cf','--cookie-file', default='', help='Enter Path to cookie File')
 @click.option('-d', '--debug', default='', help='Using Logging mode')
 @click.option('-dl','--dub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-p','--proxy', default='', help='Enter a proxy server')
 
-def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, aria2c, connections, tor, proxy):
+def main(retries, min_sleep, max_sleep, bandwidth, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, connections, tor, proxy, external_downloader):
 
     global dto
     dto = dto()
@@ -58,8 +57,6 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setVerbose(verbose)
     dto.setDownloadLegacy(use_legacy)
 
-    dto.setAxel(axel)
-    dto.setAria2c(aria2c)
     # dto.setCredentials(credentials)
     dto.setPlaylist(playlist)
     dto.setRemoveFiles(no_remove)
@@ -76,6 +73,7 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setSubLang(sub_lang)
     dto.setRetries(retries)
     dto.setConnections(connections)
+    dto.setExternalDownloader(external_downloader)
 
     dto.setPathToRoot(ioutils.getRootPath(dto))
 

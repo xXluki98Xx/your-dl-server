@@ -231,8 +231,7 @@ class Server:
             else:
                 self.dto.setBandwidth(bandwidth)
 
-        self.dto.setAxel(request.forms.get("download") == 'axel')
-        self.dto.setAria2c(request.forms.get("download") == 'aria2c')
+        self.dto.setExternalDownloader(request.forms.get("download"))
 
 
         # URL Serperation

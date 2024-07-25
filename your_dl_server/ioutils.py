@@ -115,7 +115,7 @@ def getMainParametersFromDto(dto):
     if dto.getVerbose():
         parameters += ' --verbose'
 
-    if dto.getAxel():
+    if dto.getExternalDownloader() == 'axel':
         parameters += ' --axel'
 
     if dto.getCredentials():
@@ -161,26 +161,55 @@ def getMainParametersFromDto(dto):
     return parameters
 
 
-def getAria2cDefaults(dto):
+def getAccelerator(dto):
+    parameters = ''
+    extParams = ''
+
+    if dto.getExternalDownloader() == 'aria2':
+        parameters += ' --external-downloader aria2c'
+        extParams = '{} {}'.format(getExternalDownloaderDefaults(dto), getBandwith(dto, 'aria2'))
+
+    if dto.getExternalDownloader() == 'axel':
+        parameters += ' --external-downloader axel'
+        extParams = '{} {}'.format(getExternalDownloaderDefaults(dto), getBandwith(dto, 'axel'))
+
+    if dto.getExternalDownloader() == 'wget':
+        parameters += ' --external-downloader wget'
+        extParams = '{} {}'.format(getExternalDownloaderDefaults(dto), getBandwith(dto, 'wget'))
+
+    if parameters != '':
+        parameters += ' --external-downloader-args "{}"'.format(extParams)
+
+
+    return parameters
+
+
+def getExternalDownloaderDefaults(dto):
     params = ''
 
-    params += '--max-connection-per-server {} --max-concurrent-downloads 16 --continue --min-split-size=1M --optimize-concurrent-downloads'.format(dto.getConnections())
+    if dto.getExternalDownloader() == 'aria2':
+        params += '--max-connection-per-server {} --max-concurrent-downloads 16 --continue --min-split-size=1M --optimize-concurrent-downloads'.format(dto.getConnections())
 
-    if dto.getVerbose():
-        if dto.getLogging() != '':
-            params += ' --log-level {}'.format(dto.getLogging())
+        if dto.getVerbose():
+            if dto.getLogging() != '':
+                params += ' --log-level {}'.format(dto.getLogging())
 
-    return params
+        if dto.getProxy() != '':
+            params += ' --all-proxy={}'.format(dto.getProxy())
 
+    if dto.getExternalDownloader() == 'axel':
+        params += '--num-connection {} --alternate'.format(dto.getConnections())
 
-def getAxelDefaults(dto):
-    params = ''
+        if dto.getVerbose():
+            params += ' --verbose'
 
-    params += '--num-connection {} --alternate'.format(dto.getConnections())
+    if dto.getExternalDownloader() == 'wget':
+        params += '--continue'
 
-    if dto.getVerbose():
-        params += ' --verbose'
+        if dto.getVerbose():
+            params += ' --verbose'
 
+    
     return params
 
 
@@ -248,23 +277,6 @@ def human2bytes(n):
     return '%s' % int(swapSize)
 
 
-def getAccelerator(dto):
-    parameters = ''
-    extParams = ''
-
-    if dto.getAxel():
-        parameters += ' --external-downloader axel'
-        extParams = '{} {}'.format(getAxelDefaults(dto), getBandwith(dto, 'axel'))
-
-    if dto.getAria2c():
-        parameters += ' --external-downloader aria2c'
-        extParams = '{} {}'.format(getAria2cDefaults(dto), getBandwith(dto, 'aria2c'))
-
-    if parameters != '':
-        parameters += ' --external-downloader-args "{}"'.format(extParams)
-
-    return parameters
-
 
 def getBandwith(dto, plattform):
     parameters = ' '
@@ -272,17 +284,18 @@ def getBandwith(dto, plattform):
     if dto.getBandwidth() == '0B':
         return ''
 
-    if plattform == 'wget' or plattform == 'ydl':
-        parameters += '--limit-rate'
-
-    if plattform == 'aria2c':
+    if plattform == 'aria2':
         parameters += '--max-overall-download-limit'
 
     if plattform == 'axel':
         parameters += '--max-speed'
 
+    if plattform == 'wget' or plattform == 'ydl':
+        parameters += '--limit-rate'
+
     if parameters != '':
         parameters += ' {}'.format(human2bytes(dto.getBandwidth()))
+
 
     return parameters
 
@@ -312,17 +325,17 @@ def formatingFilename(text):
     reg3 = re.compile(r'-{3,}')
 
     extensionsList = [
-                        '.py',
-                        '.md',
-                        '.mp4', '.mkv', '.avi', '.m4a', '.mov',
-                        '.wav', '.mp3', '.aac',
-                        '.txt', '.pdf', '.csv', '.log',
-                        '.doc', '.ppt', '.xls',
-                        '.iso', '.zip', '.rar',
-                        '.jpg', '.svg', '.png',
-                        '.flac', '.jpeg', 'docx', '.pptx', '.xlsx', '.html',
-                        '.srt', '.ssa', '.ttml', '.sbv', '.vtt', '.dfxp',
-                    ]
+            '.py',
+            '.md',
+            '.mp4', '.mkv', '.avi', '.m4a', '.mov',
+            '.wav', '.mp3', '.aac',
+            '.txt', '.pdf', '.csv', '.log',
+            '.doc', '.ppt', '.xls',
+            '.iso', '.zip', '.rar',
+            '.jpg', '.svg', '.png',
+            '.flac', '.jpeg', 'docx', '.pptx', '.xlsx', '.html',
+            '.srt', '.ssa', '.ttml', '.sbv', '.vtt', '.dfxp',
+        ]
 
     swap = text.casefold()
 

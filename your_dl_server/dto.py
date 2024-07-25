@@ -25,6 +25,7 @@ class dto():
         self.string_logPath = ''
         self.string_offset = ''
         self.string_proxy = ''
+        self.string_external_downloader = ''
         
         self.int_retries = 3
         self.int_connections = 5
@@ -34,8 +35,6 @@ class dto():
         self.boolean_verbose = False
         self.boolean_sync = False
         self.boolean_single = False
-        self.boolean_axel = False
-        self.boolean_aria2c = False
         self.boolean_space = False
         self.boolean_credential = False
         self.boolean_break = False
@@ -132,6 +131,11 @@ class dto():
     def setProxy(self, swap):
         self.string_proxy = swap
 
+    def getExternalDownloader(self):
+        return self.string_external_downloader
+    def setExternalDownloader(self, swap):
+        self.string_external_downloader = swap
+
 
 # ----- # ----- # Int
     def getRetries(self):
@@ -172,11 +176,6 @@ class dto():
     def setSingle(self, swap):
         self.boolean_single = swap
 
-    def getAxel(self):
-        return self.boolean_axel
-    def setAxel(self, swap):
-        self.boolean_axel = swap
-
     def getSpace(self):
         return self.boolean_space
     def setSpace(self, swap):
@@ -206,11 +205,6 @@ class dto():
         return self.boolean_downloader_legacy
     def setDownloadLegacy(self, swap):
         self.boolean_downloader_legacy = swap
-
-    def getAria2c(self):
-        return self.boolean_aria2c
-    def setAria2c(self, swap):
-        self.boolean_aria2c = swap
 
     def getTor(self):
         return self.boolean_tor

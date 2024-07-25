@@ -130,7 +130,7 @@ def download_aria2(dto, content):
     if ('magnet:?xt=urn:btih' in content):
         return download_aria2_magnet(dto, content, directory)
 
-    dl = 'aria2c {} {} "{}"'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'), content)
+    dl = 'aria2c {} {} "{}"'.format(ioutils.getExternalDownloaderDefaults(dto), ioutils.getBandwith(dto, 'aria2'), content)
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
@@ -145,7 +145,7 @@ def download_aria2_dnc(dto, content, directory):
 
     dl = 'echo "' + links + '" | '
 
-    dl += 'aria2c -i - {} {}'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'))
+    dl += 'aria2c -i - {} {}'.format(ioutils.getExternalDownloaderDefaults(dto), ioutils.getBandwith(dto, 'aria2'))
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
@@ -161,7 +161,7 @@ def download_aria2_magnet(dto, content, dir):
     if dir != '':
         dl += ' --output="{}"'.format(dir)
 
-    dl += ' {} {} "{}"'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'), content)
+    dl += ' {} {} "{}"'.format(ioutils.getExternalDownloaderDefaults(dto), ioutils.getBandwith(dto, 'aria2'), content)
 
     return download(dto, dl, 'aria2-magnet', content, [content, ioutils.getTitleFormated(''), dir])
 
