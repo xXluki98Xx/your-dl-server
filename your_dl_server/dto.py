@@ -125,7 +125,7 @@ class dto():
 
     def getProxy(self):
         if self.boolean_tor and self.string_proxy == '':
-            return 'socks5h://127.0.0.1:9050'
+            return 'socks5://127.0.0.1:9050'
             # return 'http://127.0.0.1:9080'
         return self.string_proxy
     def setProxy(self, swap):
