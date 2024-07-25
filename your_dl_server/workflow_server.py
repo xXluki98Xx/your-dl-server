@@ -246,11 +246,11 @@ class Server:
                 for item in linkList:
                     self.downloadExecutor.submit(extractor.ydl_extractor, self.dto, item)
 
-        if tool == "aria2c":
+        if tool == "aria2":
             if url != '':
-                self.downloadExecutor.submit(downloader.download_aria2c, self.dto, content, path)
+                self.downloadExecutor.submit(downloader.download_aria2, self.dto, content, path)
             else:
-                self.downloadExecutor.submit(downloader.download_aria2c_dnc, self.dto, linkList, path)
+                self.downloadExecutor.submit(downloader.download_aria2_dnc, self.dto, linkList, path)
 
         if tool == "wget":
             if url != '':
@@ -262,10 +262,10 @@ class Server:
 
         if tool == "torrent":
             if url != '':
-                self.downloadExecutor.submit(downloader.download_aria2c_magnet, self.dto, url, path)
+                self.downloadExecutor.submit(downloader.download_aria2_magnet, self.dto, url, path)
             else:
                 for item in linkList:
-                    self.downloadExecutor.submit(downloader.download_aria2c_dnc, self.dto, linkList, path)
+                    self.downloadExecutor.submit(downloader.download_aria2_dnc, self.dto, linkList, path)
                     pass
 
         self.dto.publishLoggerInfo("Added url " + url + " to the download queue")

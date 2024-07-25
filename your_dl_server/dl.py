@@ -10,7 +10,7 @@ import your_dl_server.functions as functions
 import your_dl_server.downloader as downloader
 import your_dl_server.ioutils as ioutils
 import your_dl_server.workflow_animescrapper as workflow_animescrapper
-import your_dl_server.workflow_aria2c as workflow_aria2c
+import your_dl_server.workflow_aria2 as workflow_aria2
 import your_dl_server.workflow_server as workflow_server
 import your_dl_server.workflow_tor as workflow_tor
 import your_dl_server.workflow_watcher as workflow_watcher
@@ -217,14 +217,14 @@ def dnc(url, file, dir, chunck_size, reverse):
             #         print('\nremoved: ' + str(item) + ' | rest list ' + str(urlCopy))
 
             # if dl == 'aria':
-            if downloader.download_aria2c_dnc(dto, itemList, dir) == 0:
+            if downloader.download_aria2_dnc(dto, itemList, dir) == 0:
                 for i in itemList:
                     urlCopy.remove(i)
 
                 dto.publishLoggerDebug('removed: ' + str(itemList) + ' | rest list ' + str(urlCopy))
 
         except KeyboardInterrupt:
-            ioutils.savefile(dto, file, urlCopy, "aria2c-dnc")
+            ioutils.savefile(dto, file, urlCopy, "aria2-dnc")
 
             dto.publishLoggerWarn('Interupt by User')
             ioutils.elapsedTime(dto)
@@ -236,7 +236,7 @@ def dnc(url, file, dir, chunck_size, reverse):
 
         finally:
             # will always be executed last, with or without exception
-            ioutils.savefile(dto, file, urlCopy, "aria2c-dnc")
+            ioutils.savefile(dto, file, urlCopy, "aria2-dnc")
 
     ioutils.elapsedTime(dto)
 
@@ -284,19 +284,19 @@ def ydl(url, offset):
         dto.publishLoggerError('ydl - no url')
 
 
-# - - - - - # - - - - - # aria2c
-@main.command(help='Aria2c downloader')
+# - - - - - # - - - - - # aria2
+@main.command(help='Aria2 downloader')
 
 # arguments
 @click.argument('url', nargs=-1)
-def aria2c(url):
+def aria2(url):
 
     if url != '':
-        dto.publishLoggerDebug('aria2c')
+        dto.publishLoggerDebug('aria2')
 
-        workflow_aria2c.aria2c(dto, url)
+        workflow_aria2.aria2(dto, url)
     else:
-        dto.publishLoggerError('aria2c - no url')
+        dto.publishLoggerError('aria2 - no url')
 
 
 # - - - - - # - - - - - # Anime

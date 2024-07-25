@@ -119,7 +119,7 @@ def download_ydl(dto, content, parameters, output, stringReferer, infos):
     return download(dto, dl, 'ydl', content, infos)
 
 
-def download_aria2c(dto, content):
+def download_aria2(dto, content):
     if ';' in content:
         swap = content.split(';')
         content = swap[0]
@@ -128,19 +128,19 @@ def download_aria2c(dto, content):
         directory = ''
 
     if ('magnet:?xt=urn:btih' in content):
-        return download_aria2c_magnet(dto, content, directory)
+        return download_aria2_magnet(dto, content, directory)
 
     dl = 'aria2c {} {} "{}"'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'), content)
 
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
 
-    dto.publishLoggerDebug('download aria2c: ' + dl)
+    dto.publishLoggerDebug('download aria2: ' + dl)
 
-    return download(dto, dl, 'aria2c', content, [content, content.rsplit('/', 1)[1], directory])
+    return download(dto, dl, 'aria2', content, [content, content.rsplit('/', 1)[1], directory])
 
 
-def download_aria2c_dnc(dto, content, directory):
+def download_aria2_dnc(dto, content, directory):
     links = getEchoList(content)
 
     dl = 'echo "' + links + '" | '
@@ -150,12 +150,12 @@ def download_aria2c_dnc(dto, content, directory):
     if directory != '':
         dl += ' --dir="{}"'.format(directory)
 
-    dto.publishLoggerDebug('download aria2c: ' + dl)
+    dto.publishLoggerDebug('download aria2: ' + dl)
 
-    return download(dto, dl, 'aria2c', content, [content, ioutils.getTitleFormated(''), directory])
+    return download(dto, dl, 'aria2', content, [content, ioutils.getTitleFormated(''), directory])
 
 
-def download_aria2c_magnet(dto, content, dir):
+def download_aria2_magnet(dto, content, dir):
     dl = 'aria2c --seed-time=0'
 
     if dir != '':
@@ -163,7 +163,7 @@ def download_aria2c_magnet(dto, content, dir):
 
     dl += ' {} {} "{}"'.format(ioutils.getAria2cDefaults(dto), ioutils.getBandwith(dto, 'aria2c'), content)
 
-    return download(dto, dl, 'aria2c-magnet', content, [content, ioutils.getTitleFormated(''), dir])
+    return download(dto, dl, 'aria2-magnet', content, [content, ioutils.getTitleFormated(''), dir])
 
 
 def download(dto, command, platform, content, infos):
@@ -174,7 +174,7 @@ def download(dto, command, platform, content, infos):
             server_history.addHistory(dto, infos[0], infos[1], platform, "Started",  infos[2])
 
         if not dto.getDownloadLegacy():
-            if 'aria2c' in platform:
+            if 'aria2' in platform:
                 command += ' --console-log-level=info'
 
             if 'wget' in platform:

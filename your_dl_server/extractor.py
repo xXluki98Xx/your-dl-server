@@ -55,7 +55,7 @@ def ydl_extractor(dto, content):
             directory = ''
 
         dto.publishLoggerInfo('current Download: ' + url)
-        return downloader.download_aria2c_magnet(dto, url, directory)
+        return downloader.download_aria2_magnet(dto, url, directory)
 
     try:
         (url, title, stringReferer, directory) = content.split(';')

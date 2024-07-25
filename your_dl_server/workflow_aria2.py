@@ -7,16 +7,16 @@ import your_dl_server.downloader as downloader
 import your_dl_server.ioutils as ioutils
 
 
-def aria2c(dto, url):
+def aria2(dto, url):
     repeat = True
 
     while repeat:
         if url != '':
             for item in url:
                 if os.path.isfile(item):
-                    aria2c_list(dto, item)
+                    aria2_list(dto, item)
                 else:
-                    downloader.download_aria2c(dto, item)
+                    downloader.download_aria2(dto, item)
 
             url = ''
             ioutils.elapsedTime(dto)
@@ -25,7 +25,7 @@ def aria2c(dto, url):
             try:
                 url = input('\nPlease enter the Url:\n')
                 dto.setTimeStart(datetime.now())
-                downloader.download_aria2c(dto, url)
+                downloader.download_aria2(dto, url)
 
             except KeyboardInterrupt:
                 pass
@@ -47,7 +47,7 @@ def aria2c(dto, url):
 
 
 # ----- # ----- #
-def aria2c_list(dto, itemList):
+def aria2_list(dto, itemList):
     urlList = ioutils.openfile(dto, itemList)
     urlCopy = urlList.copy()
 
@@ -56,7 +56,7 @@ def aria2c_list(dto, itemList):
 
     for item in urlList:
 
-        dto.publishLoggerDebug('aria2c list: ' + str(urlList))
+        dto.publishLoggerDebug('aria2 list: ' + str(urlList))
 
         try:
             if item.startswith('#') or item == '':
@@ -66,27 +66,27 @@ def aria2c_list(dto, itemList):
             dto.publishLoggerDebug('downloading: ' + str(item))
 
             if dto.getSync():
-                downloader.download_aria2c(dto, str(item))
+                downloader.download_aria2(dto, str(item))
                 dto.publishLoggerInfo('finished: ' + str(item))
             else:
-                if downloader.download_aria2c(dto, str(item)) == 0:
+                if downloader.download_aria2(dto, str(item)) == 0:
                     urlCopy.remove(item)
                     dto.publishLoggerDebug('removed: ' + str(item) + ' | rest list ' + str(urlCopy))
 
         except KeyboardInterrupt:
             if not dto.getSync():
-                ioutils.savefile(dto, itemList, urlCopy, 'aria2c_list')
+                ioutils.savefile(dto, itemList, urlCopy, 'aria2_list')
 
             dto.publishLoggerWarn('Interupt by User')
             ioutils.elapsedTime(dto)
             os._exit(1)
 
         except:
-            dto.publishLoggerError('aria2c - error at list: ' + str(sys.exc_info()))
+            dto.publishLoggerError('aria2 - error at list: ' + str(sys.exc_info()))
 
         finally:
             # will always be executed last, with or without exception
             if not dto.getSync():
-                ioutils.savefile(dto, itemList, urlCopy, 'aria2c_list')
+                ioutils.savefile(dto, itemList, urlCopy, 'aria2_list')
 
     ioutils.elapsedTime(dto)

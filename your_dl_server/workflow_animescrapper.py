@@ -71,7 +71,7 @@ def download(dto, group, show_name, quality, start_ep, end_ep, req_file, dir, sl
                     try:
                         if start_ep <= float(row_title[ep_index]) <= end_ep and quality in row_title[quality_index]:
                             dto.publishLoggerInfo("Opening: " + content['title'])
-                            downloader.download_aria2c_magnet(dto, magnet, dir)
+                            downloader.download_aria2_magnet(dto, magnet, dir)
                             # os.system('dl.py -a -s -bw ' + bandwidth +  ' ydl "' + magnet + '"')
                             time.sleep(sleep_time)
                     except Exception as e:
