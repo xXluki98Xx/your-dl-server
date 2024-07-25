@@ -24,6 +24,7 @@ class dto():
         self.string_logging = ''
         self.string_logPath = ''
         self.string_offset = ''
+        self.string_proxy = ''
         
         self.int_retries = 3
         self.int_connections = 5
@@ -41,6 +42,7 @@ class dto():
         self.boolean_skip_checks = False
         self.boolean_server = False
         self.boolean_downloader_legacy = True
+        self.boolean_tor = False
 
         self.downloadList = []
 
@@ -122,6 +124,14 @@ class dto():
     def setOffset(self, swap):
         self.string_offset = swap
 
+    def getProxy(self):
+        if self.boolean_tor and self.string_proxy == '':
+            return 'socks5h://127.0.0.1:9050'
+            # return 'http://127.0.0.1:9080'
+        return self.string_proxy
+    def setProxy(self, swap):
+        self.string_proxy = swap
+
 
 # ----- # ----- # Int
     def getRetries(self):
@@ -201,6 +211,11 @@ class dto():
         return self.boolean_aria2c
     def setAria2c(self, swap):
         self.boolean_aria2c = swap
+
+    def getTor(self):
+        return self.boolean_tor
+    def setTor(self, swap):
+        self.boolean_tor = swap
 
 
 # ----- # ----- # Time

@@ -1,4 +1,4 @@
-FROM docker.io/python:slim AS build
+FROM docker.io/python:slim AS build-ydl
 
 COPY ./ /app
 
@@ -15,7 +15,6 @@ ARG WORKPATH=/app
 
 
 COPY ./*requirements $WORKPATH/
-COPY entrypoint.sh /
 
 RUN apt-get update && apt-get upgrade -y \
     && pip3 install --no-cache-dir -r $WORKPATH/pip.requirements --upgrade \
@@ -24,7 +23,7 @@ RUN apt-get update && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/* /var/tmp/*
 
 
-COPY --from=build /app/dist/* $WORKPATH/
+COPY --from=build-ydl /app/dist/* $WORKPATH/
 
 RUN cd $WORKPATH \
     && ls -la \
@@ -33,6 +32,18 @@ RUN cd $WORKPATH \
     && ls -la
 
 # -----
+
+COPY torrc /$WORKPATH/
+
+RUN apt-get update \
+    && apt-get install -y tor \
+    && sed "1s/^/SocksPort 0.0.0.0:9050\n/" /$WORKPATH/torrc > /etc/tor/torrc \
+    && rm /$WORKPATH/torrc \
+    && rm -rf /var/lib/apt/lists/* /var/tmp/*
+
+# -----
+
+COPY entrypoint.sh /
 
 WORKDIR $WORKPATH
 

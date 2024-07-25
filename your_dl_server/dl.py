@@ -12,9 +12,11 @@ import your_dl_server.ioutils as ioutils
 import your_dl_server.workflow_animescrapper as workflow_animescrapper
 import your_dl_server.workflow_aria2c as workflow_aria2c
 import your_dl_server.workflow_server as workflow_server
+import your_dl_server.workflow_tor as workflow_tor
 import your_dl_server.workflow_watcher as workflow_watcher
 import your_dl_server.workflow_wget as workflow_wget
 import your_dl_server.workflow_ydl as workflow_ydl
+
 from your_dl_server.dto import dto
 
 
@@ -32,6 +34,7 @@ from your_dl_server.dto import dto
 @click.option('-sc', '--skip-checks', default=False, is_flag=True, help='skip checks')
 @click.option('-sy', '--sync', default=False, is_flag=True, help='')
 @click.option('-ul', '--use-legacy', default=True, is_flag=True, help='')
+@click.option('-t', '--tor', default=False, is_flag=True, help='Do you want a Tor Proxy?')
 
 # int
 @click.option('-bw','--bandwidth', default='0B', help='Enter an Bandwidthlimit like 1.5M')
@@ -45,8 +48,9 @@ from your_dl_server.dto import dto
 @click.option('-d', '--debug', default='', help='Using Logging mode')
 @click.option('-dl','--dub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
+@click.option('-p','--proxy', default='', help='Enter a proxy server')
 
-def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, aria2c, connections):
+def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, aria2c, connections, tor, proxy):
 
     global dto
     dto = dto()
@@ -62,6 +66,8 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setSingle(single)
     dto.setSkipChecks(skip_checks)
     dto.setSync(sync)
+    dto.setTor(tor)
+    dto.setProxy(proxy)
 
     dto.setBandwidth(bandwidth)
 
@@ -76,6 +82,14 @@ def main(retries, min_sleep, max_sleep, bandwidth, axel, cookie_file, sub_lang, 
     dto.setData(ioutils.loadConfig(dto.getPathToRoot()))
 
     parameters = '--retries {retries} --min-sleep-interval {min_sleep} --max-sleep-interval {max_sleep} --continue'.format(retries = retries, min_sleep = min_sleep, max_sleep = max_sleep)
+
+
+    if dto.getTor():
+        workflow_tor.startTor()
+        workflow_tor.checkSessionChange()
+
+        parameters += ' --proxy ' + dto.getProxy()
+
     dto.setParameters(parameters)
 
 
@@ -431,4 +445,3 @@ def filewalker(filenames, directory):
 # - - - - - # - - - - - # main
 if __name__ == '__main__':
     main()
-    pass

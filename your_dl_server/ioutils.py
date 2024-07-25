@@ -155,6 +155,9 @@ def getMainParametersFromDto(dto):
     if dto.getSubLang() != '':
         parameters += ' --sub-lang ' + dto.getSubLang()
 
+    if dto.getProxy() != '':
+        parameters += ' --proxy ' + dto.getProxy()
+
     return parameters
 
 

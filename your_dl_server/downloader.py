@@ -8,6 +8,7 @@ import time
 import your_dl_server.functions as functions
 import your_dl_server.ioutils as ioutils
 import your_dl_server.server_history as server_history
+import your_dl_server.workflow_tor as workflow_tor
 
 from your_dl_server.nbstreamreader import NonBlockingStreamReader as NBSR, UnexpectedEndOfStream
 
@@ -184,6 +185,11 @@ def download(dto, command, platform, content, infos):
 
         i = 0
         returned_value = ''
+
+
+        if dto.getTor():
+            workflow_tor.renewConnection()
+
 
         while i < dto.getRetries():
             if dto.getServer():
