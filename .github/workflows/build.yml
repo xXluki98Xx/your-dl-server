@@ -18,8 +18,6 @@ on:
 
 
 env:
-  CONTAINER_NAME: "saas-workspace"
-
   CONTAINER_REGISTRY: "ghcr.io"
   CONTAINER_USER: "${{ github.repository_owner }}"
   CONTAINER_REGISTRY_PASSWORD: "${{ github.token }}"
@@ -111,7 +109,7 @@ jobs:
       - name: Kaniko build
         uses: aevea/action-kaniko@master
         with:
-          image: "${{ env.CONTAINER_NAME }}"
+          image: "${{ env.CONTAINER_REGISTRY }}/${{ github.repository }}"
           registry: "${{ env.CONTAINER_REGISTRY }}"
           username: "${{ env.CONTAINER_REGISTRY_USER }}"
           password: "${{ env.CONTAINER_REGISTRY_PASSWORD }}"
@@ -137,7 +135,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_REGISTRY_USER }}/${{ env.CONTAINER_NAME }}:${{ needs.setup-images.outputs.imageTagCi }}'
+          image-ref: '${{ env.CONTAINER_REGISTRY }}/${{ github.repository }}:${{ needs.setup-images.outputs.imageTagCi }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -174,4 +172,4 @@ jobs:
 
         - name: Retag with Crane
           run: |
-            crane tag "${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}:${VERSION_SRC}" "${VERSION_DST}"
+            crane tag "${{ env.CONTAINER_REGISTRY }}/${{ github.repository }}:${VERSION_SRC}" "${VERSION_DST}"
