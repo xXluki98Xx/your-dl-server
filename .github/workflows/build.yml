@@ -156,6 +156,11 @@ jobs:
     container:
       image: gcr.io/go-containerregistry/crane@sha256:ed2b7360da68a3638058b6d126afc217b05740e9c333e7b3a79adefd865d2426
 
+    needs:
+      - check-if-needed
+      - setup-images
+      - scan
+
     if: |
       always() &&
       needs.scan.result == 'success' &&
