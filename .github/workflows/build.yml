@@ -144,9 +144,6 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
           scanners: "vuln"
-        env:
-          TRIVY_USERNAME: "${{ env.CONTAINER_REGISTRY_USER }}"
-          TRIVY_PASSWORD: "${{ env.CONTAINER_REGISTRY_PASSWORD }}"
 
 
   publish:
