@@ -2,15 +2,6 @@ name: Build and Publish
 
 
 on:
-  pull_request:
-    branches:
-        - main
-        - develop
-    types:
-        - opened
-        - edited
-        - synchronize
-
   push:
     branches:
         - main
@@ -136,6 +127,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/xxluki98xx/your-dl-server:${{ needs.setup-images.outputs.imageTagCi }}'
+          # image-ref: '${{ env.CONTAINER_REGISTRY }}/${{ github.repository }}:${{ needs.setup-images.outputs.imageTagCi }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
