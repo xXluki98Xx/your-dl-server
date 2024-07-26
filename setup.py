@@ -8,7 +8,7 @@ setup(
         'requests==2.25.1',
         'click>=8.1.3',
         'beautifulsoup4==4.12.2',
-        'safer==4.8.0',
+        'safer==4.12.3',
         'bottle==0.12.25',
         'yt-dlp==2024.7.25',
         'ffmpeg-python==0.2.0',
