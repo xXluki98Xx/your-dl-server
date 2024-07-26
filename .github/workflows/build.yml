@@ -162,7 +162,7 @@ jobs:
       needs.check-if-needed.outputs.isReleasable == 'true'
 
     env:
-        CONTAINER_IMAGE: "${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}"
+        CONTAINER_IMAGE: "${{ CONTAINER_REGISTRY }}/${{ CONTAINER_NAME }}"
         VERSION_SRC: "${{ needs.setup-images.outputs.imageTagCi }}"
         VERSION_DST: "${{ needs.setup-images.outputs.imageTag }}"
 
