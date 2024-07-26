@@ -162,7 +162,6 @@ jobs:
       needs.check-if-needed.outputs.isReleasable == 'true'
 
     env:
-        CONTAINER_IMAGE: "${{ CONTAINER_REGISTRY }}/${{ CONTAINER_NAME }}"
         VERSION_SRC: "${{ needs.setup-images.outputs.imageTagCi }}"
         VERSION_DST: "${{ needs.setup-images.outputs.imageTag }}"
 
@@ -173,4 +172,4 @@ jobs:
 
         - name: Retag with Crane
           run: |
-            crane tag "${CONTAINER_IMAGE}:${VERSION_SRC}" "${VERSION_DST}"
+            crane tag "${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}:${VERSION_SRC}" "${VERSION_DST}"
