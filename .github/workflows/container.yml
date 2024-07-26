@@ -110,7 +110,6 @@ jobs:
       - name: Kaniko build
         uses: aevea/action-kaniko@master
         with:
-          image: "${{ env.CONTAINER_REGISTRY }}"
           registry: "${{ env.CONTAINER_REGISTRY }}"
           username: "${{ env.CONTAINER_REGISTRY_USER }}"
           password: "${{ env.CONTAINER_REGISTRY_PASSWORD }}"
