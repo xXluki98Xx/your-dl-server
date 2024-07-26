@@ -121,7 +121,7 @@ jobs:
 
   publish:
 
-    runs-on: docker
+    runs-on: ubuntu-latest
     
     needs:
       - check-if-needed
