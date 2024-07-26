@@ -31,7 +31,7 @@ from your_dl_server.dto import dto
 @click.option('-s', '--single', default=False, is_flag=True, help='close after finish')
 @click.option('-sc', '--skip-checks', default=False, is_flag=True, help='skip checks')
 @click.option('-sy', '--sync', default=False, is_flag=True, help='')
-@click.option('-ul', '--use-legacy', default=True, is_flag=True, help='')
+@click.option('-ul', '--use-legacy', default=False, is_flag=True, help='')
 @click.option('-t', '--tor', default=False, is_flag=True, help='Do you want a Tor Proxy?')
 
 # int

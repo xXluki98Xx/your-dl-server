@@ -10,7 +10,7 @@ import your_dl_server.ioutils as ioutils
 import your_dl_server.server_history as server_history
 import your_dl_server.workflow_tor as workflow_tor
 
-from your_dl_server.nbstreamreader import NonBlockingStreamReader as NBSR, UnexpectedEndOfStream
+from your_dl_server.shellmanager import ShellManager
 
 
 # ----- # ----- #
@@ -167,6 +167,8 @@ def download_aria2_magnet(dto, content, dir):
 
 
 def download(dto, command, platform, content, infos):
+    shell = None
+
     try:
         dto.publishLoggerDebug(platform + ' command is: ' + command)
 
@@ -183,7 +185,7 @@ def download(dto, command, platform, content, infos):
             if 'ydl' in platform:
                 command += ' --newline'
 
-        i = 0
+        retry_count = 0
         returned_value = ''
 
 
@@ -191,43 +193,56 @@ def download(dto, command, platform, content, infos):
             workflow_tor.renewConnection()
 
 
-        while i < dto.getRetries():
+        while retry_count < dto.getRetries():
             if dto.getServer():
                 server_history.addHistory(dto, infos[0], infos[1], platform, "Running",  infos[2])
 
 
             if dto.getDownloadLegacy():
+                dto.publishLoggerInfo("You are using the Legacy downloader")
                 returned_value = os.system('echo \'' + command + '\' >&1 | bash')
             else:
-                p = subprocess.Popen(['bash'], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, bufsize=1, universal_newlines=True)
-                nbsr_out = NBSR(p.stdout)
+                # run command in a "sub"-Shell, so we can monitor the output/exit
+                shell = ShellManager()
+                shell.send_command(command)
 
-                p.stdin.write(command + '\n')
-
-                while True:
-                    output = nbsr_out.readline(30) # 0.1 secs to let the shell output the result
-
-                    if not output:
-                        dto.publishLoggerWarn('[No more data]')
-                        p.stdin.write('echo $? 2>&1\n')
-                        returned_value = nbsr_out.readline(3)
-
-
-                        p.kill()
-                        nbsr_out.stop()
-                        break
-
-                    if output != '' and len(output) > 1:
-                        # dto.publishLoggerDebug(len(output))
-                        dto.publishLoggerDebug(output)
-
-
-            if returned_value is None or int(returned_value) > 0:
-                if returned_value == 2048:
-                    return returned_value
+                # Wait and print output until the command finishes, errors out, or needs to be restarted
+                result = shell.wait_for_command(timeout=30)
+                
+                # Ensure shell is stopped in all cases
+                shell.stop()
+                
+                if result == 'timeout':
+                    # No output for 30 seconds, increment retry counter and restart
+                    retry_count += 1
+                    shell.stop()
+                    dto.publishLoggerWarn(f"Retrying {retry_count}/{dto.getRetries()} due to timeout...")
+                elif result != 0:
+                    # Command finished with an error
+                    retry_count += 1
+                    shell.stop()
+                    dto.publishLoggerWarn(f"Retrying {retry_count}/{dto.getRetries()} due to error with exit code {result}...")
                 else:
-                    dto.publishLoggerDebug('Error Code: ' + str(returned_value))
-                    i += 1
+                    # Command completed successfully
+                    exit_code = result
+                    break
+
+            # Check the final status
+            if retry_count >= dto.getRetries():
+                dto.publishLoggerWarn("Command failed after maximum retries.")
+            else:
+                if result == 0:
+                    dto.publishLoggerInfo("Command executed successfully.")
+                else:
+                    dto.publishLoggerError(f"Command failed with exit code {result}.")
+
+
+            if result is None or int(result) > 0:
+                if result == 2048:
+                    return result
+                else:
+                    dto.publishLoggerError('Error Code: ' + str(result))
+                    retry_count += 1
 
                     if dto.getServer():
                         server_history.addHistory(dto, infos[0], infos[1], platform, "Pending",  infos[2])
@@ -236,26 +251,36 @@ def download(dto, command, platform, content, infos):
                     dto.publishLoggerInfo('sleep for ' + str(timer) + 's')
                     time.sleep(timer)
 
-                    if i == dto.getRetries():
+                    if retry_count == dto.getRetries():
                         if dto.getServer():
                             server_history.addHistory(dto, infos[0], infos[1], platform, "Failed",  infos[2])
 
                         dto.publishLoggerWarn('the Command was: %s' % command)
                         dto.publishLoggerError(platform + ' - error at downloading: ' + content)
 
-                        return returned_value
+                        return result
 
             else:
                 if dto.getServer():
                     server_history.addHistory(dto, infos[0], infos[1], platform, "Finished",  infos[2])
 
-                return returned_value
+                return result
 
 
     except KeyboardInterrupt:
-        dto.publishLoggerDebug('Interupt by User')
-        dto.publishLoggerError('Plattform: ' + platform + ' | Content: ' + content)
-        os._exit(1)
+        if shell:
+            shell.stop()  # Ensure the shell process is stopped
+        dto.publishLoggerDebug('Interrupted by User')
+        dto.publishLoggerError('Platform: ' + platform + ' | Content: ' + content)
+        sys.exit(1)
 
-    except:
-        dto.publishLoggerError(platform + ' - error at downloading: ' + str(sys.exc_info()))
+    except Exception as e:
+        if shell:
+            shell.stop()  # Ensure the shell process is stopped
+        dto.publishLoggerError(platform + ' - error at downloading: ' + str(e))
+        raise  # Re-raise the exception to ensure it propagates if needed
+
+    finally:
+        # Ensure the shell process is stopped if not already stopped
+        if shell:
+            shell.stop()
