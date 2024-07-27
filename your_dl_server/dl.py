@@ -40,6 +40,7 @@ from your_dl_server.dto import dto
 @click.option('--min-sleep', default=2, help='Enter an Number for min-Sleep between retries/ downloads')
 @click.option('-r', '--retries', default=3, help='Enter an Number for Retries')
 @click.option('--connections', default=5, help='Enter an Number for Concurrent Connections')
+@click.option('--timeout', default=30, help='Specify Timeout in seconds')
 
 # string
 @click.option('-ed', '--external-downloader', default='', help='Using Accelerator: axel, aria2, ...')
@@ -71,6 +72,7 @@ def main(retries, min_sleep, max_sleep, bandwidth, cookie_file, sub_lang, dub_la
     dto.setRetries(retries)
     dto.setMinSleep(min_sleep)
     dto.setMaxSleep(max_sleep)
+    dto.setTimeout(timeout)
 
     dto.setCookieFile(cookie_file)
     dto.setDubLang(dub_lang)

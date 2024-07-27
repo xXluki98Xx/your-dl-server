@@ -32,6 +32,7 @@ class dto():
         self.int_min_sleep = 2
         self.int_max_sleep = 15
         self.int_connections = 5
+        self.int_timeout = 30
 
         self.boolean_playlist = False
         self.boolean_removefiles = False
@@ -160,6 +161,11 @@ class dto():
         return self.int_connections
     def setConnections(self, swap):
         self.int_connections = swap
+
+    def getTimeout(self):
+        return self.int_timeout
+    def setTimeout(self, swap):
+        self.int_timeout = swap
 
 
 # ----- # ----- # Boolean

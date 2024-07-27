@@ -204,7 +204,7 @@ def download(dto, command, platform, content, infos):
                 shell.send_command(command)
 
                 # Wait and print output until the command finishes, errors out, or needs to be restarted
-                result = shell.wait_for_command(timeout=30)
+                result = shell.wait_for_command(timeout=dto.getTimeout())
                 
                 # Ensure shell is stopped in all cases
                 shell.stop()
