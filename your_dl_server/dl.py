@@ -16,6 +16,7 @@ import your_dl_server.workflow_tor as workflow_tor
 import your_dl_server.workflow_watcher as workflow_watcher
 import your_dl_server.workflow_wget as workflow_wget
 import your_dl_server.workflow_ydl as workflow_ydl
+import your_dl_server.workflow_proxy as workflow_proxy
 
 from your_dl_server.dto import dto
 
@@ -50,7 +51,7 @@ from your_dl_server.dto import dto
 @click.option('-sl','--sub-lang', default='', help='Enter language Code (de / en)')
 @click.option('-p','--proxy', default='', help='Enter a proxy server')
 
-def main(retries, min_sleep, max_sleep, bandwidth, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, connections, tor, proxy, external_downloader):
+def main(retries, min_sleep, max_sleep, bandwidth, cookie_file, sub_lang, dub_lang, playlist, no_remove, debug, sync, verbose, single, credentials, skip_checks, use_legacy, connections, tor, proxy, external_downloader, timeout):
 
     global dto
     dto = dto()
@@ -436,6 +437,13 @@ def filewalker(filenames, directory):
             workflow_ydl.ydl_list(dto, filePath)
 
             os.chdir(origPath)
+
+
+# ----- # ----- #
+@main.command(help="Run a Http-to-Socks5 Proxy")
+
+def proxy():
+    workflow_proxy.start_server()
 
 
 # - - - - - # - - - - - # main

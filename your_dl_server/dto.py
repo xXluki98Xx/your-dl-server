@@ -128,9 +128,11 @@ class dto():
         self.string_offset = swap
 
     def getProxy(self):
-        if self.boolean_tor and self.string_proxy == '':
-            return 'socks5://127.0.0.1:9050'
-            # return 'http://127.0.0.1:9080'
+        # if self.boolean_tor and self.string_proxy == '':
+        #     # return 'socks5://127.0.0.1:9050'
+        #     return 'http://127.0.0.1:9070'
+        return self.string_proxy
+    def getProxyRaw(self):
         return self.string_proxy
     def setProxy(self, swap):
         self.string_proxy = swap

@@ -188,6 +188,7 @@ def download(dto, command, platform, content, infos):
 
         if dto.getTor():
             workflow_tor.renewConnection()
+            command = 'torsocks ' + command
 
 
         while retry_count < dto.getRetries():
