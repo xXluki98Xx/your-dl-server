@@ -2,6 +2,7 @@ import logging
 import sys
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
+import your_dl_server.ioutils as ioutils
 
 
 def singleton(cls):
@@ -28,6 +29,8 @@ class dto():
         self.string_external_downloader = ''
         
         self.int_retries = 3
+        self.int_min_sleep = 2
+        self.int_max_sleep = 15
         self.int_connections = 5
 
         self.boolean_playlist = False
@@ -73,7 +76,7 @@ class dto():
         self.string_dublang = swap
 
     def getParameters(self):
-        return self.string_parameters
+        return ioutils.getParametersFromDto(self) + self.string_parameters
     def setParameters(self, swap):
         self.string_parameters = swap
 
@@ -142,6 +145,16 @@ class dto():
         return self.int_retries
     def setRetries(self, swap):
         self.int_retries = swap
+
+    def getMinSleep(self):
+        return self.int_min_sleep
+    def setMinSleep(self, swap):
+        self.int_min_sleep = swap
+
+    def getMaxSleep(self):
+        return self.int_max_sleep
+    def setMaxSleep(self, swap):
+        self.int_max_sleep = swap
 
     def getConnections(self):
         return self.int_connections

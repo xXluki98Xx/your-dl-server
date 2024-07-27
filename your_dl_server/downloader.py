@@ -109,9 +109,6 @@ def download_ydl(dto, content, parameters, output, stringReferer, infos):
     if stringReferer != '':
         parameters += ' --referer "{reference}"'.format(reference = stringReferer)
 
-    if dto.getVerbose():
-        parameters += ' --verbose'
-
     dl = 'yt-dlp {parameter} {output} "{url}"'.format(parameter = parameters, output = output, url = content)
 
     dto.publishLoggerDebug('download ydl: ' + dl)

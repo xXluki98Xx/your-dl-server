@@ -27,7 +27,7 @@ from your_dl_server.dto import dto
 @click.option('-v', '--verbose', default=False, is_flag=True, help='Verbose mode')
 @click.option('-cr', '--credentials', default=False, is_flag=True, help='Need Credentials')
 @click.option('-nr', '--no-remove', default=False, is_flag=True, help='remove Files at wget')
-@click.option('-p', '--playlist', default=False, is_flag=True, help='Playlist')
+@click.option('--playlist', default=False, is_flag=True, help='Playlist')
 @click.option('-s', '--single', default=False, is_flag=True, help='close after finish')
 @click.option('-sc', '--skip-checks', default=False, is_flag=True, help='skip checks')
 @click.option('-sy', '--sync', default=False, is_flag=True, help='')
@@ -53,6 +53,7 @@ def main(retries, min_sleep, max_sleep, bandwidth, cookie_file, sub_lang, dub_la
 
     global dto
     dto = dto()
+
     dto.setLogger(debug)
     dto.setVerbose(verbose)
     dto.setDownloadLegacy(use_legacy)
@@ -67,11 +68,13 @@ def main(retries, min_sleep, max_sleep, bandwidth, cookie_file, sub_lang, dub_la
     dto.setProxy(proxy)
 
     dto.setBandwidth(bandwidth)
+    dto.setRetries(retries)
+    dto.setMinSleep(min_sleep)
+    dto.setMaxSleep(max_sleep)
 
     dto.setCookieFile(cookie_file)
     dto.setDubLang(dub_lang)
     dto.setSubLang(sub_lang)
-    dto.setRetries(retries)
     dto.setConnections(connections)
     dto.setExternalDownloader(external_downloader)
 
@@ -79,16 +82,9 @@ def main(retries, min_sleep, max_sleep, bandwidth, cookie_file, sub_lang, dub_la
 
     dto.setData(ioutils.loadConfig(dto.getPathToRoot()))
 
-    parameters = '--retries {retries} --min-sleep-interval {min_sleep} --max-sleep-interval {max_sleep} --continue'.format(retries = retries, min_sleep = min_sleep, max_sleep = max_sleep)
-
-
     if dto.getTor():
         workflow_tor.startTor()
         workflow_tor.checkSessionChange()
-
-        parameters += ' --proxy ' + dto.getProxy()
-
-    dto.setParameters(parameters)
 
 
 # - - - - - # - - - - - # rename command

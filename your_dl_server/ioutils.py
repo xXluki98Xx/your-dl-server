@@ -108,15 +108,13 @@ def loadConfig(pathToRoot):
     return data
 
 
+# Get Parmaters of your-dl-server for the watcher function
 def getMainParametersFromDto(dto):
     parameters = ''
 
     # switches
     if dto.getVerbose():
         parameters += ' --verbose'
-
-    if dto.getExternalDownloader() == 'axel':
-        parameters += ' --axel'
 
     if dto.getCredentials():
         parameters += ' --credentials'
@@ -157,6 +155,35 @@ def getMainParametersFromDto(dto):
 
     if dto.getProxy() != '':
         parameters += ' --proxy ' + dto.getProxy()
+
+    if dto.getExternalDownloader():
+        parameters += ' --external-downloader ' + dto.getExternalDownloader()
+
+
+    return parameters
+
+
+def getParametersFromDto(dto):
+    parameters = '--continue'
+
+    if dto.getVerbose():
+        parameters += ' --verbose'
+
+    if dto.getBandwidth() != "0B":
+        parameters += ' --limit-rate ' + dto.getBandwidth()
+
+    if dto.getProxy() != '':
+        print("proxy Param: " + dto.getProxy())
+        parameters += ' --proxy {proxy}'.format(proxy = dto.getProxy())
+
+    if dto.getRetries():
+        parameters += " --retries {retries}".format(retries = dto.getRetries())
+    
+    if dto.getMinSleep():
+        parameters += " --min-sleep-interval {min_sleep}".format(min_sleep = dto.getMinSleep())
+
+    if dto.getMaxSleep():
+        parameters += " --max-sleep-interval {max_sleep}".format(max_sleep = dto.getMaxSleep())
 
     return parameters
 
