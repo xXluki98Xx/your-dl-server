@@ -68,10 +68,18 @@ class ShellManager:
             with self.lock:
                 current_time = time.time()
                 if current_time - self.last_output_time > timeout:
+                    
+                    # if the downloader is doing some fixup, we dont want to restart
+                    if "[FixupM3u8]" in self.output:
+                        dto().publishLoggerWarn(f"No new output for {timeout} seconds. Fixup not complete...")
+                        continue
+
                     dto().publishLoggerWarn(f"No new output for {timeout} seconds. Restarting command...")
                     return 'timeout'
+
                 if self.command_exit_code is not None:
                     return self.command_exit_code
+
             time.sleep(1)
 
     def stop(self):
