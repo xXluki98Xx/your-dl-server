@@ -71,7 +71,6 @@ class ShellManager:
                     
                     # if the downloader is doing some fixup, we dont want to restart
                     if "[FixupM3u8]" in self.output:
-                        dto().publishLoggerWarn(f"No new output for {timeout} seconds. Fixup not complete...")
                         continue
 
                     dto().publishLoggerWarn(f"No new output for {timeout} seconds. Restarting command...")
