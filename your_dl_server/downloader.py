@@ -222,10 +222,7 @@ def download(dto, command, platform, content, infos):
                     retry_count += 1
                     shell.stop()
                     dto.publishLoggerWarn(f"Retrying {retry_count}/{dto.getRetries()} due to error with exit code {result}...")
-                else:
-                    # Command completed successfully
-                    exit_code = result
-                    break
+
 
             # Check the final status
             if retry_count >= dto.getRetries():
