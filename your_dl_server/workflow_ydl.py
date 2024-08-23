@@ -73,7 +73,6 @@ def ydl_list(dto, itemList):
                     dto.publishLoggerDebug('removed: ' + str(item) + ' | rest list ' + str(urlCopy))
 
         except KeyboardInterrupt:
-            dto.publishLoggerDebug('Interupt by User')
             if not dto.getSync():
                 ioutils.savefile(dto, itemList, urlCopy, 'ydl')
 

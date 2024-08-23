@@ -148,6 +148,9 @@ def host_default(dto, content, title, stringReferer, directory):
                 output = '--no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
                 return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, filename, directory])
 
+        except KeyboardInterrupt:
+            raise
+
         except:
             output = '--format best --no-playlist --output "{dir}/%(title)s.%(ext)s"'.format(dir = directory)
             return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])
@@ -182,7 +185,7 @@ def host_hahomoe(dto, content, title, stringReferer, directory):
     webpage = ''
 
     res = requests.get(url, allow_redirects=False)
-    url2 = re.findall('<iframe src="(https:\/\/haho\.moe\/embed\?v=.+)"', res.text)[0]
+    url2 = re.findall(r'<iframe src="(https:\/\/haho\.moe\/embed\?v=.+)"', res.text)[0]
 
     if title == '':
         title = re.findall('<title>(.+)</title>',res.text)[0]
@@ -222,7 +225,7 @@ def host_sxyprn(dto, content, title, stringReferer, directory):
 
     title = ioutils.getTitleFormated(title)
 
-    url = re.findall("<span style='display:none' class='vidsnfo' data-vnfo='{(.*):(.+)}'><\/span>", webpage)[0][1]
+    url = re.findall(r"<span style='display:none' class='vidsnfo' data-vnfo='{(.*):(.+)}'><\/span>", webpage)[0][1]
     url = url.replace('"', '').replace('\\', '').split('/')
     url[1] = 'cdn8'
 
@@ -278,7 +281,7 @@ def host_crunchyroll(dto, content, title, stringReferer, directory):
     if len(content.split('/')) >= 4:
         if content.endswith('/'):
             content = content[:-1]
-        pattern = "(https:\/\/www\.crunchyroll\.com\/)(.+)(\/)"
+        pattern = r"(https:\/\/www\.crunchyroll\.com\/)(.+)(\/)"
         content = re.sub(pattern, r"\1", content)
 
     output = getLanguage(dto, 'crunchyroll')
@@ -299,7 +302,7 @@ def host_crunchyroll_sync(dto, content, title, stringReferer, directory):
     if len(content.split('/')) >= 4:
         if content.endswith('/'):
             content = content[:-1]
-        pattern = "(https:\/\/www\.crunchyroll\.com\/)(.+)(\/)"
+        pattern = r"(https:\/\/www\.crunchyroll\.com\/)(.+)(\/)"
         content = re.sub(pattern, r"\1", content)
 
     # getting all subtitle theoretisch obsolet
