@@ -9,7 +9,7 @@ RUN cd /app \
 # -----
 
 FROM docker.io/python:slim
-MAINTAINER "lRamm <lukas.ramm.1998@gmail.com>"
+LABEL org.opencontainers.image.authors="lRamm <lramm.dev@gmail.com>"
 
 ARG WORKPATH=/app
 
@@ -33,7 +33,7 @@ RUN cd $WORKPATH \
 
 # -----
 
-COPY torrc /$WORKPATH/
+COPY torrc $WORKPATH/
 
 RUN apt-get update \
     && apt-get install -y tor \
