@@ -169,8 +169,6 @@ def download_aria2_magnet(dto, content, dir):
 def download(dto, command, platform, content, infos):
 
     dto.publishLoggerDebug('platform: ' + platform + ' | command is: ' + command)
-    print('command to downloader 1: ' + command)
-
 
     if dto.getServer():
         server_history.addHistory(dto, infos[0], infos[1], platform, "Started",  infos[2])
@@ -203,7 +201,6 @@ def download(dto, command, platform, content, infos):
             else:
                 # run command in a "sub"-Shell, so we can monitor the output/exit
                 shell = ShellManager()
-                print('command to shell: ' + command)
                 shell.send_command(command)
 
                 # Wait and print output until the command finishes, errors out, or needs to be restarted
