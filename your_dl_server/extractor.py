@@ -148,6 +148,9 @@ def host_default(dto, content, title, stringReferer, directory):
                 output = '--no-playlist --output "{dir}/{title}.%(ext)s"'.format(title = filename, dir = directory)
                 return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, filename, directory])
 
+        except KeyboardInterrupt:
+            raise
+
         except:
             output = '--format best --no-playlist --output "{dir}/%(title)s.%(ext)s"'.format(dir = directory)
             return downloader.download_ydl(dto, content, dto.getParameters(), output, stringReferer, [content, title, directory])

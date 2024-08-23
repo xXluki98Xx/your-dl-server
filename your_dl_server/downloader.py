@@ -167,32 +167,31 @@ def download_aria2_magnet(dto, content, dir):
 
 
 def download(dto, command, platform, content, infos):
+
+    dto.publishLoggerDebug('platform: ' + platform + ' | command is: ' + command)
+    print('command to downloader 1: ' + command)
+
+
+    if dto.getServer():
+        server_history.addHistory(dto, infos[0], infos[1], platform, "Started",  infos[2])
+
+    # if not dto.getDownloadLegacy():
+    #     if 'aria2' in platform:
+    #         command += ' --console-log-level=info'
+
+    #     if 'wget' in platform:
+    #         command += ' -q --show-progress 2>&1'
+
+    #     if 'ydl' in platform:
+    #         command += ' --newline'
+
+    retry_count = 0
     shell = None
 
+    if dto.getTor():
+        workflow_tor.renewConnection()
+
     try:
-        dto.publishLoggerDebug(platform + ' command is: ' + command)
-
-        if dto.getServer():
-            server_history.addHistory(dto, infos[0], infos[1], platform, "Started",  infos[2])
-
-        if not dto.getDownloadLegacy():
-            if 'aria2' in platform:
-                command += ' --console-log-level=info'
-
-            if 'wget' in platform:
-                command += ' -q --show-progress 2>&1'
-
-            if 'ydl' in platform:
-                command += ' --newline'
-
-        retry_count = 0
-        returned_value = ''
-
-
-        if dto.getTor():
-            workflow_tor.renewConnection()
-
-
         while retry_count < dto.getRetries():
             if dto.getServer():
                 server_history.addHistory(dto, infos[0], infos[1], platform, "Running",  infos[2])
@@ -200,10 +199,11 @@ def download(dto, command, platform, content, infos):
 
             if dto.getDownloadLegacy():
                 dto.publishLoggerInfo("You are using the Legacy downloader")
-                returned_value = os.system('echo \'' + command + '\' >&1 | bash')
+                result = os.system('echo \'' + command + '\' >&1 | bash')
             else:
                 # run command in a "sub"-Shell, so we can monitor the output/exit
                 shell = ShellManager()
+                print('command to shell: ' + command)
                 shell.send_command(command)
 
                 # Wait and print output until the command finishes, errors out, or needs to be restarted
@@ -269,7 +269,7 @@ def download(dto, command, platform, content, infos):
             shell.stop()  # Ensure the shell process is stopped
         dto.publishLoggerDebug('Interrupted by User')
         dto.publishLoggerError('Platform: ' + platform + ' | Content: ' + content)
-        sys.exit(1)
+        raise
 
     except Exception as e:
         if shell:
