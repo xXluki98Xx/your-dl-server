@@ -9,7 +9,7 @@ setup(
         'click>=8.1.3',
         'beautifulsoup4==4.12.3',
         'safer==4.12.3',
-        'bottle==0.12.25',
+        'bottle==0.13.1',
         'yt-dlp==2024.8.6',
         'ffmpeg-python==0.2.0',
         'stem==1.8.2'
