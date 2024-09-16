@@ -8,7 +8,7 @@ setup(
         'requests[socks]==2.32.3',
         'click>=8.1.3',
         'beautifulsoup4==4.12.3',
-        'safer==4.12.3',
+        'safer==5.0.0',
         'bottle==0.12.25',
         'yt-dlp==2024.8.6',
         'ffmpeg-python==0.2.0',
