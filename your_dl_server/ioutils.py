@@ -364,7 +364,7 @@ def formatingFilename(text):
 # ----- # ----- # time measurement
 def elapsedTime(dto):
     time_elapsed = datetime.now() - dto.getTimeStart()
-    dto.publishLoggerInfo('Time elapsed (hh:mm:ss.ms): {}'.format(time_elapsed))
+    print('Time elapsed (hh:mm:ss.ms): {}'.format(time_elapsed))
 
 
 # ----- # ----- # divide and conquer
