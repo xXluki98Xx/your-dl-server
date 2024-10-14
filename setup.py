@@ -16,7 +16,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'dl=your_dl_server.dl:main',
+            'dl=your_dl_server.__main__:main',
         ],
     },
 )

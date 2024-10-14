@@ -51,7 +51,8 @@ class dto():
 
         # Logging
         self.logger_formatter = logging.Formatter('%(asctime)s — %(levelname)s — %(message)s')
-        self.logger_file = 'dl.log'
+        self.log_file_name = "dl.log"
+        self.log_file_path = self.log_file_name
         self.logger = self.setInitLogger()
 
 
@@ -115,7 +116,7 @@ class dto():
         return self.string_logPath
     def setLogPath(self, swap):
         self.string_logPath = swap
-        self.logger_file = self.string_logPath + '/dl.log'
+        self.log_file_path = self.string_logPath + '/' + self.log_file_name
         self.get_logger()
 
     def getOffset(self):
@@ -240,7 +241,7 @@ class dto():
         return console_handler
 
     def get_file_handler(self):
-        file_handler = TimedRotatingFileHandler(self.logger_file, when='midnight')
+        file_handler = TimedRotatingFileHandler(self.log_file_path, when='midnight')
         file_handler.setFormatter(self.logger_formatter)
         return file_handler
 
