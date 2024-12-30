@@ -10,7 +10,7 @@ setup(
         'beautifulsoup4==4.12.3',
         'safer==5.0.0',
         'bottle==0.12.25',
-        'yt-dlp==2024.9.27',
+        'yt-dlp==2024.12.23',
         'ffmpeg-python==0.2.0',
         'stem==1.8.2'
     ],
