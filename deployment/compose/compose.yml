@@ -1,0 +1,9 @@
+services:
+  dl-server:
+    image: "ghcr.io/xXluki98Xx/your-dl-server:stable"
+    volumes:
+      - ./data/logs:/tmp/logs
+      - ./data/downloads:/tmp/ydl-downloads
+    ports:
+      - 8080:8080
+    restart: always
