@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "your_dl_server"
+version = "0.1.0"
+requires-python = ">= 3.10"
+readme = "README.md"
+
+dependencies = [
+    "click==8.1.7",
+    "yt-dlp==2025.1.15",
+    "safer==5.1.0",
+    "requests[socks]==2.32.3",
+    "bottle==0.13.2",
+    "ffmpeg-python==0.2.0",
+    "beautifulsoup4==4.12.3",
+    "stem==1.8.2",
+]
+
+
+[project.urls]
+Repository = "https://github.com/xXluki98Xx/your_dl_server.git"
+
+
+[project.scripts]
+dl = "your_dl_server.__main__:main"
+
+
+[project.optional-dependencies]
+test = [
+    "pytest == 8.3.4",
+    "pytest-cov == 6.0.0",
+]
+lint = [
+    "pylint == 3.3.3",
+]
+dev = [
+    "your_tool[test,lint]",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    # Exclude except clause:
+    "except KeyboardInterrupt as e:",
+    "except requests.exceptions.ConnectionError:",
+    "except requests.exceptions.MissingSchema:",
+    "except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:\\n\\s*assume\\(False\\)",
+    
+    "except ValueError:\\n\\s*assume\\(False\\)",
+
+    # 2. Comments to turn coverage on and off:
+    "no cover: start(?s:.)*?no cover: stop",
+
+    # 3. A pragma comment that excludes an entire file:
+    "\\A(?s:.*# pragma: exclude file.*)\\Z",
+]

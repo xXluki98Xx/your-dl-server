@@ -1,0 +1,17 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!/src
+!/pyproject.toml
+!/entrypoint.sh
+!/requirements.apt
+!/torrc
+
+# Ignore unnecessary files inside allowed directories
+# This should go after the allowed directories
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+**/__pycache__
